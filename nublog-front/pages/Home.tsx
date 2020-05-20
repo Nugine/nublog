@@ -1,7 +1,7 @@
 import React from "react";
 import Head from "next/head";
 
-export const Home: React.FC = () => {
+const Home: React.FC = () => {
     return (
         <div className="container">
             <Head>
@@ -208,3 +208,5 @@ export const Home: React.FC = () => {
         </div>
     );
 };
+
+export default Home;
