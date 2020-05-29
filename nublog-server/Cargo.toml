@@ -4,6 +4,12 @@ version = "0.1.0"
 authors = ["Nugine <nugine@foxmail.com>"]
 edition = "2018"
 
+[dependencies]
+tokio = { version = "0.2.21", features = ["full"] }
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
+[dependencies.nuclear]
+path = "/home/nugine/projects/nuclear"
+version = "0.0.8"
+
