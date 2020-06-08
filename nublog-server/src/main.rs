@@ -1,5 +1,5 @@
 mod scopes;
-mod types;
+mod prelude;
 
 fn main() {
     println!("hello");

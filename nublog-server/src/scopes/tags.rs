@@ -6,17 +6,22 @@ pub mod entity {
 }
 
 pub mod dto {
+    use crate::prelude::*;
+
+    #[derive(Debug, Serialize, Deserialize)]
     pub struct QueryTagRes {
         id: i32,
         name: String,
     }
 
+    #[derive(Debug, Serialize, Deserialize)]
     pub struct QueryAllTags {
         tags: Vec<QueryTagRes>,
     }
 
     use crate::scopes::articles::dto::QueryArticleRes;
 
+    #[derive(Debug, Serialize, Deserialize)]
     pub struct QueryTagArticles {
         articles: Vec<QueryArticleRes>,
     }

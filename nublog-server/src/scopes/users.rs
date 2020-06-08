@@ -16,7 +16,10 @@ pub mod entity {
 }
 
 pub mod dto {
+    use crate::prelude::*;
+
     // 查询单个用户
+    #[derive(Debug, Serialize, Deserialize)]
     pub struct QueryUserRes {
         id: i32,
         role: String,
@@ -27,6 +30,7 @@ pub mod dto {
     }
 
     // 查询所有用户
+    #[derive(Debug, Serialize, Deserialize)]
     pub struct QueryAllUsersRes {
         users: Vec<QueryUserRes>,
     }
@@ -34,6 +38,7 @@ pub mod dto {
     use crate::scopes::comments::dto::QueryCommentRes;
 
     // 查询用户所有评论
+    #[derive(Debug, Serialize, Deserialize)]
     pub struct QueryUserCommentsRes {
         comments: Vec<QueryCommentRes>,
     }
