@@ -1,8 +1,10 @@
 -- create table users
 
+CREATE TYPE user_role_t AS ENUM ('admin', 'reader');
+
 CREATE TABLE users(
     id SERIAL NOT NULL PRIMARY KEY,
-    role SMALLINT NOT NULL CONSTRAINT users_role_check CHECK (role BETWEEN 0 AND 1),
+    role user_role_t NOT NULL,
     name VARCHAR(256) NOT NULL,
     email VARCHAR(256) NOT NULL,
     avatar_url VARCHAR(512) NOT NULL,
@@ -20,8 +22,8 @@ CREATE TABLE articles(
     title VARCHAR(256) NOT NULL,
     author VARCHAR(256) NOT NULL,
     content TEXT NOT NULL,
-    create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    update_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    create_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE OR REPLACE FUNCTION set_update_at() RETURNS TRIGGER AS $articles$
@@ -62,7 +64,7 @@ CREATE TABLE comments(
     user_id INTEGER NOT NULL REFERENCES users(id),
     content TEXT NOT NULL,
     reply_to INTEGER REFERENCES comments(id),
-    create_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    create_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 --------------------------------

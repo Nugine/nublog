@@ -1,3 +1,5 @@
+DROP TYPE user_role_t;
+
 DROP TABLE users CASCADE;
 
 DROP TRIGGER articles_update_at ON articles;
