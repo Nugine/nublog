@@ -1,6 +1,7 @@
 pub mod entity {
     use crate::prelude::*;
 
+    #[derive(Debug, sqlx::FromRow)]
     pub struct Comment {
         pub id: i32,
         pub article_id: i32,
