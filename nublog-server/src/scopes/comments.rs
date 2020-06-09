@@ -2,12 +2,12 @@ pub mod entity {
     use crate::prelude::*;
 
     pub struct Comment {
-        id: i32,
-        article_id: i32,
-        user_id: i32,
-        content: String,
-        reply_to: Option<i32>,
-        create_at: DateTime,
+        pub id: i32,
+        pub article_id: i32,
+        pub user_id: i32,
+        pub content: String,
+        pub reply_to: Option<i32>,
+        pub create_at: DateTime,
     }
 }
 
