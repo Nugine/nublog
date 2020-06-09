@@ -1,10 +1,8 @@
 -- create table users
 
-CREATE TYPE user_role_t AS ENUM ('admin', 'reader');
-
 CREATE TABLE users(
     id SERIAL NOT NULL PRIMARY KEY,
-    role user_role_t NOT NULL,
+    role_code INTEGER NOT NULL CONSTRAINT users_role_code_check CHECK (role_code BETWEEN 0 AND 1),
     name VARCHAR(256) NOT NULL,
     email VARCHAR(256) NOT NULL,
     avatar_url VARCHAR(512) NOT NULL,
