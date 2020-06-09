@@ -50,17 +50,37 @@ pub mod dto {
 
     #[derive(Debug, Serialize, Deserialize)]
     pub struct CreateCommentRes {
-        id: i32,
+        pub id: i32,
     }
 
     #[derive(Debug, Serialize, Deserialize)]
     // 查询单个评论
     pub struct QueryCommentRes {
-        id: i32,
-        article_id: i32,
-        user_id: i32,
-        content: String,
-        reply_to: Option<i32>,
-        create_at: String,
+        pub id: i32,
+        pub article_id: i32,
+        pub user_id: i32,
+        pub content: String,
+        pub reply_to: Option<i32>,
+        pub create_at: String,
+    }
+}
+
+pub mod endpoint {
+    use crate::prelude::*;
+    use super::dto::*;
+    use super::entity::*;
+
+    pub async fn create_comment(mut req: Request) -> Result<Json<CreateCommentRes>> {
+        let dto = req.json::<CreateCommentReq>().await?;
+        let repo = req.try_inject_ref::<CommentRepo>()?;
+        let id = repo.insert_comment(dto).await?;
+        Ok(reply::json(CreateCommentRes { id }))
+    }
+
+    pub async fn delete_comment(req: Request) -> Result<Json<bool>> {
+        let id: i32 = req.expect_param("id").parse()?;
+        let repo = req.try_inject_ref::<CommentRepo>()?;
+        let ans = repo.delete_comment_by_id(id).await?;
+        Ok(reply::json(ans))
     }
 }

@@ -6,6 +6,9 @@ pub use serde::{Deserialize, Serialize};
 
 pub use crate::repo::Repo;
 
-pub use nuclear::core::Result;
-
 pub type Conn = sqlx::pool::PoolConnection<sqlx::PgConnection>;
+
+pub use nuclear::core::{InjectorExt, Request, Result};
+pub use nuclear::web::body::JsonExt;
+pub use nuclear::web::reply::{self, Json};
+pub use nuclear::web::router::SimpleRouterExt;

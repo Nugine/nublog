@@ -3,13 +3,13 @@ pub mod entity {
 
     #[derive(Debug, sqlx::FromRow)]
     pub struct Article {
-        id: i32,
-        article_key: String,
-        title: String,
-        author: String,
-        content: String,
-        create_at: DateTime,
-        update_at: DateTime,
+        pub id: i32,
+        pub article_key: String,
+        pub title: String,
+        pub author: String,
+        pub content: String,
+        pub create_at: DateTime,
+        pub update_at: DateTime,
     }
 
     pub type ArticleRepo = Repo<Article>;
@@ -37,7 +37,11 @@ pub mod entity {
             Ok(ans == 1)
         }
 
-        pub async fn update_article(&self, dto: super::dto::UpdateArticleReq) -> Result<bool> {
+        pub async fn update_article(
+            &self,
+            id: i32,
+            dto: super::dto::UpdateArticleReq,
+        ) -> Result<bool> {
             let mut conn = self.get_conn().await?;
             let query = sqlx::query!(
                 "UPDATE articles SET article_key = $1, title = $2, author = $3, content = $4 WHERE id = $5",
@@ -45,7 +49,7 @@ pub mod entity {
                 dto.title,
                 dto.author,
                 dto.content,
-                dto.id
+                id
             );
             let ans = query.execute(&mut conn).await?;
             Ok(ans == 1)
@@ -108,13 +112,12 @@ pub mod dto {
 
     #[derive(Debug, Serialize, Deserialize)]
     pub struct CreateArticleRes {
-        id: i32,
+        pub id: i32,
     }
 
     #[derive(Debug, Serialize, Deserialize)]
     // 更新文章
     pub struct UpdateArticleReq {
-        pub id: i32,
         pub article_key: String,
         pub title: String,
         pub author: String,
@@ -156,5 +159,78 @@ pub mod dto {
     // 查询文章所有评论
     pub struct QueryArticleCommentsRes {
         pub comments: Vec<QueryCommentRes>,
+    }
+}
+
+pub mod endpoint {
+    use super::dto::*;
+    use super::entity::*;
+    use crate::prelude::*;
+
+    pub async fn create_article(mut req: Request) -> Result<Json<CreateArticleRes>> {
+        let dto = req.json::<CreateArticleReq>().await?;
+        let repo = req.try_inject_ref::<ArticleRepo>()?;
+        let id = repo.insert_article(dto).await?;
+        Ok(reply::json(CreateArticleRes { id }))
+    }
+
+    pub async fn delete_article(req: Request) -> Result<Json<bool>> {
+        let id = req.expect_param("id").parse()?;
+        let repo = req.try_inject_ref::<ArticleRepo>()?;
+        let ans = repo.delete_article_by_id(id).await?;
+        Ok(reply::json(ans))
+    }
+
+    pub async fn update_article(mut req: Request) -> Result<Json<bool>> {
+        let id = req.expect_param("id").parse()?;
+        let dto = req.json::<UpdateArticleReq>().await?;
+        let repo = req.try_inject_ref::<ArticleRepo>()?;
+        let ans = repo.update_article(id, dto).await?;
+        Ok(reply::json(ans))
+    }
+
+    pub async fn query_article(req: Request) -> Result<Json<QueryArticleRes>> {
+        let id = req.expect_param("id").parse()?;
+        let repo = req.try_inject_ref::<ArticleRepo>()?;
+        let article = repo.select_article_by_id(id).await?;
+        let res = QueryArticleRes {
+            id: article.id,
+            article_key: article.article_key,
+            title: article.title,
+            author: article.author,
+            content: article.content,
+            create_at: article.create_at.to_rfc3339(),
+            update_at: article.update_at.to_rfc3339(),
+        };
+        Ok(reply::json(res))
+    }
+
+    pub async fn query_article_meta(req: Request) -> Result<Json<QueryArticleMetaRes>> {
+        let id = req.expect_param("id").parse()?;
+        let repo = req.try_inject_ref::<ArticleRepo>()?;
+        let ans = repo.select_article_meta_by_id(id).await?;
+        Ok(reply::json(ans))
+    }
+
+    use crate::scopes::comments::dto::QueryCommentRes;
+
+    pub async fn query_article_comments(req: Request) -> Result<Json<QueryArticleCommentsRes>> {
+        let id = req.expect_param("id").parse()?;
+        let repo = req.try_inject_ref::<ArticleRepo>()?;
+        let anss = repo.select_article_comments(id).await?;
+        let res = QueryArticleCommentsRes {
+            comments: anss
+                .into_iter()
+                .map(|ans| QueryCommentRes {
+                    id: ans.id,
+                    article_id: ans.article_id,
+                    user_id: ans.user_id,
+                    reply_to: ans.reply_to,
+                    content: ans.content,
+                    create_at: ans.create_at.to_rfc3339(),
+                })
+                .collect(),
+        };
+        Ok(reply::json(res))
     }
 }
