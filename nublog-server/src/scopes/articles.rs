@@ -1,5 +1,4 @@
 pub mod entity {
-    use crate::create;
     use crate::prelude::*;
 
     #[derive(Debug, sqlx::FromRow)]
@@ -54,39 +53,18 @@ pub mod entity {
 
         pub async fn select_article_by_id(&self, id: i32) -> Result<Article> {
             let mut conn: Conn = self.get_conn().await?;
-            let query = sqlx::query!("SELECT * FROM articles WHERE id = $1", id);
-            let ans = query.fetch_one(&mut conn).await?;
-
-            Ok(create!(Article from ans by
-                id,
-                article_key,
-                title,
-                author,
-                content,
-                create_at,
-                update_at
-            ))
+            let ans = sqlx::query_as!(Article, "SELECT * FROM articles WHERE id = $1", id)
+                .fetch_one(&mut conn)
+                .await?;
+            Ok(ans)
         }
 
         pub async fn select_all_articles(&self) -> Result<Vec<Article>> {
             let mut conn: Conn = self.get_conn().await?;
-            let query = sqlx::query!("SELECT * FROM articles");
-            let anss = query.fetch_all(&mut conn).await?;
-            let articles = anss
-                .into_iter()
-                .map(|ans| {
-                    create!(Article from ans by
-                        id,
-                        article_key,
-                        title,
-                        author,
-                        content,
-                        create_at,
-                        update_at
-                    )
-                })
-                .collect();
-            Ok(articles)
+            let anss = sqlx::query_as!(Article, "SELECT * FROM articles")
+                .fetch_all(&mut conn)
+                .await?;
+            Ok(anss)
         }
 
         pub async fn select_article_meta_by_id(
@@ -108,22 +86,10 @@ pub mod entity {
 
         pub async fn select_article_comments(&self, id: i32) -> Result<Vec<Comment>> {
             let mut conn: Conn = self.get_conn().await?;
-            let query = sqlx::query!("SELECT * FROM comments WHERE article_id = $1", id);
-            let anss = query.fetch_all(&mut conn).await?;
-            let comments = anss
-                .into_iter()
-                .map(|ans| {
-                    create!(Comment from ans by
-                        id,
-                        article_id,
-                        user_id,
-                        content,
-                        reply_to,
-                        create_at
-                    )
-                })
-                .collect();
-            Ok(comments)
+            let anss = sqlx::query_as!(Comment, "SELECT * FROM comments WHERE article_id = $1", id)
+                .fetch_all(&mut conn)
+                .await?;
+            Ok(anss)
         }
     }
 }

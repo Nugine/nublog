@@ -1,5 +1,4 @@
 pub mod entity {
-    use crate::create;
     use crate::prelude::*;
     use crate::scopes::comments::entity::Comment;
 

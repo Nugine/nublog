@@ -1,7 +1,7 @@
 pub mod entity {
-    use crate::create;
     use crate::prelude::*;
 
+    #[derive(Debug, sqlx::FromRow)]
     pub struct Tag {
         id: i32,
         name: String,
@@ -12,13 +12,10 @@ pub mod entity {
     impl TagRepo {
         pub async fn select_all_tags(&self) -> Result<Vec<Tag>> {
             let mut conn: Conn = self.get_conn().await?;
-            let query = sqlx::query!("SELECT * FROM tags");
-            let anss = query.fetch_all(&mut conn).await?;
-            let tags = anss
-                .into_iter()
-                .map(|ans| create!(Tag from ans by id, name))
-                .collect();
-            Ok(tags)
+            let anss = sqlx::query_as!(Tag, "SELECT * FROM tags")
+                .fetch_all(&mut conn)
+                .await?;
+            Ok(anss)
         }
 
         pub async fn select_tag_articles(&self, id: i32) -> Result<Vec<i32>> {
