@@ -4,9 +4,7 @@ pub type DateTime = chrono::DateTime<chrono::Utc>;
 
 pub use serde::{Deserialize, Serialize};
 
-pub use crate::repo::Repo;
-
-pub type Conn = sqlx::pool::PoolConnection<sqlx::PgConnection>;
+pub use crate::conn::{Conn, PgConnExt};
 
 pub use nuclear::core::{InjectorExt, Request, Result};
 pub use nuclear::web::body::JsonExt;

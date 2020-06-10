@@ -10,30 +10,6 @@ pub mod entity {
         pub reply_to: Option<i32>,
         pub create_at: DateTime,
     }
-
-    pub type CommentRepo = Repo<Comment>;
-
-    impl CommentRepo {
-        pub async fn insert_comment(&self, dto: super::dto::CreateCommentReq) -> Result<i32> {
-            let mut conn: Conn = self.get_conn().await?;
-            let query = sqlx::query!(
-                "INSERT INTO comments(article_id, user_id, content, reply_to) VALUES($1, $2, $3,$4) RETURNING id",
-                dto.article_id,
-                dto.user_id,
-                dto.content,
-                dto.reply_to
-            );
-            let ans = query.fetch_one(&mut conn).await?;
-            Ok(ans.id)
-        }
-
-        pub async fn delete_comment_by_id(&self, id: i32) -> Result<bool> {
-            let mut conn: Conn = self.get_conn().await?;
-            let query = sqlx::query!("DELETE FROM comments WHERE id = $1", id);
-            let ans = query.execute(&mut conn).await?;
-            Ok(ans == 1)
-        }
-    }
 }
 
 pub mod dto {
@@ -54,6 +30,11 @@ pub mod dto {
     }
 
     #[derive(Debug, Serialize, Deserialize)]
+    pub struct DeleteCommentRes {
+        pub is_deleted: bool,
+    }
+
+    #[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
     // 查询单个评论
     pub struct QueryCommentRes {
         pub id: i32,
@@ -61,26 +42,43 @@ pub mod dto {
         pub user_id: i32,
         pub content: String,
         pub reply_to: Option<i32>,
-        pub create_at: String,
+        pub create_at: DateTime,
     }
 }
 
 pub mod endpoint {
-    use crate::prelude::*;
     use super::dto::*;
-    use super::entity::*;
+    use crate::prelude::*;
 
     pub async fn create_comment(mut req: Request) -> Result<Json<CreateCommentRes>> {
-        let dto = req.json::<CreateCommentReq>().await?;
-        let repo = req.try_inject_ref::<CommentRepo>()?;
-        let id = repo.insert_comment(dto).await?;
+        let dto: CreateCommentReq = req.json().await?;
+
+        let mut conn: Conn = req.get_conn().await?;
+        let id = {
+            let query = sqlx::query!(
+                "INSERT INTO comments(article_id, user_id, content, reply_to) VALUES($1, $2, $3,$4) RETURNING id",
+                dto.article_id,
+                dto.user_id,
+                dto.content,
+                dto.reply_to
+            );
+            let ans = query.fetch_one(&mut conn).await?;
+            ans.id
+        };
+
         Ok(reply::json(CreateCommentRes { id }))
     }
 
-    pub async fn delete_comment(req: Request) -> Result<Json<bool>> {
+    pub async fn delete_comment(req: Request) -> Result<Json<DeleteCommentRes>> {
         let id: i32 = req.expect_param("id").parse()?;
-        let repo = req.try_inject_ref::<CommentRepo>()?;
-        let ans = repo.delete_comment_by_id(id).await?;
-        Ok(reply::json(ans))
+
+        let mut conn: Conn = req.get_conn().await?;
+        let is_deleted = {
+            let query = sqlx::query!("DELETE FROM comments WHERE id = $1", id);
+            let ans = query.execute(&mut conn).await?;
+            ans == 1
+        };
+
+        Ok(reply::json(DeleteCommentRes { is_deleted }))
     }
 }

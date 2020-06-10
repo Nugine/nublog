@@ -1,6 +1,6 @@
-mod scopes;
+mod conn;
 mod prelude;
-mod repo;
+mod scopes;
 
 fn main() {
     println!("hello");
