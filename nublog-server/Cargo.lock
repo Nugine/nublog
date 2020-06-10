@@ -948,6 +948,7 @@ dependencies = [
  "nuclear",
  "serde",
  "sqlx",
+ "thiserror",
  "tokio",
 ]
 
