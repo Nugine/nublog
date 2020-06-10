@@ -1,6 +1,7 @@
 mod conn;
 mod prelude;
 mod scopes;
+mod session;
 
 fn main() {
     println!("hello");
