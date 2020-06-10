@@ -97,7 +97,7 @@ pub mod endpoint {
         let mut conn: Conn = req.get_conn().await?;
         let res = {
             sqlx::query_as!(
-                QueryUserRes, 
+                QueryUserRes,
                 "SELECT id, role_code, name, email, avatar_url, profile_url FROM users WHERE id = $1",
                  id
                 )
@@ -125,5 +125,38 @@ pub mod endpoint {
         };
 
         Ok(reply::json(QueryUserCommentsRes { comments: anss }))
+    }
+}
+
+pub mod middleware {
+    use crate::prelude::*;
+
+    pub struct EnsureRoles {
+        role_codes: Vec<i32>,
+    }
+
+    #[derive(Debug, thiserror::Error)]
+    #[error("RoleError")]
+    pub struct RoleError;
+
+    #[async_trait]
+    impl Middleware for EnsureRoles {
+        async fn call(&self, req: Request, next: Next<'_>) -> Result<Response> {
+            let sess = req.try_get_session_ref()?;
+
+            let is_allowed = self.role_codes.iter().any(|&r| r == sess.role_code);
+
+            if is_allowed {
+                next.call(req).await
+            } else {
+                Err(RoleError.into())
+            }
+        }
+    }
+
+    pub fn ensure_roles(roles: impl IntoIterator<Item = i32>) -> EnsureRoles {
+        EnsureRoles {
+            role_codes: roles.into_iter().collect(),
+        }
     }
 }
