@@ -131,6 +131,19 @@ pub mod endpoint {
 
         Ok(reply::json(QueryUserCommentsRes { comments: anss }))
     }
+
+    pub async fn github_oauth_callback(req: Request) -> Result<Json<String>> {
+        #[derive(Deserialize)]
+        struct Query {
+            code: String,
+        }
+
+        let code = req.query::<Query>()?.code;
+
+        dbg!(&code);
+
+        Ok(reply::json(code))
+    }
 }
 
 pub mod ext {
@@ -162,6 +175,7 @@ use crate::prelude::*;
 pub fn register(router: &mut SimpleRouter) {
     use self::endpoint::*;
     router.at("/users").get(query_all_users);
+    router.at("/users/oauth/github").get(github_oauth_callback);
     router.at("/users/:id").get(query_user).delete(delete_user);
     router.at("/users/:id/comments").get(query_user_comments);
 }

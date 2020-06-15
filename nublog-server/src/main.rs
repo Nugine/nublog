@@ -23,13 +23,36 @@ pub mod middleware {
     }
 }
 
+pub mod config {
+    use crate::prelude::*;
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct Config {
+        pub addr: String,
+        pub database_url: String,
+        pub github_client_id: String,
+        pub github_client_secret: String,
+        pub root_url: String,
+    }
+
+    pub fn load_config(file_path: &str) -> Result<Config> {
+        let content = std::fs::read_to_string(file_path)?;
+        let config: Config = toml::from_str(&content)?;
+        Ok(config)
+    }
+}
+
+use self::config::Config;
 use crate::prelude::*;
 use nuclear::core::{App, AppBuilder};
 use sqlx::PgPool;
 
 async fn build_app(builder: AppBuilder) -> Result<App> {
-    let db_url = std::env::var("DATABASE_URL")?;
-    let pool: PgPool = PgPool::builder().max_size(5).build(&db_url).await?;
+    let config: &Config = builder.try_inject_ref()?;
+
+    let pool: PgPool = PgPool::builder()
+        .max_size(5)
+        .build(&config.database_url)
+        .await?;
 
     let mut router = SimpleRouter::new();
     crate::scopes::articles::register(&mut router);
@@ -63,9 +86,14 @@ async fn main() -> Result<()> {
     dotenv::dotenv().ok();
     env_logger::init();
 
-    let addr = std::env::var("NUBLOG_SERVER_ADDR")?;
+    let config = self::config::load_config("nublog.toml")?;
 
-    let app: App = App::resolver().try_build_app(build_app).await?;
+    let addr = config.addr.clone();
+
+    let app: App = App::resolver()
+        .provide(config)
+        .try_build_app(build_app)
+        .await?;
 
     app.run(addr).await
 }
