@@ -128,35 +128,26 @@ pub mod endpoint {
     }
 }
 
-pub mod middleware {
+pub mod ext {
     use crate::prelude::*;
 
-    pub struct EnsureRoles {
-        role_codes: Vec<i32>,
+    pub trait EnsureRolesExt {
+        fn ensure_roles(&self, roles: &[i32]) -> Result<()>;
     }
 
     #[derive(Debug, thiserror::Error)]
     #[error("RoleError")]
     pub struct RoleError;
 
-    #[async_trait]
-    impl Middleware for EnsureRoles {
-        async fn call(&self, req: Request, next: Next<'_>) -> Result<Response> {
-            let sess = req.try_get_session_ref()?;
-
-            let is_allowed = self.role_codes.iter().any(|&r| r == sess.role_code);
-
+    impl EnsureRolesExt for Request {
+        fn ensure_roles(&self, roles: &[i32]) -> Result<()> {
+            let sess = self.try_get_session_ref()?;
+            let is_allowed = roles.iter().any(|&r| r == sess.role_code);
             if is_allowed {
-                next.call(req).await
+                Ok(())
             } else {
                 Err(RoleError.into())
             }
-        }
-    }
-
-    pub fn ensure_roles(roles: impl IntoIterator<Item = i32>) -> EnsureRoles {
-        EnsureRoles {
-            role_codes: roles.into_iter().collect(),
         }
     }
 }
