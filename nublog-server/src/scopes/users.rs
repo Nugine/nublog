@@ -137,6 +137,19 @@ pub mod endpoint {
         Ok(reply::json(QueryUserCommentsRes { comments: anss }))
     }
 
+    use nuclear::web::reply::{redirect_temporary, Redirect};
+
+    pub async fn login(req: Request) -> Result<Redirect> {
+        let config: &Config = req.try_inject_ref()?;
+
+        let location = format!(
+            "{}?client_id={}&scope=read:user,user:email&redirect_uri={}/users/oauth/github",
+            "https://github.com/login/oauth/authorize", config.github_client_id, config.root_url
+        );
+
+        Ok(redirect_temporary(location)?)
+    }
+
     pub async fn github_oauth_callback(req: Request) -> Result<Json<LoginRes>> {
         #[derive(Deserialize)]
         struct Query {
@@ -145,7 +158,16 @@ pub mod endpoint {
 
         let code = req.query::<Query>()?.code;
 
-        let client = reqwest::Client::new();
+        let client: reqwest::Client = {
+            let mut headers = http::HeaderMap::new();
+            headers.insert(
+                http::header::USER_AGENT,
+                http::HeaderValue::from_static("rust/reqwest"),
+            );
+            reqwest::Client::builder()
+                .default_headers(headers)
+                .build()?
+        };
 
         let access_token: String = {
             let code = code.as_str();
@@ -157,13 +179,14 @@ pub mod endpoint {
                 )
             };
 
-            let res = client
+            let res: reqwest::Response = client
                 .post("https://github.com/login/oauth/access_token")
                 .query(&[
                     ("client_id", client_id),
                     ("client_secret", client_secret),
                     ("code", code),
                 ])
+                .header(http::header::ACCEPT, "application/json")
                 .send()
                 .await?;
 
@@ -188,7 +211,11 @@ pub mod endpoint {
 
             let res = client
                 .get("https://api.github.com/user")
-                .query(&[("access_token", access_token)])
+                .header(
+                    http::header::AUTHORIZATION,
+                    format!("token {}", access_token),
+                )
+                .header(http::header::ACCEPT, "application/json")
                 .send()
                 .await?;
 
@@ -286,6 +313,7 @@ use crate::prelude::*;
 pub fn register(router: &mut SimpleRouter) {
     use self::endpoint::*;
     router.at("/users").get(query_all_users);
+    router.at("/users/auth/login").get(login);
     router.at("/users/oauth/github").get(github_oauth_callback);
     router.at("/users/:id").get(query_user).delete(delete_user);
     router.at("/users/:id/comments").get(query_user_comments);
