@@ -3,7 +3,7 @@
 CREATE TABLE users(
     id SERIAL NOT NULL PRIMARY KEY,
     role_code INTEGER NOT NULL CONSTRAINT users_role_code_check CHECK (role_code BETWEEN 0 AND 1),
-    name VARCHAR(256) NOT NULL,
+    name VARCHAR(256) NOT NULL UNIQUE,
     email VARCHAR(256) NOT NULL,
     avatar_url VARCHAR(512) NOT NULL,
     profile_url VARCHAR(512) NOT NULL,
@@ -24,12 +24,12 @@ CREATE TABLE articles(
     update_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE OR REPLACE FUNCTION set_update_at() RETURNS TRIGGER AS $articles$
+CREATE OR REPLACE FUNCTION set_update_at() RETURNS TRIGGER AS $$
 BEGIN
     NEW.update_at = CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
-$articles$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER articles_update_at BEFORE UPDATE ON articles
 FOR EACH ROW
@@ -66,3 +66,12 @@ CREATE TABLE comments(
 );
 
 --------------------------------
+
+-- create table sessions
+
+CREATE TABLE sessions(
+    id UUID NOT NULL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    role_code INTEGER NOT NULL,
+    create_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

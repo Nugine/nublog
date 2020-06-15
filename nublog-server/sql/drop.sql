@@ -9,3 +9,5 @@ DROP TABLE tags CASCADE;
 DROP TABLE articles_tags_relation CASCADE;
 
 DROP TABLE comments CASCADE;
+
+DROP TABLE sessions CASCADE;
