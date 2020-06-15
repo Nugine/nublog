@@ -84,3 +84,12 @@ pub mod endpoint {
         Ok(reply::json(DeleteCommentRes { is_deleted }))
     }
 }
+
+use crate::prelude::*;
+
+pub fn register(router: &mut SimpleRouter) {
+    use self::endpoint::*;
+
+    router.at("/comments").post(create_comment);
+    router.at("/comments/:id").delete(delete_comment);
+}

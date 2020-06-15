@@ -64,3 +64,11 @@ pub mod endpoint {
         Ok(reply::json(QueryTagArticlesRes { articles: anss }))
     }
 }
+
+use crate::prelude::*;
+
+pub fn register(router: &mut SimpleRouter) {
+    use self::endpoint::*;
+    router.at("/tags").get(query_all_tags);
+    router.at("/tags/:id/articles").get(query_tag_articles);
+}

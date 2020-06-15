@@ -40,7 +40,7 @@ impl Middleware for SessionStore {
     async fn call(&self, mut req: Request, next: Next<'_>) -> Result<Response> {
         let token = req
             .headers_mut()
-            .get(http::header::HeaderName::from_static("X-SESSION-ID"));
+            .get(http::header::HeaderName::from_static("x-session-id"));
 
         if let Some(token) = token {
             let token = token.to_str()?;

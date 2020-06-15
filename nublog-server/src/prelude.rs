@@ -3,7 +3,7 @@ pub use crate::scopes::users::{
     entity::{ADMIN_ROLE_CODE, READER_ROLE_CODE},
     ext::EnsureRolesExt,
 };
-pub use crate::session::{Session, SessionExt};
+pub use crate::session::{session_store, MissingSessionError, Session, SessionExt};
 
 use sqlx::types::chrono;
 
@@ -16,6 +16,7 @@ pub use nuclear::core::{
 };
 pub use nuclear::http;
 pub use nuclear::web::body::JsonExt;
+pub use nuclear::web::error::{catch_any, catch_error};
 pub use nuclear::web::reply::{self, Json};
 pub use nuclear::web::router::{SimpleRouter, SimpleRouterExt};
 

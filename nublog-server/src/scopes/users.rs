@@ -11,6 +11,7 @@ pub mod entity {
     }
 
     pub const ADMIN_ROLE_CODE: i32 = 0;
+    #[allow(unused)]
     pub const READER_ROLE_CODE: i32 = 1;
 }
 
@@ -64,6 +65,8 @@ pub mod endpoint {
     use crate::prelude::*;
 
     pub async fn query_all_users(req: Request) -> Result<Json<QueryAllUsersRes>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE])?;
+
         let mut conn: Conn = req.get_conn().await?;
 
         let anss = {
@@ -152,4 +155,13 @@ pub mod ext {
             }
         }
     }
+}
+
+use crate::prelude::*;
+
+pub fn register(router: &mut SimpleRouter) {
+    use self::endpoint::*;
+    router.at("/users").get(query_all_users);
+    router.at("/users/:id").get(query_user).delete(delete_user);
+    router.at("/users/:id/comments").get(query_user_comments);
 }

@@ -217,3 +217,26 @@ pub mod endpoint {
         Ok(reply::json(QueryAllArticleMetaRes { articles: anss }))
     }
 }
+
+use crate::prelude::*;
+
+pub fn register(router: &mut SimpleRouter) {
+    use self::endpoint::*;
+
+    router
+        .at("/articles")
+        .post(create_article)
+        .get(query_all_articles_meta);
+
+    router
+        .at("/articles/:id")
+        .delete(delete_article)
+        .post(update_article)
+        .get(query_article);
+
+    router.at("/articles/:id/meta").get(query_article_meta);
+
+    router
+        .at("/articles/:id/comments")
+        .get(query_article_comments);
+}
