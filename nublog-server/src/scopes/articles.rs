@@ -97,6 +97,8 @@ pub mod endpoint {
     use crate::prelude::*;
 
     pub async fn create_article(mut req: Request) -> Result<Json<CreateArticleRes>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE])?;
+
         let dto: CreateArticleReq = req.json().await?;
 
         let mut conn: Conn = req.get_conn().await?;
@@ -116,6 +118,8 @@ pub mod endpoint {
     }
 
     pub async fn delete_article(req: Request) -> Result<Json<DeleteArticleRes>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE])?;
+
         let id: i32 = req.expect_param("id").parse()?;
 
         let mut conn: Conn = req.get_conn().await?;
@@ -129,6 +133,8 @@ pub mod endpoint {
     }
 
     pub async fn update_article(mut req: Request) -> Result<Json<UpdateArticleRes>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE])?;
+
         let id: i32 = req.expect_param("id").parse()?;
         let dto: UpdateArticleReq = req.json().await?;
 
@@ -198,7 +204,7 @@ pub mod endpoint {
         Ok(reply::json(QueryArticleCommentsRes { comments: anss }))
     }
 
-    pub async fn query_all_article_meta(req: Request) -> Result<Json<QueryAllArticleMetaRes>> {
+    pub async fn query_all_articles_meta(req: Request) -> Result<Json<QueryAllArticleMetaRes>> {
         let mut conn: Conn = req.get_conn().await?;
         let anss = {
             sqlx::query_as!(

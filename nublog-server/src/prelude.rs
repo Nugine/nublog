@@ -1,11 +1,15 @@
+pub use crate::conn::{Conn, PgConnExt};
+pub use crate::scopes::users::{
+    entity::{ADMIN_ROLE_CODE, READER_ROLE_CODE},
+    ext::EnsureRolesExt,
+};
+pub use crate::session::{Session, SessionExt};
+
 use sqlx::types::chrono;
 
 pub type DateTime = chrono::DateTime<chrono::Utc>;
 
 pub use serde::{Deserialize, Serialize};
-
-pub use crate::conn::{Conn, PgConnExt};
-pub use crate::session::{Session, SessionExt};
 
 pub use nuclear::core::{
     async_trait, InjectorExt, LocalExt, Middleware, Next, Request, Response, Result,
@@ -13,6 +17,6 @@ pub use nuclear::core::{
 pub use nuclear::http;
 pub use nuclear::web::body::JsonExt;
 pub use nuclear::web::reply::{self, Json};
-pub use nuclear::web::router::{SimpleRouterExt,SimpleRouter};
+pub use nuclear::web::router::{SimpleRouter, SimpleRouterExt};
 
 pub use uuid::Uuid;

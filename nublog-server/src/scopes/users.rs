@@ -79,6 +79,8 @@ pub mod endpoint {
     }
 
     pub async fn delete_user(req: Request) -> Result<Json<DeleteUserRes>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE])?;
+
         let id: i32 = req.expect_param("id").parse()?;
 
         let mut conn: Conn = req.get_conn().await?;
