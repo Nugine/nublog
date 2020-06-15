@@ -945,6 +945,7 @@ dependencies = [
  "chrono",
  "dotenv",
  "env_logger",
+ "log",
  "nuclear",
  "serde",
  "sqlx",
