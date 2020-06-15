@@ -57,6 +57,11 @@ pub mod dto {
         pub profile_url: String,
         pub github_token: Option<String>,
     }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct LoginRes {
+        pub session_id: Uuid,
+    }
 }
 
 pub mod endpoint {
@@ -132,7 +137,7 @@ pub mod endpoint {
         Ok(reply::json(QueryUserCommentsRes { comments: anss }))
     }
 
-    pub async fn github_oauth_callback(req: Request) -> Result<Json<String>> {
+    pub async fn github_oauth_callback(req: Request) -> Result<Json<LoginRes>> {
         #[derive(Deserialize)]
         struct Query {
             code: String,
@@ -140,9 +145,115 @@ pub mod endpoint {
 
         let code = req.query::<Query>()?.code;
 
-        dbg!(&code);
+        let client = reqwest::Client::new();
 
-        Ok(reply::json(code))
+        let access_token: String = {
+            let code = code.as_str();
+            let (client_id, client_secret) = {
+                let config: &Config = req.try_inject_ref()?;
+                (
+                    config.github_client_id.as_str(),
+                    config.github_client_secret.as_str(),
+                )
+            };
+
+            let res = client
+                .post("https://github.com/login/oauth/access_token")
+                .query(&[
+                    ("client_id", client_id),
+                    ("client_secret", client_secret),
+                    ("code", code),
+                ])
+                .send()
+                .await?;
+
+            #[derive(Deserialize)]
+            struct AccessToken {
+                access_token: String,
+            }
+
+            res.json::<AccessToken>().await?.access_token
+        };
+
+        #[derive(Deserialize)]
+        struct Profile {
+            login: String,
+            avatar_url: String,
+            email: String,
+            html_url: String,
+        }
+
+        let profile: Profile = {
+            let access_token = access_token.as_str();
+
+            let res = client
+                .get("https://api.github.com/user")
+                .query(&[("access_token", access_token)])
+                .send()
+                .await?;
+
+            res.json().await?
+        };
+
+        let sess_id: Uuid = {
+            let conn: Conn = req.get_conn().await?;
+            let mut tx = conn.begin().await?;
+
+            let optional_ans: Option<_> =
+                sqlx::query!("SELECT id FROM users WHERE name = $1", profile.login)
+                    .fetch_optional(&mut tx)
+                    .await?;
+
+            let (user_id, role_code): (i32, i32) = match optional_ans {
+                Some(ans) => {
+                    let user_id = ans.id;
+                    let ans = sqlx::query!(
+                        "UPDATE users SET email = $1, avatar_url = $2, profile_url = $3, github_token = $4 WHERE id = $5 RETURNING role_code",
+                        profile.email,
+                        profile.avatar_url,
+                        profile.html_url,
+                        access_token,
+                        user_id
+                    ).fetch_one(&mut tx).await?;
+
+                    (user_id, ans.role_code)
+                }
+                None => {
+                    let ans = sqlx::query!(r#"
+                        INSERT INTO users(role_code, name, email, avatar_url, profile_url, github_token) 
+                        VALUES($1, $2, $3, $4, $5, $6)
+                        RETURNING id, role_code
+                        "#,
+                        READER_ROLE_CODE,
+                        profile.login,
+                        profile.email,
+                        profile.avatar_url,
+                        profile.html_url,
+                        access_token
+                    ).fetch_one(&mut tx).await?;
+                    (ans.id, ans.role_code)
+                }
+            };
+
+            let sess_id = Uuid::new_v4();
+
+            sqlx::query!(
+                "INSERT INTO sessions(id, user_id, role_code) VALUES($1, $2, $3)",
+                sess_id,
+                user_id,
+                role_code
+            )
+            .execute(&mut tx)
+            .await?;
+
+            tx.commit().await?;
+
+            sess_id
+        };
+
+        Ok(reply::json(LoginRes {
+            session_id: sess_id,
+        }))
     }
 }
 

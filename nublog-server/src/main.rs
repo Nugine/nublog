@@ -50,7 +50,7 @@ async fn build_app(builder: AppBuilder) -> Result<App> {
     let config: &Config = builder.try_inject_ref()?;
 
     let pool: PgPool = PgPool::builder()
-        .max_size(5)
+        .max_size(32)
         .build(&config.database_url)
         .await?;
 
