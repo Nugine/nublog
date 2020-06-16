@@ -38,7 +38,7 @@ EXECUTE PROCEDURE set_update_at();
 CREATE VIEW article_meta_view AS
 SELECT 
     articles.id, article_key, title, author, create_at, update_at, 
-    json_agg(json_build_object('id', tags.id,'name',tags.name))
+    json_agg(json_build_object('id', tags.id,'name',tags.name)) AS tags
 FROM
     articles JOIN articles_tags_relation relation JOIN tags
     ON relation.tag_id = tags.id

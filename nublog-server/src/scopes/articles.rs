@@ -208,7 +208,7 @@ pub mod endpoint {
         Ok(reply::json(QueryArticleCommentsRes { comments: anss }))
     }
 
-    pub async fn query_all_articles_meta(req: Request) -> Result<Json<QueryAllArticleMetaRes>> {
+    pub async fn query_all_article_meta(req: Request) -> Result<Json<QueryAllArticleMetaRes>> {
         let mut conn: Conn = req.get_conn().await?;
 
         // not verified
@@ -231,7 +231,7 @@ pub fn register(router: &mut SimpleRouter) {
     router
         .at("/articles")
         .post(create_article)
-        .get(query_all_articles_meta);
+        .get(query_all_article_meta);
 
     router
         .at("/articles/:id")
