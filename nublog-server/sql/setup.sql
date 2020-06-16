@@ -19,6 +19,7 @@ CREATE TABLE articles(
     article_key VARCHAR(256) NOT NULL UNIQUE,
     title VARCHAR(256) NOT NULL,
     author VARCHAR(256) NOT NULL,
+    summary TEXT NOT NULL,
     content TEXT NOT NULL,
     create_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     update_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -34,16 +35,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER articles_update_at BEFORE UPDATE ON articles
 FOR EACH ROW
 EXECUTE PROCEDURE set_update_at();
-
-CREATE VIEW article_meta_view AS
-SELECT 
-    articles.id, article_key, title, author, create_at, update_at, 
-    json_agg(json_build_object('id', tags.id,'name',tags.name)) AS tags
-FROM
-    articles JOIN articles_tags_relation relation JOIN tags
-    ON relation.tag_id = tags.id
-    ON relation.article_id = articles.id
-GROUP BY articles.id
 
 ----------------------------------
 
@@ -85,3 +76,17 @@ CREATE TABLE sessions(
     role_code INTEGER NOT NULL,
     create_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+--------------------------------
+
+-- create view article_meta_view
+
+CREATE VIEW article_meta_view AS
+SELECT 
+    articles.id, article_key, title, author, summary, create_at, update_at,
+    json_agg(json_build_object('id', tags.id,'name',tags.name)) AS tags
+FROM
+    articles JOIN articles_tags_relation relation JOIN tags
+    ON relation.tag_id = tags.id
+    ON relation.article_id = articles.id
+GROUP BY articles.id;

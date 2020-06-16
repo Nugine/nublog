@@ -7,6 +7,7 @@ pub mod entity {
         pub article_key: String,
         pub title: String,
         pub author: String,
+        pub summary: String,
         pub content: String,
         pub create_at: DateTime,
         pub update_at: DateTime,
@@ -22,6 +23,7 @@ pub mod dto {
         pub article_key: String,
         pub title: String,
         pub author: String,
+        pub summary: String,
         pub content: String,
     }
 
@@ -46,6 +48,7 @@ pub mod dto {
         pub article_key: String,
         pub title: String,
         pub author: String,
+        pub summary: String,
         pub content: String,
     }
 
@@ -56,6 +59,7 @@ pub mod dto {
         pub article_key: String,
         pub title: String,
         pub author: String,
+        pub summary: String,
         pub content: String,
         pub create_at: DateTime,
         pub update_at: DateTime,
@@ -76,6 +80,7 @@ pub mod dto {
         pub article_key: String,
         pub title: String,
         pub author: String,
+        pub summary: String,
         pub create_at: DateTime,
         pub update_at: DateTime,
         pub tags: sqlx::types::Json<Vec<QueryTagRes>>,
@@ -107,10 +112,11 @@ pub mod endpoint {
         let mut conn: Conn = req.get_conn().await?;
         let id = {
             let query = sqlx::query!(
-                "INSERT INTO articles(article_key, title, author, content) VALUES($1, $2, $3, $4) RETURNING id",
+                "INSERT INTO articles(article_key, title, author, summary, content) VALUES($1, $2, $3, $4, $5) RETURNING id",
                 dto.article_key,
                 dto.title,
                 dto.author,
+                dto.summary,
                 dto.content
             );
             let ans = query.fetch_one(&mut conn).await?;
@@ -144,10 +150,11 @@ pub mod endpoint {
         let mut conn: Conn = req.get_conn().await?;
         let is_updated = {
             let query = sqlx::query!(
-                "UPDATE articles SET article_key = $1, title = $2, author = $3, content = $4 WHERE id = $5",
+                "UPDATE articles SET article_key = $1, title = $2, author = $3, summary = $4, content = $5 WHERE id = $6",
                 dto.article_key,
                 dto.title,
                 dto.author,
+                dto.summary,
                 dto.content,
                 id
             );

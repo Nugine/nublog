@@ -20,18 +20,18 @@ pub mod dto {
         pub tags: Vec<QueryTagRes>,
     }
 
-    use crate::scopes::articles::dto::QueryArticleRes;
+    use crate::scopes::articles::dto::QueryArticleMetaRes;
 
     #[derive(Debug, Serialize, Deserialize)]
     pub struct QueryTagArticlesRes {
-        pub articles: Vec<QueryArticleRes>,
+        pub articles: Vec<QueryArticleMetaRes>,
     }
 }
 
 pub mod endpoint {
     use super::dto::*;
     use crate::prelude::*;
-    use crate::scopes::articles::dto::QueryArticleRes;
+    use crate::scopes::articles::dto::QueryArticleMetaRes;
 
     pub async fn query_all_tags(req: Request) -> Result<Json<QueryAllTagsRes>> {
         let mut conn: Conn = req.get_conn().await?;
@@ -47,16 +47,18 @@ pub mod endpoint {
         let id: i32 = req.expect_param("id").parse()?;
 
         let mut conn: Conn = req.get_conn().await?;
-        let anss = {
-            sqlx::query_as!(
-                QueryArticleRes,
+        let anss: Vec<QueryArticleMetaRes> = {
+            // not verified
+            // FIXME: sqlx bug: query_as!
+            sqlx::query_as(
                 r#"
-                    SELECT id, article_key, title, author, content, create_at, update_at
-                    FROM articles_tags_relation relation JOIN articles ON relation.article_id = articles.id
-                    WHERE tag_id = $1
+                    SELECT view.* FROM article_meta_view view
+                        JOIN articles_tags_relation relation
+                        ON relation.article_id = view.id
+                    WHERE relation.tag_id = $1
                 "#,
-                id
             )
+            .bind(id)
             .fetch_all(&mut conn)
             .await?
         };
