@@ -1,7 +1,9 @@
 import React from "react";
 
 import { GetServerSideProps } from "next";
-import { useRouter } from "next/dist/client/router";
+import ReactMarkdown from "react-markdown";
+import { Row, Space } from "antd";
+
 import BlogError from "../../components/Error";
 
 import * as vo from "../../vo";
@@ -16,12 +18,21 @@ export type ArticleProps = {
 }
 
 const Article: React.FC<ArticleProps> = (props: ArticleProps) => {
-    const router = useRouter();
-    const articleKey = router.query.key;
 
     if (props.type === "ok") {
+        const article = props.article;
+
+        const lastTime = vo.cvtTime(new Date(article.update_at));
+
         return (
-            <div>文章 页面 key = { articleKey}</div>
+            <div style={{ padding: "0 1em", marginTop: "1em" }}>
+                <h1 style={{ width: "100%", textAlign: "center" }}><span style={{ fontSize: "1.25em" }}>{article.title}</span></h1>
+                <Row justify="space-between" style={{ marginBottom: "1em" }}>
+                    <Space direction="horizontal"><span>作者：{article.author}</span><span>时间：{lastTime}</span></Space>
+                    <span>标签：<Space direction="horizontal">{article.tags.map(tag => (<span key={tag.id}>#{tag.name}</span>))}</Space></span>
+                </Row>
+                <ReactMarkdown source={article.content} />
+            </div>
         );
     } else {
         return (

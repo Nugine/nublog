@@ -11,15 +11,9 @@ export interface ArticleMetaProps {
     style?: React.CSSProperties;
 }
 
-function cvtTime(time: Date): string {
-    const year = time.getFullYear().toString();
-    const month = (time.getMonth() + 1).toString().padStart(2, "0");
-    const day = time.getDate();
-    return `${year}-${month}-${day}`;
-}
 
 const ArticleMeta: React.FC<ArticleMetaProps> = ({ meta, style }: ArticleMetaProps) => {
-    const lastTime = cvtTime(new Date(meta.update_at));
+    const lastTime = vo.cvtTime(new Date(meta.update_at));
 
     const aStyleName = css`
         font-size: 1.25em;

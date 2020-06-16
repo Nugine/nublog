@@ -25,4 +25,5 @@ export interface Article {
     content: string;
     create_at: DateTimeString;
     update_at: DateTimeString;
+    tags: Tag[];
 }
