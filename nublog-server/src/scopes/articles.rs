@@ -63,6 +63,7 @@ pub mod dto {
         pub content: String,
         pub create_at: DateTime,
         pub update_at: DateTime,
+        pub tags: Vec<QueryTagRes>,
     }
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -165,39 +166,47 @@ pub mod endpoint {
         Ok(reply::json(UpdateArticleRes { is_updated }))
     }
 
-    pub async fn query_article(req: Request) -> Result<Json<QueryArticleRes>> {
-        let id: i32 = req.expect_param("id").parse()?;
-
-        let mut conn: Conn = req.get_conn().await?;
-        let res: Option<QueryArticleRes> = {
-            sqlx::query_as!(QueryArticleRes, "SELECT * FROM articles WHERE id = $1", id)
-                .fetch_optional(&mut conn)
-                .await?
-        };
-
-        match res {
-            Some(r) => Ok(reply::json(r)),
-            None => Err(NotFoundError.into()),
-        }
-    }
+    use crate::scopes::tags::dto::QueryTagRes;
 
     pub async fn query_article_by_key(req: Request) -> Result<Json<QueryArticleRes>> {
         let key = req.expect_param("key");
 
         let mut conn: Conn = req.get_conn().await?;
-        let res: Option<QueryArticleRes> = {
-            sqlx::query_as!(
-                QueryArticleRes,
-                "SELECT * FROM articles WHERE article_key = $1",
-                key
-            )
-            .fetch_optional(&mut conn)
-            .await?
+        let ans: Option<_> = {
+            sqlx::query!("SELECT * FROM articles WHERE article_key = $1", key)
+                .fetch_optional(&mut conn)
+                .await?
         };
 
-        match res {
-            Some(r) => Ok(reply::json(r)),
+        match ans {
             None => Err(NotFoundError.into()),
+
+            Some(ans) => {
+                let tags: Vec<QueryTagRes> = sqlx::query_as!(
+                    QueryTagRes,
+                    r#"
+                        SELECT tags.* FROM tags 
+                            JOIN articles_tags_relation relation 
+                            ON relation.tag_id = tags.id 
+                        WHERE relation.article_id = $1
+                    "#,
+                    ans.id
+                )
+                .fetch_all(&mut conn)
+                .await?;
+
+                Ok(reply::json(QueryArticleRes {
+                    id: ans.id,
+                    article_key: ans.article_key,
+                    title: ans.title,
+                    author: ans.author,
+                    summary: ans.summary,
+                    content: ans.content,
+                    create_at: ans.create_at,
+                    update_at: ans.update_at,
+                    tags,
+                }))
+            }
         }
     }
 
@@ -268,8 +277,7 @@ pub fn register(router: &mut SimpleRouter) {
     router
         .at("/articles/:id")
         .delete(delete_article)
-        .post(update_article)
-        .get(query_article);
+        .post(update_article);
 
     router.at("/articles/:id/meta").get(query_article_meta);
 
