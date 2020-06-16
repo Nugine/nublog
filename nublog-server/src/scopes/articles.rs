@@ -178,6 +178,23 @@ pub mod endpoint {
         Ok(reply::json(res))
     }
 
+    pub async fn query_article_by_key(req: Request) -> Result<Json<QueryArticleRes>> {
+        let key = req.expect_param("key");
+
+        let mut conn: Conn = req.get_conn().await?;
+        let res = {
+            sqlx::query_as!(
+                QueryArticleRes,
+                "SELECT * FROM articles WHERE article_key = $1",
+                key
+            )
+            .fetch_one(&mut conn)
+            .await?
+        };
+
+        Ok(reply::json(res))
+    }
+
     pub async fn query_article_meta(req: Request) -> Result<Json<QueryArticleMetaRes>> {
         let id: i32 = req.expect_param("id").parse()?;
 
@@ -239,6 +256,8 @@ pub fn register(router: &mut SimpleRouter) {
         .at("/articles")
         .post(create_article)
         .get(query_all_article_meta);
+
+    router.at("/articles/key/:key").get(query_article_by_key);
 
     router
         .at("/articles/:id")
