@@ -1,4 +1,5 @@
 mod conn;
+mod error;
 mod prelude;
 mod scopes;
 mod session;
@@ -75,6 +76,11 @@ async fn build_app(builder: AppBuilder) -> Result<App> {
         }))
         .middleware(self::middleware::LogHandler)
         .middleware(catch_error(catch_session))
+        .middleware(catch_error(|_: NotFoundError| {
+            let mut res = Response::empty();
+            res.set_status(http::StatusCode::NOT_FOUND);
+            Ok(res)
+        }))
         .middleware(session_store())
         .endpoint(router);
 

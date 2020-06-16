@@ -169,30 +169,36 @@ pub mod endpoint {
         let id: i32 = req.expect_param("id").parse()?;
 
         let mut conn: Conn = req.get_conn().await?;
-        let res = {
+        let res: Option<QueryArticleRes> = {
             sqlx::query_as!(QueryArticleRes, "SELECT * FROM articles WHERE id = $1", id)
-                .fetch_one(&mut conn)
+                .fetch_optional(&mut conn)
                 .await?
         };
 
-        Ok(reply::json(res))
+        match res {
+            Some(r) => Ok(reply::json(r)),
+            None => Err(NotFoundError.into()),
+        }
     }
 
     pub async fn query_article_by_key(req: Request) -> Result<Json<QueryArticleRes>> {
         let key = req.expect_param("key");
 
         let mut conn: Conn = req.get_conn().await?;
-        let res = {
+        let res: Option<QueryArticleRes> = {
             sqlx::query_as!(
                 QueryArticleRes,
                 "SELECT * FROM articles WHERE article_key = $1",
                 key
             )
-            .fetch_one(&mut conn)
+            .fetch_optional(&mut conn)
             .await?
         };
 
-        Ok(reply::json(res))
+        match res {
+            Some(r) => Ok(reply::json(r)),
+            None => Err(NotFoundError.into()),
+        }
     }
 
     pub async fn query_article_meta(req: Request) -> Result<Json<QueryArticleMetaRes>> {

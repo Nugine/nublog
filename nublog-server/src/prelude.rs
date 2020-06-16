@@ -5,6 +5,7 @@ pub use crate::scopes::users::{
     ext::EnsureRolesExt,
 };
 pub use crate::session::{session_store, MissingSessionError, Session, SessionExt};
+pub use crate::error::NotFoundError;
 
 use sqlx::types::chrono;
 pub use sqlx::Connection;
