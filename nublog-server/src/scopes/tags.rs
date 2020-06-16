@@ -52,7 +52,7 @@ pub mod endpoint {
                 QueryArticleRes,
                 r#"
                     SELECT id, article_key, title, author, content, create_at, update_at
-                    FROM articles_tags_relation tab1 JOIN articles ON tab1.article_id = articles.id
+                    FROM articles_tags_relation relation JOIN articles ON relation.article_id = articles.id
                     WHERE tag_id = $1
                 "#,
                 id

@@ -67,6 +67,8 @@ pub mod dto {
         pub articles: Vec<QueryArticleRes>,
     }
 
+    use crate::scopes::tags::dto::QueryTagRes;
+
     #[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
     // 查询文章元信息
     pub struct QueryArticleMetaRes {
@@ -76,6 +78,7 @@ pub mod dto {
         pub author: String,
         pub create_at: DateTime,
         pub update_at: DateTime,
+        pub tags: sqlx::types::Json<Vec<QueryTagRes>>,
     }
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -172,13 +175,14 @@ pub mod endpoint {
         let id: i32 = req.expect_param("id").parse()?;
 
         let mut conn: Conn = req.get_conn().await?;
-        let res = {
-            sqlx::query_as!(
-                QueryArticleMetaRes,
-                "SELECT id, article_key, title, author, create_at, update_at FROM articles WHERE id = $1",
-                id
-            )
-            .fetch_one(&mut conn).await?
+
+        // not verified
+        // FIXME: sqlx bug: query_as!
+        let res: QueryArticleMetaRes = {
+            sqlx::query_as("SELECT * FROM article_meta_view WHERE id = $1")
+                .bind(id)
+                .fetch_one(&mut conn)
+                .await?
         };
 
         Ok(reply::json(res))
@@ -206,14 +210,15 @@ pub mod endpoint {
 
     pub async fn query_all_articles_meta(req: Request) -> Result<Json<QueryAllArticleMetaRes>> {
         let mut conn: Conn = req.get_conn().await?;
-        let anss = {
-            sqlx::query_as!(
-                QueryArticleMetaRes,
-                "SELECT id, article_key, title, author, create_at, update_at FROM articles",
-            )
-            .fetch_all(&mut conn)
-            .await?
+
+        // not verified
+        // FIXME: sqlx bug: query_as!
+        let anss: Vec<QueryArticleMetaRes> = {
+            sqlx::query_as("SELECT * FROM article_meta_view")
+                .fetch_all(&mut conn)
+                .await?
         };
+
         Ok(reply::json(QueryAllArticleMetaRes { articles: anss }))
     }
 }

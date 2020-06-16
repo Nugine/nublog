@@ -8,6 +8,7 @@ pub use crate::session::{session_store, MissingSessionError, Session, SessionExt
 
 use sqlx::types::chrono;
 pub use sqlx::Connection;
+pub use sqlx::postgres::PgQueryAs;
 
 pub type DateTime = chrono::DateTime<chrono::Utc>;
 

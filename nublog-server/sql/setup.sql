@@ -35,6 +35,16 @@ CREATE TRIGGER articles_update_at BEFORE UPDATE ON articles
 FOR EACH ROW
 EXECUTE PROCEDURE set_update_at();
 
+CREATE VIEW article_meta_view AS
+SELECT 
+    articles.id, article_key, title, author, create_at, update_at, 
+    json_agg(json_build_object('id', tags.id,'name',tags.name))
+FROM
+    articles JOIN articles_tags_relation relation JOIN tags
+    ON relation.tag_id = tags.id
+    ON relation.article_id = articles.id
+GROUP BY articles.id
+
 ----------------------------------
 
 -- create table tags
