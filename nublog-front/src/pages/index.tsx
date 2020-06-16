@@ -1,6 +1,6 @@
 import React from "react";
 
-import { GetStaticProps } from "next";
+import { GetServerSideProps } from "next";
 import { Space } from "antd";
 
 import ArticleMeta from "../components/ArticleMeta";
@@ -22,7 +22,7 @@ const Index: React.FC<IndexProps> = ({ articles }: IndexProps) => {
     );
 };
 
-export const getStaticProps: GetStaticProps<IndexProps> = async () => {
+export const getServerSideProps: GetServerSideProps<IndexProps> = async () => {
     const articles = await ssr.getAllArticlesMeta();
     return { props: { articles } };
 };

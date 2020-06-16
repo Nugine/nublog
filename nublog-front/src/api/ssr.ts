@@ -10,3 +10,10 @@ export async function getAllArticlesMeta(): Promise<dto.ArticleMeta[]> {
     const ans = res.data as unknown as { articles: dto.ArticleMeta[] };
     return ans.articles;
 }
+
+export async function getArticleByKey(key: string): Promise<dto.Article> {
+    const url = `${LOCAL_URL}/articles/key/${key}`;
+    const res = await axios.get(url);
+    const ans = res.data as unknown as dto.Article;
+    return ans;
+}
