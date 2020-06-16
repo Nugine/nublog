@@ -17,11 +17,13 @@ const App: React.FC<AppProps> = ({ Component, pageProps }: AppProps) => {
 
     const headerStyle = {
         backgroundColor: "white",
-        padding: "0 1.5em"
+        padding: "0 1.5em",
+        borderBottom: "1px solid #eaeaea",
     };
 
     const centerStyle = {
-        flexGrow: 1
+        flexGrow: 1,
+        backgroundColor: "white"
     };
 
     const footerStyle = {
@@ -37,9 +39,7 @@ const App: React.FC<AppProps> = ({ Component, pageProps }: AppProps) => {
                         <Header />
                     </Layout.Header>
                     <Layout.Content style={centerStyle}>
-                        <div >
-                            <Component {...pageProps} />
-                        </div>
+                        <Component {...pageProps} />
                     </Layout.Content>
                     <Layout.Footer style={footerStyle}>
                         <Footer />

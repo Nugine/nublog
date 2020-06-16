@@ -1,9 +1,30 @@
 import React from "react";
 
-const Index: React.FC = () => {
+import { GetStaticProps } from "next";
+import { Space } from "antd";
+
+import ArticleMeta from "../components/ArticleMeta";
+
+import * as vo from "../vo";
+import * as ssr from "../api/ssr";
+
+export interface IndexProps {
+    articles: vo.ArticleMeta[];
+}
+
+const Index: React.FC<IndexProps> = ({ articles }: IndexProps) => {
     return (
-        <div>首页</div>
+        <Space style={{ padding: "0 1em", width: "100%" }} direction="vertical">
+            {articles.map((meta => (
+                <ArticleMeta key={meta.id} meta={meta} />
+            )))}
+        </Space>
     );
+};
+
+export const getStaticProps: GetStaticProps<IndexProps> = async () => {
+    const articles = await ssr.getAllArticlesMeta();
+    return { props: { articles } };
 };
 
 export default Index;
