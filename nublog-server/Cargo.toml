@@ -16,6 +16,7 @@ uuid = { version = "0.8.1", features = ["serde", "v4"] }
 log = "0.4.8"
 toml = "0.5.6"
 reqwest = { version = "0.10.6", features = ["json"] }
+serde_json = "1.0.55"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
