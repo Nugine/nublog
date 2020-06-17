@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
     const nowYear = new Date().getFullYear();
     const startYear = config.site.startYear;
     const time = startYear < nowYear ? `${startYear}` : `${startYear} - ${nowYear}`;
-    const copyright = `© ${time} ${config.site.author}.`;
+    const copyright = `© ${time} ${config.site.author.nickName}.`;
 
     const styleName = css`
         width: 100%;

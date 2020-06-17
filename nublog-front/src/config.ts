@@ -16,6 +16,12 @@ export const beian = toReadonly({
 export const site = toReadonly({
     title: "Nugine 的个人博客",
     startYear: 2019,
-    author: "Nugine"
+    author: {
+        nickName: "Nugine",
+        githubUrl: "https://github.com/Nugine",
+        email: "nugine@foxmail.com"
+    }
 });
+
+
 
