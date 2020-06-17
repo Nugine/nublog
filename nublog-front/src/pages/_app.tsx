@@ -8,7 +8,7 @@ import "antd/dist/antd.css";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 
-import "./style.css";
+import "../style/style.css";
 
 const App: React.FC<AppProps> = ({ Component, pageProps }: AppProps) => {
     const layoutStyle = {
