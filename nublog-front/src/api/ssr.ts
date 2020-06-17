@@ -17,3 +17,10 @@ export async function getArticleByKey(key: string): Promise<dto.Article> {
     const ans = res.data as unknown as dto.Article;
     return ans;
 }
+
+export async function getAllTags(): Promise<dto.Tag[]> {
+    const url = `${LOCAL_URL}/tags`;
+    const res = await axios.get(url);
+    const ans = res.data as unknown as {tags: dto.Tag[]};
+    return ans.tags;
+}

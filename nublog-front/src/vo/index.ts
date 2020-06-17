@@ -6,3 +6,5 @@ export function cvtTime(time: Date): string {
     const day = time.getDate();
     return `${year}-${month}-${day}`;
 }
+
+export type LoadingState = "initial" | "loading" | "success" | "error";
