@@ -8,6 +8,7 @@ import BlogError from "../../components/Error";
 
 import * as vo from "../../vo";
 import * as ssr from "../../api/ssr";
+import CommentArea from "../../components/CommentArea";
 
 export type ArticleProps = {
     type: "ok";
@@ -50,8 +51,8 @@ const Article: React.FC<ArticleProps> = (props: ArticleProps) => {
                     <ReactMarkdown source={article.content} />
                 </Layout.Content>
 
-                <Layout.Footer>
-                    评论区
+                <Layout.Footer style={{ backgroundColor: "white", padding: "0" }}>
+                    <CommentArea />
                 </Layout.Footer>
             </Layout>
         );
