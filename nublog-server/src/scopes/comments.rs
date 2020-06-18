@@ -51,6 +51,8 @@ pub mod endpoint {
     use crate::prelude::*;
 
     pub async fn create_comment(mut req: Request) -> Result<Json<CreateCommentRes>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE, READER_ROLE_CODE])?;
+
         let dto: CreateCommentReq = req.json().await?;
 
         let mut conn: Conn = req.get_conn().await?;
