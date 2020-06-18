@@ -27,3 +27,16 @@ export interface Article {
     update_at: DateTimeString;
     tags: Tag[];
 }
+
+export interface User {
+    id: number;
+    role_code: number;
+    name: string;
+    email: string;
+    avatar_url: string;
+    profile_url: string;
+}
+
+export interface InitSession {
+    session_id: string;
+}
