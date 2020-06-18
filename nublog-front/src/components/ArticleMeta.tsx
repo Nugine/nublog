@@ -47,7 +47,8 @@ const ArticleMeta: React.FC<ArticleMetaProps> = ({ meta, timeStyle, style }: Art
 
     return (
         <Card
-            style={style}
+            style={{ cursor: "auto", ...style }}
+            hoverable={true}
         >
             <Row justify="center">
                 <Link href="/articles/[key]" as={`/articles/${meta.article_key}`}>
