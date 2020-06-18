@@ -271,7 +271,7 @@ pub mod endpoint {
                         user_id
                     ).execute(&mut tx).await?;
 
-                    (user_id, )
+                    (user_id,)
                 }
                 None => {
                     let ans = sqlx::query!(r#"
@@ -286,7 +286,7 @@ pub mod endpoint {
                         profile.html_url,
                         access_token
                     ).fetch_one(&mut tx).await?;
-                    (ans.id, )
+                    (ans.id,)
                 }
             };
 
@@ -325,6 +325,7 @@ pub mod ext {
     impl EnsureRolesExt for Request {
         fn ensure_roles(&self, roles: &[i32]) -> Result<()> {
             let sess = self.try_get_session_ref()?;
+            log::debug!("role: {:?}, allowed: {:?}", sess.role_code, roles);
             let is_allowed = roles.iter().any(|&r| r == sess.role_code);
             if is_allowed {
                 Ok(())

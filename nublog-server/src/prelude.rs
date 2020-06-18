@@ -1,15 +1,15 @@
 pub use crate::config::Config;
 pub use crate::conn::{Conn, PgConnExt};
+pub use crate::error::NotFoundError;
 pub use crate::scopes::users::{
     entity::{ADMIN_ROLE_CODE, READER_ROLE_CODE},
     ext::EnsureRolesExt,
 };
 pub use crate::session::{session_store, MissingSessionError, Session, SessionExt};
-pub use crate::error::NotFoundError;
 
+pub use sqlx::postgres::PgQueryAs;
 use sqlx::types::chrono;
 pub use sqlx::Connection;
-pub use sqlx::postgres::PgQueryAs;
 
 pub type DateTime = chrono::DateTime<chrono::Utc>;
 
