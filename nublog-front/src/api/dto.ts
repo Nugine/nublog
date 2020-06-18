@@ -37,6 +37,14 @@ export interface User {
     profile_url: string;
 }
 
+export interface CreateUser {
+    role_code: number;
+    name: string;
+    email: string;
+    avatar_url: string;
+    profile_url: string;
+}
+
 export interface InitSession {
     session_id: string;
 }

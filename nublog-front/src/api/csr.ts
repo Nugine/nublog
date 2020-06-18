@@ -59,3 +59,57 @@ export async function createTag(sessionId: string, tagName: string): Promise<num
     const ans = res.data as unknown as { id: number };
     return ans.id;
 }
+
+export async function getAllTags(): Promise<dto.Tag[]> {
+    const url = `${PREFIX}/tags`;
+    const res = await axios.get(url);
+    const ans = res.data as unknown as { tags: dto.Tag[] };
+    return ans.tags;
+}
+
+export async function getAllArticlesMeta(): Promise<dto.ArticleMeta[]> {
+    const url = `${PREFIX}/articles`;
+    const res = await axios.get(url);
+    const ans = res.data as unknown as { articles: dto.ArticleMeta[] };
+    return ans.articles;
+}
+
+export async function getAllUsers(sessionId: string): Promise<dto.User[]> {
+    const url = `${PREFIX}/users`;
+    const config = { headers: { "x-session-id": sessionId } };
+    const res = await axios.get(url, config);
+    const ans = res.data as unknown as { users: dto.User[] };
+    return ans.users;
+}
+
+export async function createUser(sessionId: string, data: dto.CreateUser): Promise<number> {
+    const url = `${PREFIX}/users`;
+    const config = { headers: { "x-session-id": sessionId } };
+    const res = await axios.post(url, data, config);
+    const ans = res.data as unknown as { id: number };
+    return ans.id;
+}
+
+export async function deleteUser(sessionId: string, userId: number): Promise<boolean> {
+    const url = `${PREFIX}/users/${userId}`;
+    const config = { headers: { "x-session-id": sessionId } };
+    const res = await axios.delete(url, config);
+    const ans = res.data as unknown as { is_deleted: boolean };
+    return ans.is_deleted;
+}
+
+export async function deleteTag(sessionId: string, tagId: number): Promise<boolean> {
+    const url = `${PREFIX}/tags/${tagId}`;
+    const config = { headers: { "x-session-id": sessionId } };
+    const res = await axios.delete(url, config);
+    const ans = res.data as unknown as { is_deleted: boolean };
+    return ans.is_deleted;
+}
+
+export async function deleteArticle(sessionId: string, articleId: number): Promise<boolean> {
+    const url = `${PREFIX}/articles/${articleId}`;
+    const config = { headers: { "x-session-id": sessionId } };
+    const res = await axios.delete(url, config);
+    const ans = res.data as unknown as { is_deleted: boolean };
+    return ans.is_deleted;
+}
