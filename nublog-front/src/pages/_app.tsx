@@ -21,7 +21,9 @@ const App: React.FC<AppProps> = ({ Component, pageProps }: AppProps) => {
         borderBottom: "1px solid #eaeaea",
     };
 
-    const centerStyle = {
+    const centerStyle: React.CSSProperties = {
+        display: "flex",
+        flexDirection: "column",
         flexGrow: 1,
         backgroundColor: "white"
     };

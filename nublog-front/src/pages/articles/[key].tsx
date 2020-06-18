@@ -2,7 +2,7 @@ import React from "react";
 
 import { GetServerSideProps } from "next";
 import ReactMarkdown from "react-markdown";
-import { Row, Space } from "antd";
+import { Row, Space, Layout } from "antd";
 
 import BlogError from "../../components/Error";
 
@@ -39,14 +39,21 @@ const Article: React.FC<ArticleProps> = (props: ArticleProps) => {
         }
 
         return (
-            <div style={{ padding: "0 1em", marginTop: "1em" }}>
-                <h1 style={{ width: "100%", textAlign: "center" }}><span style={{ fontSize: "1.25em" }}>{article.title}</span></h1>
-                <Row justify="space-between" style={{ marginBottom: "1em" }}>
-                    <Space direction="horizontal"><span>作者：{article.author}</span>{time}</Space>
-                    {tags}
-                </Row>
-                <ReactMarkdown source={article.content} />
-            </div>
+            <Layout style={{ padding: "0 1em", marginTop: "1em", backgroundColor: "white", flexGrow: 1 }}>
+
+                <Layout.Content style={{ flexGrow: 1 }}>
+                    <h1 style={{ width: "100%", textAlign: "center" }}><span style={{ fontSize: "1.25em" }}>{article.title}</span></h1>
+                    <Row justify="space-between" style={{ marginBottom: "1em" }}>
+                        <Space direction="horizontal"><span>作者：{article.author}</span>{time}</Space>
+                        {tags}
+                    </Row>
+                    <ReactMarkdown source={article.content} />
+                </Layout.Content>
+
+                <Layout.Footer>
+                    评论区
+                </Layout.Footer>
+            </Layout>
         );
     } else {
         return (
