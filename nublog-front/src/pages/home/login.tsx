@@ -51,7 +51,12 @@ const Login: React.FC = () => {
     }
 
     if (loadingState === "success") {
-        router.push("/home");
+        const goback = localStorage.getItem("goback-path");
+        if (goback) {
+            router.push(goback);
+        } else {
+            router.push("/home");
+        }
     }
 
     return (

@@ -59,6 +59,7 @@ const HomeIndex: React.FC = () => {
     if (loadingState === "success") {
         if (user === null) {
             const handleLogin = (): void => {
+                localStorage.setItem("goback-path", document.location.pathname);
                 document.location.pathname = "/api/users/auth/login";
             };
 
