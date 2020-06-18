@@ -8,12 +8,12 @@ import *  as vo from "../vo";
 
 export interface ArticleMetaProps {
     meta: vo.ArticleMeta;
+    timeStyle?: "simple" | "complex";
     style?: React.CSSProperties;
 }
 
 
-const ArticleMeta: React.FC<ArticleMetaProps> = ({ meta, style }: ArticleMetaProps) => {
-    const lastTime = vo.cvtTime(new Date(meta.update_at));
+const ArticleMeta: React.FC<ArticleMetaProps> = ({ meta, timeStyle, style }: ArticleMetaProps) => {
 
     const aStyleName = css`
         font-size: 1.25em;
@@ -23,6 +23,27 @@ const ArticleMeta: React.FC<ArticleMetaProps> = ({ meta, style }: ArticleMetaPro
             text-decoration: underline !important;
         }
     `;
+
+    let time;
+    if (timeStyle === "complex") {
+        time = (
+            <>
+                <span>创建于：{vo.cvtTime(new Date(meta.create_at))}</span>
+                <span>更新于：{vo.cvtTime(new Date(meta.update_at))}</span>
+            </>
+        );
+    } else {
+        time = (<span>更新于：{vo.cvtTime(new Date(meta.update_at))}</span>);
+    }
+
+    let tags = null;
+    if (meta.tags.length > 0) {
+        tags = (
+            <span>标签：<Space direction="horizontal">{meta.tags.map(tag => (
+                <span key={tag.id}>#{tag.name}</span>)
+            )}</Space></span>
+        );
+    }
 
     return (
         <Card
@@ -34,8 +55,8 @@ const ArticleMeta: React.FC<ArticleMetaProps> = ({ meta, style }: ArticleMetaPro
                 </Link>
             </Row>
             <Row justify="space-between" style={{ borderBottom: "1px solid #eaeaea", marginBottom: "1em" }}>
-                <Space direction="horizontal"><span>作者：{meta.author}</span><span>时间：{lastTime}</span></Space>
-                <span>标签：<Space direction="horizontal">{meta.tags.map(tag => (<span key={tag.id}>#{tag.name}</span>))}</Space></span>
+                <Space direction="horizontal"><span>作者：{meta.author}</span>{time}</Space>
+                {tags}
             </Row>
             <Typography.Paragraph>
                 {meta.summary}

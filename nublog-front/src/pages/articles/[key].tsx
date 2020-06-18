@@ -22,14 +22,28 @@ const Article: React.FC<ArticleProps> = (props: ArticleProps) => {
     if (props.type === "ok") {
         const article = props.article;
 
-        const lastTime = vo.cvtTime(new Date(article.update_at));
+        const time = (
+            <>
+                <span>创建于：{vo.cvtTime(new Date(article.create_at))}</span>
+                <span>更新于：{vo.cvtTime(new Date(article.update_at))}</span>
+            </>
+        );
+
+        let tags = null;
+        if (article.tags.length > 0) {
+            tags = (
+                <span>标签：<Space direction="horizontal">{article.tags.map(tag => (
+                    <span key={tag.id}>#{tag.name}</span>)
+                )}</Space></span>
+            );
+        }
 
         return (
             <div style={{ padding: "0 1em", marginTop: "1em" }}>
                 <h1 style={{ width: "100%", textAlign: "center" }}><span style={{ fontSize: "1.25em" }}>{article.title}</span></h1>
                 <Row justify="space-between" style={{ marginBottom: "1em" }}>
-                    <Space direction="horizontal"><span>作者：{article.author}</span><span>时间：{lastTime}</span></Space>
-                    <span>标签：<Space direction="horizontal">{article.tags.map(tag => (<span key={tag.id}>#{tag.name}</span>))}</Space></span>
+                    <Space direction="horizontal"><span>作者：{article.author}</span>{time}</Space>
+                    {tags}
                 </Row>
                 <ReactMarkdown source={article.content} />
             </div>

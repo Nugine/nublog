@@ -109,7 +109,7 @@ const TagsIndex: React.FC<TagsProps> = ({ allTags }: TagsProps) => {
             }
             <Spin spinning={loadingState === "loading"} delay={1000}>
                 {articles.map(meta => (
-                    <ArticleMeta key={meta.id} meta={meta} />
+                    <ArticleMeta key={meta.id} meta={meta} timeStyle="complex" />
                 ))}
             </Spin>
         </div>
