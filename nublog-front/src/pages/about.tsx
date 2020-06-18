@@ -33,11 +33,11 @@ const About: React.FC = () => {
             <Card bordered={false}>
                 <p>
                     <span><GithubOutlined /></span>
-                    <a href={config.site.author.githubUrl} rel="noopener noreferer">{config.site.author.githubUrl}</a>
+                    <a href={config.site.author.githubUrl} rel="noopener noreferrer" target="_blank">{config.site.author.githubUrl}</a>
                 </p>
                 <p>
                     <span><MailOutlined /></span>
-                    <a href={`mailto:${config.site.author.email}`} rel="noopener noreferer">{config.site.author.email}</a>
+                    <a href={`mailto:${config.site.author.email}`} rel="noopener noreferrer" target="_blank">{config.site.author.email}</a>
                 </p>
             </Card>
         </div>
