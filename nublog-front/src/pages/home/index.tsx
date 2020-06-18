@@ -98,13 +98,11 @@ const HomeIndex: React.FC = () => {
     const isAdmin = user?.role_code === 0;
 
     return (
-        <Row justify="center">
-            <Col span={24} lg={16}>
-                <Space direction="vertical" style={{ width: "100%", padding: "0 1em", marginTop: "1em" }}>
-                    {ele}
-                    {user && isAdmin ? <Admin user={user} /> : null}
-                </Space>
-            </Col>
+        <Row justify="center" style={{ padding: "0 1em" }}>
+            <Space direction="vertical" style={{ width: "100%", padding: "0 1em", marginTop: "1em" }}>
+                {ele}
+                {user && isAdmin ? <Admin user={user} /> : null}
+            </Space>
         </Row>
     );
 };
