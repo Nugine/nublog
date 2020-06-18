@@ -39,7 +39,7 @@ const HomeIndex: React.FC = () => {
     if (loadingState === "error") {
         ele = (
             <Alert
-                message="出错了……"
+                message="加载失败，请重新登录"
                 type="error"
                 showIcon
             />

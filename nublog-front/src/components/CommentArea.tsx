@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { Row, Space, Comment as AntdComment, Avatar, Button, Input, List, Col } from "antd";
+import { Row, Space, Comment as AntdComment, Avatar, Button, Input, List, Col, message } from "antd";
 import { css } from "emotion";
 import { GithubOutlined } from "@ant-design/icons";
 
@@ -74,6 +74,7 @@ const CommentArea: React.FC<CommentAreaProps> = ({ articleId }: CommentAreaProps
                     setUser(user);
                 } catch (err) {
                     console.error(err);
+                    message.error("加载失败");
                 }
             };
             f();
@@ -85,6 +86,7 @@ const CommentArea: React.FC<CommentAreaProps> = ({ articleId }: CommentAreaProps
                 setComments(ans);
             } catch (err) {
                 console.error(err);
+                message.error("加载失败");
             }
         };
 
@@ -115,6 +117,7 @@ const CommentArea: React.FC<CommentAreaProps> = ({ articleId }: CommentAreaProps
                 });
             } catch (err) {
                 console.error(err);
+                message.error("操作失败");
             }
         }
     };
@@ -131,6 +134,7 @@ const CommentArea: React.FC<CommentAreaProps> = ({ articleId }: CommentAreaProps
                 setComments(prev => prev === null ? null : prev.filter(c => c.id !== commentId));
             } catch (err) {
                 console.error(err);
+                message.error("操作失败");
             }
         }
     };
@@ -155,7 +159,7 @@ const CommentArea: React.FC<CommentAreaProps> = ({ articleId }: CommentAreaProps
                         {(comments ?? []).map(comment => {
                             const replyToName = (comments ?? []).find(c => c.id === comment.reply_to)?.user_name;
 
-                            const canDelete = (isAdmin || user?.id === comment.id);
+                            const canDelete = (isAdmin || user?.id === comment.id) && (!(comments ?? []).find(c => c.reply_to === comment.id));
 
                             return (
                                 < AntdComment

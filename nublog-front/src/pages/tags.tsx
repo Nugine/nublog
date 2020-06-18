@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import { css } from "emotion";
 import { GetServerSideProps } from "next";
-import { Spin, Alert } from "antd";
+import { message } from "antd";
 
 import * as vo from "../vo";
 import * as ssr from "../api/ssr";
@@ -48,22 +48,18 @@ const TagsIndex: React.FC<TagsProps> = ({ allTags }: TagsProps) => {
 
     const [articles, setArticles] = useState<vo.ArticleMeta[]>([]);
 
-    const [loadingState, setLoadingState] = useState<vo.LoadingState>("initial");
-
     const handleSelect = async (checked: boolean, id: number): Promise<void> => {
         console.debug(checked, id);
         if (checked) {
             setSelectedTagsId(prev => {
                 return [id, ...prev];
             });
-            setLoadingState("loading");
             try {
                 const ans = await csr.getTagArticles(id);
                 setArticles(prev => mergeArticles(prev, ans));
-                setLoadingState("success");
             } catch (err) {
                 console.error(err);
-                setLoadingState("error");
+                message.error("加载失败");
             }
         } else {
             setSelectedTagsId(prev => {
@@ -112,15 +108,9 @@ const TagsIndex: React.FC<TagsProps> = ({ allTags }: TagsProps) => {
                 标签：
                 {allTags.map(renderTag)}
             </div>
-            {loadingState === "error" ?
-                <Alert type="error" message="查询失败" banner />
-                : null
-            }
-            <Spin spinning={loadingState === "loading"} delay={1000}>
-                {articles.map(meta => (
-                    <ArticleMeta key={meta.id} meta={meta} timeStyle="complex" />
-                ))}
-            </Spin>
+            {articles.map(meta => (
+                <ArticleMeta key={meta.id} meta={meta} timeStyle="complex" />
+            ))}
         </div>
     );
 };
