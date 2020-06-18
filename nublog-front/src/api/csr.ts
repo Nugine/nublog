@@ -50,3 +50,12 @@ export async function deleteComment(sessionId: string, commentId: number): Promi
     const ans = res.data as unknown as { is_deleted: boolean };
     return ans.is_deleted;
 }
+
+export async function createTag(sessionId: string, tagName: string): Promise<number> {
+    const url = `${PREFIX}/tags`;
+    const config = { headers: { "x-session-id": sessionId } };
+    const data = { name: tagName };
+    const res = await axios.post(url, data, config);
+    const ans = res.data as unknown as { id: number };
+    return ans.id;
+}
