@@ -55,7 +55,11 @@ pub mod dto {
         pub email: String,
         pub avatar_url: String,
         pub profile_url: String,
-        pub github_token: Option<String>,
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct CreateUserRes {
+        pub id: i32,
     }
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -309,6 +313,28 @@ pub mod endpoint {
             session_id: sess_id,
         }))
     }
+
+    pub async fn create_user(mut req: Request) -> Result<Json<CreateUserRes>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE])?;
+
+        let dto: CreateUserReq = req.json().await?;
+
+        let mut conn: Conn = req.get_conn().await?;
+        let res = {
+            sqlx::query_as!(
+                CreateUserRes,
+                "INSERT INTO users(role_code, name, email,avatar_url, profile_url) VALUES($1, $2, $3, $4,$5) RETURNING id",
+                dto.role_code,
+                dto.name,
+                dto.email,
+                dto.avatar_url,
+                dto.profile_url
+            ).fetch_one(&mut conn)
+            .await?
+        };
+
+        Ok(reply::json(res))
+    }
 }
 
 pub mod ext {
@@ -340,7 +366,7 @@ use crate::prelude::*;
 
 pub fn register(router: &mut SimpleRouter) {
     use self::endpoint::*;
-    router.at("/users").get(query_all_users);
+    router.at("/users").get(query_all_users).post(create_user);
     router.at("/users/auth/login").get(login);
     router.at("/users/oauth/github").get(github_oauth_callback);
     router.at("/users/self").get(query_self);
