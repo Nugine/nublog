@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 
 import { GetServerSideProps } from "next";
 import { Space, Collapse } from "antd";
+import { css } from "emotion";
 
 import * as vo from "../../vo";
 import * as ssr from "../../api/ssr";
@@ -37,9 +38,15 @@ function displayMonth(time: string): string {
 const ArticlesIndex: React.FC<ArticleIndexProps> = ({ articles }: ArticleIndexProps) => {
     const groups = useMemo(() => groupByMonth(articles), [articles]);
 
+    const overrideStyleName = css`
+        div {
+            border-bottom: none !important;
+        }
+    `;
+
     return (
         <Space direction="vertical" style={{ padding: "0 1em", marginTop: "1em", width: "100%" }}>
-            <Collapse style={{ width: "100%" }} bordered={false} defaultActiveKey={groups.length > 0 ? groups[0][0] : undefined}>
+            <Collapse className={overrideStyleName} style={{ width: "100%" }} bordered={false} defaultActiveKey={groups.map(group => group[0])}>
                 {groups.map(group => (
                     <Collapse.Panel key={group[0]}
                         header={
