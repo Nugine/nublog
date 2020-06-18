@@ -84,9 +84,12 @@ CREATE TABLE sessions(
 CREATE VIEW article_meta_view AS
 SELECT 
     articles.id, article_key, title, author, summary, create_at, update_at,
-    json_agg(json_build_object('id', tags.id,'name',tags.name)) AS tags
+    COALESCE(
+        json_agg(json_build_object('id', tags.id, 'name', tags.name)) 
+        FILTER (WHERE tags.id IS NOT NULL), '[]'
+    ) AS tags
 FROM
-    articles JOIN articles_tags_relation relation JOIN tags
+    articles LEFT JOIN articles_tags_relation relation JOIN tags
     ON relation.tag_id = tags.id
     ON relation.article_id = articles.id
 GROUP BY articles.id;

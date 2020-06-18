@@ -253,7 +253,7 @@ pub mod endpoint {
         // not verified
         // FIXME: sqlx bug: query_as!
         let anss: Vec<QueryArticleMetaRes> = {
-            sqlx::query_as("SELECT * FROM article_meta_view")
+            sqlx::query_as("SELECT * FROM article_meta_view ORDER BY create_at DESC")
                 .fetch_all(&mut conn)
                 .await?
         };
