@@ -118,6 +118,26 @@ pub mod endpoint {
         Ok(reply::json(res))
     }
 
+    pub async fn query_self(req: Request) -> Result<Json<Option<QueryUserRes>>> {
+        let session = req.try_get_session_ref();
+        match session {
+            Ok(session) => {
+                let mut conn: Conn = req.get_conn().await?;
+                let res = {
+                    sqlx::query_as!(
+                        QueryUserRes,
+                        "SELECT id, role_code, name, email, avatar_url, profile_url FROM users WHERE id = $1",
+                        session.user_id
+                        )
+                        .fetch_one(&mut conn)
+                        .await?
+                };
+                Ok(reply::json(Some(res)))
+            }
+            Err(_) => Ok(reply::json(None)),
+        }
+    }
+
     use crate::scopes::comments::dto::QueryCommentRes;
 
     pub async fn query_user_comments(req: Request) -> Result<Json<QueryUserCommentsRes>> {
@@ -143,7 +163,7 @@ pub mod endpoint {
         let config: &Config = req.try_inject_ref()?;
 
         let location = format!(
-            "{}?client_id={}&scope=read:user,user:email&redirect_uri={}/users/oauth/github",
+            "{}?client_id={}&scope=read:user,user:email&redirect_uri={}/home/login",
             "https://github.com/login/oauth/authorize", config.github_client_id, config.root_url
         );
 
@@ -315,6 +335,7 @@ pub fn register(router: &mut SimpleRouter) {
     router.at("/users").get(query_all_users);
     router.at("/users/auth/login").get(login);
     router.at("/users/oauth/github").get(github_oauth_callback);
+    router.at("/users/self").get(query_self);
     router.at("/users/:id").get(query_user).delete(delete_user);
     router.at("/users/:id/comments").get(query_user_comments);
 }
