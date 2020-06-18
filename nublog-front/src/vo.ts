@@ -1,5 +1,5 @@
-export * from "./article";
-export * from "./user";
+export type { DateTimeString, ArticleMeta, Tag, Article, Comment } from "./api/dto";
+export type { User } from "./api/dto";
 
 export function cvtTime(time: Date): string {
     const year = time.getFullYear().toString();

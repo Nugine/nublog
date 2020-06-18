@@ -42,3 +42,12 @@ export interface InitSession {
 }
 
 export type CommentId = number;
+
+export interface Comment {
+    id: CommentId;
+    article_id: number;
+    user_id: number;
+    content: string;
+    reply_to: CommentId | null;
+    create_at: DateTimeString;
+}
