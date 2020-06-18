@@ -32,6 +32,14 @@ function mergeArticles(lhs: vo.ArticleMeta[], rhs: vo.ArticleMeta[]): vo.Article
             ans.push(meta);
         }
     }
+    ans.sort((lhs, rhs) => {
+        const ldate = new Date(lhs.create_at);
+        const rdate = new Date(rhs.create_at);
+        if (ldate.getTime() != rdate.getTime()) {
+            return rdate.getTime() - ldate.getTime();
+        }
+        return lhs.id - rhs.id;
+    });
     return ans;
 }
 
@@ -77,28 +85,29 @@ const TagsIndex: React.FC<TagsProps> = ({ allTags }: TagsProps) => {
         span {
             cursor: pointer;
             margin: 0 0.5em;
-            border: 1px solid gray;
             padding: 0 0.25em;
         }
 
         font-size: 1.25em;
+        
+        margin: 1em 0;
     `;
 
     const renderTag = (tag: vo.Tag): JSX.Element => {
         const isSelected = selectedTagsId.includes(tag.id);
-        const style = isSelected ? { color: "white", backgroundColor: "black" } : undefined;
+        const style = isSelected ? { border: "1px solid gray" } : undefined;
 
         return (
             <span key={tag.id} style={style}
                 onClick={(): Promise<void> => handleSelect(!isSelected, tag.id)}
             >
-                {tag.name}
+                #{tag.name}
             </span>
         );
     };
 
     return (
-        <div style={{ padding: "0 1em", marginTop: "1em" }}>
+        <div style={{ padding: "0 1em" }}>
             <div className={tagsDivStyleName}>
                 标签：
                 {allTags.map(renderTag)}
