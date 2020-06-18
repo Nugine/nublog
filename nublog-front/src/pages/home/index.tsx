@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 
-import { Space, Spin, Alert, Button, Row, Avatar } from "antd";
-
+import { Space, Spin, Alert, Button, Row, Avatar, Col } from "antd";
 import { GithubOutlined } from "@ant-design/icons";
 import { useRouter } from "next/dist/client/router";
+import dynamic from "next/dynamic";
 
 import * as vo from "../../vo";
 import * as csr from "../../api/csr";
 
+const Admin = dynamic(() => import("../../components/Admin"));
 
 const HomeIndex: React.FC = () => {
     const [loadingState, setLoadingState] = useState<vo.LoadingState>("initial");
@@ -76,8 +77,6 @@ const HomeIndex: React.FC = () => {
 
             ele = (
                 <div>
-                    {/* {JSON.stringify(user)} */}
-
                     <Row justify="space-between" style={{ alignItems: "center" }}>
                         <Row justify="start" style={{ alignItems: "center" }}>
                             <a href={user.profile_url} rel="noreferrer noopener" target="_blank">
@@ -90,19 +89,23 @@ const HomeIndex: React.FC = () => {
                             登出
                         </Button>
                     </Row>
-
                 </div>
             );
             // TODO
         }
     }
 
+    const isAdmin = user?.role_code === 1;
+
     return (
-        <Space direction="vertical" style={{ width: "100%", padding: "0 1em", marginTop: "1em" }}>
-
-            {ele}
-
-        </Space>
+        <Row justify="center">
+            <Col span={24} lg={16}>
+                <Space direction="vertical" style={{ width: "100%", padding: "0 1em", marginTop: "1em" }}>
+                    {ele}
+                    {user && isAdmin ? <Admin user={user} /> : null}
+                </Space>
+            </Col>
+        </Row>
     );
 };
 
