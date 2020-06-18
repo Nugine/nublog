@@ -36,6 +36,12 @@ pub mod dto {
     pub struct CreateTagRes {
         pub id: i32,
     }
+
+    #[derive(Debug, Serialize, Deserialize)]
+
+    pub struct DeleteTagRes {
+        pub is_deleted: bool,
+    }
 }
 
 pub mod endpoint {
@@ -94,6 +100,23 @@ pub mod endpoint {
 
         Ok(reply::json(res))
     }
+
+    pub async fn delete_tag(mut req: Request) -> Result<Json<DeleteTagRes>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE])?;
+
+        let id: i32 = req.expect_param("id").parse()?;
+
+        let mut conn: Conn = req.get_conn().await?;
+
+        let is_deleted = {
+            let ans = sqlx::query!("DELETE FROM tags WHERE id = $1", id)
+                .execute(&mut conn)
+                .await?;
+            ans == 1
+        };
+
+        Ok(reply::json(DeleteTagRes { is_deleted }))
+    }
 }
 
 use crate::prelude::*;
@@ -102,4 +125,5 @@ pub fn register(router: &mut SimpleRouter) {
     use self::endpoint::*;
     router.at("/tags").get(query_all_tags).post(create_tag);
     router.at("/tags/:id/articles").get(query_tag_articles);
+    router.at("/tags/:id").delete(delete_tag);
 }
