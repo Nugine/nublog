@@ -24,6 +24,7 @@ const App: React.FC<AppProps> = ({ Component, pageProps }: AppProps) => {
     const centerStyle: React.CSSProperties = {
         display: "flex",
         flexDirection: "column",
+        justifyContent: "flex-start",
         flexGrow: 1,
         backgroundColor: "white"
     };

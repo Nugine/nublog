@@ -2,19 +2,13 @@ import React from "react";
 
 import { GithubOutlined, MailOutlined } from "@ant-design/icons";
 import { css } from "emotion";
-import { Card } from "antd";
+import { Card, Row } from "antd";
 
 import * as config from "../config";
 
 const About: React.FC = () => {
 
     const containerStyleName = css`
-        display: flex;
-        flex-grow: 1;
-        flex-direction:column;
-        justify-content: center;
-        align-items: center;
-
         a {
             color: black;
         }
@@ -26,10 +20,14 @@ const About: React.FC = () => {
         span {
             margin-right: 0.5em;
         }
+
+        p {
+            font-size: 1.25em;
+        }
     `;
 
     return (
-        <div className={containerStyleName}>
+        <Row justify="center" className={containerStyleName}>
             <Card bordered={false}>
                 <p>
                     <span><GithubOutlined /></span>
@@ -40,7 +38,7 @@ const About: React.FC = () => {
                     <a href={`mailto:${config.site.author.email}`} rel="noopener noreferrer" target="_blank">{config.site.author.email}</a>
                 </p>
             </Card>
-        </div>
+        </Row>
     );
 };
 
