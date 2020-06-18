@@ -95,7 +95,7 @@ const HomeIndex: React.FC = () => {
         }
     }
 
-    const isAdmin = user?.role_code === 1;
+    const isAdmin = user?.role_code === 0;
 
     return (
         <Row justify="center">

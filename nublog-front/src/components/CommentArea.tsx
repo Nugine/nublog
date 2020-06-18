@@ -143,7 +143,7 @@ const CommentArea: React.FC<CommentAreaProps> = ({ articleId }: CommentAreaProps
         ((comments ?? []).find(c => c.id === replyTo)?.user_name ?? null)
         : null;
 
-    const isAdmin = user?.role_code === 1;
+    const isAdmin = user?.role_code === 0;
 
     return (
         <>
