@@ -26,3 +26,11 @@ export async function initSession(code: string): Promise<dto.InitSession> {
     const ans = res.data as unknown as dto.InitSession;
     return ans;
 }
+
+export async function createComment(sessionId: string, articleId: number, userId: number, content: string, replyTo: number | null): Promise<dto.CommentId> {
+    const url = `${PREFIX}/comments`;
+    const config = { data: { "article_id": articleId, "user_id": userId, content, "reply_to": replyTo }, headers: { "x-session-id": sessionId } };
+    const res = await axios.post(url, config);
+    const ans = res.data as unknown as { id: number };
+    return ans.id;
+}

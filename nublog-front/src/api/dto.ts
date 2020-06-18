@@ -40,3 +40,5 @@ export interface User {
 export interface InitSession {
     session_id: string;
 }
+
+export type CommentId = number;
