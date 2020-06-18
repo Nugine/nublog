@@ -43,6 +43,8 @@ pub mod dto {
         pub content: String,
         pub reply_to: Option<i32>,
         pub create_at: DateTime,
+        pub user_avatar_url: String,
+        pub user_name: String,
     }
 }
 
@@ -72,14 +74,25 @@ pub mod endpoint {
     }
 
     pub async fn delete_comment(req: Request) -> Result<Json<DeleteCommentRes>> {
-        req.ensure_roles(&[ADMIN_ROLE_CODE])?;
+        let session = req.try_get_session_ref()?;
 
         let id: i32 = req.expect_param("id").parse()?;
 
         let mut conn: Conn = req.get_conn().await?;
-        let is_deleted = {
-            let query = sqlx::query!("DELETE FROM comments WHERE id = $1", id);
-            let ans = query.execute(&mut conn).await?;
+
+        let is_deleted = if session.role_code == ADMIN_ROLE_CODE {
+            let ans = sqlx::query!("DELETE FROM comments WHERE id = $1", id)
+                .execute(&mut conn)
+                .await?;
+            ans == 1
+        } else {
+            let ans = sqlx::query!(
+                "DELETE FROM comments WHERE id = $1 AND user_id = $2",
+                id,
+                session.user_id
+            )
+            .execute(&mut conn)
+            .await?;
             ans == 1
         };
 

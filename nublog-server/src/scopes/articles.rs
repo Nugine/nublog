@@ -237,7 +237,15 @@ pub mod endpoint {
         let anss = {
             sqlx::query_as!(
                 QueryCommentRes,
-                "SELECT * FROM comments WHERE article_id = $1",
+                r#"
+                    SELECT 
+                        comments.*, 
+                        users.avatar_url AS user_avatar_url, 
+                        users.name AS user_name 
+                    FROM comments JOIN users ON comments.user_id = users.id
+                    WHERE article_id = $1
+                    ORDER BY create_at DESC
+                "#,
                 id
             )
             .fetch_all(&mut conn)
