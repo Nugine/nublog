@@ -29,8 +29,24 @@ export async function initSession(code: string): Promise<dto.InitSession> {
 
 export async function createComment(sessionId: string, articleId: number, userId: number, content: string, replyTo: number | null): Promise<dto.CommentId> {
     const url = `${PREFIX}/comments`;
-    const config = { data: { "article_id": articleId, "user_id": userId, content, "reply_to": replyTo }, headers: { "x-session-id": sessionId } };
-    const res = await axios.post(url, config);
+    const data = { "article_id": articleId, "user_id": userId, content, "reply_to": replyTo };
+    const config = { headers: { "x-session-id": sessionId } };
+    const res = await axios.post(url, data, config);
     const ans = res.data as unknown as { id: number };
     return ans.id;
+}
+
+export async function getArticleComments(articleId: number): Promise<dto.Comment[]> {
+    const url = `${PREFIX}/articles/${articleId}/comments`;
+    const res = await axios.get(url);
+    const ans = res.data as unknown as { comments: dto.Comment[] };
+    return ans.comments;
+}
+
+export async function deleteComment(sessionId: string, commentId: number): Promise<boolean> {
+    const url = `${PREFIX}/comments/${commentId}`;
+    const config = { headers: { "x-session-id": sessionId } };
+    const res = await axios.delete(url, config);
+    const ans = res.data as unknown as { is_deleted: boolean };
+    return ans.is_deleted;
 }

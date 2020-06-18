@@ -50,4 +50,6 @@ export interface Comment {
     content: string;
     reply_to: CommentId | null;
     create_at: DateTimeString;
+    user_name: string;
+    user_avatar_url: string;
 }
