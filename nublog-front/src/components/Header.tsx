@@ -38,7 +38,7 @@ const Header: React.FC = () => {
                     <a>关于</a>
                 </Link>
 
-                <Link href="/my">
+                <Link href="/home">
                     <a><UserOutlined /></a>
                 </Link>
             </Space>
