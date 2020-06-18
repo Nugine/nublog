@@ -259,25 +259,25 @@ pub mod endpoint {
                     .fetch_optional(&mut tx)
                     .await?;
 
-            let (user_id, role_code): (i32, i32) = match optional_ans {
+            let (user_id,): (i32,) = match optional_ans {
                 Some(ans) => {
                     let user_id = ans.id;
-                    let ans = sqlx::query!(
-                        "UPDATE users SET email = $1, avatar_url = $2, profile_url = $3, github_token = $4 WHERE id = $5 RETURNING role_code",
+                    sqlx::query!(
+                        "UPDATE users SET email = $1, avatar_url = $2, profile_url = $3, github_token = $4 WHERE id = $5",
                         profile.email,
                         profile.avatar_url,
                         profile.html_url,
                         access_token,
                         user_id
-                    ).fetch_one(&mut tx).await?;
+                    ).execute(&mut tx).await?;
 
-                    (user_id, ans.role_code)
+                    (user_id, )
                 }
                 None => {
                     let ans = sqlx::query!(r#"
                         INSERT INTO users(role_code, name, email, avatar_url, profile_url, github_token) 
                         VALUES($1, $2, $3, $4, $5, $6)
-                        RETURNING id, role_code
+                        RETURNING id
                         "#,
                         READER_ROLE_CODE,
                         profile.login,
@@ -286,17 +286,16 @@ pub mod endpoint {
                         profile.html_url,
                         access_token
                     ).fetch_one(&mut tx).await?;
-                    (ans.id, ans.role_code)
+                    (ans.id, )
                 }
             };
 
             let sess_id = Uuid::new_v4();
 
             sqlx::query!(
-                "INSERT INTO sessions(id, user_id, role_code) VALUES($1, $2, $3)",
+                "INSERT INTO sessions(id, user_id) VALUES($1, $2)",
                 sess_id,
                 user_id,
-                role_code
             )
             .execute(&mut tx)
             .await?;

@@ -43,7 +43,7 @@ impl Middleware for SessionStore {
 
             let mut conn: Conn = req.get_conn().await?;
             let sess: Option<Session> =
-                sqlx::query_as!(Session, "SELECT * FROM sessions WHERE id = $1", sess_id)
+                sqlx::query_as!(Session, "SELECT sessions.*, users.role_code FROM sessions JOIN users ON users.id = sessions.user_id WHERE sessions.id = $1", sess_id)
                     .fetch_optional(&mut conn)
                     .await?;
 
