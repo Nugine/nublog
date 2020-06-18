@@ -26,6 +26,16 @@ pub mod dto {
     pub struct QueryTagArticlesRes {
         pub articles: Vec<QueryArticleMetaRes>,
     }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct CreateTagReq {
+        pub name: String,
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct CreateTagRes {
+        pub id: i32,
+    }
 }
 
 pub mod endpoint {
@@ -65,12 +75,31 @@ pub mod endpoint {
 
         Ok(reply::json(QueryTagArticlesRes { articles: anss }))
     }
+
+    pub async fn create_tag(mut req: Request) -> Result<Json<CreateTagRes>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE])?;
+
+        let dto: CreateTagReq = req.json().await?;
+
+        let mut conn = req.get_conn().await?;
+        let res = {
+            sqlx::query_as!(
+                CreateTagRes,
+                "INSERT INTO tags(name) VALUES($1) RETURNING id",
+                dto.name
+            )
+            .fetch_one(&mut conn)
+            .await?
+        };
+
+        Ok(reply::json(res))
+    }
 }
 
 use crate::prelude::*;
 
 pub fn register(router: &mut SimpleRouter) {
     use self::endpoint::*;
-    router.at("/tags").get(query_all_tags);
+    router.at("/tags").get(query_all_tags).post(create_tag);
     router.at("/tags/:id/articles").get(query_tag_articles);
 }
