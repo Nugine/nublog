@@ -53,6 +53,8 @@ export interface CreateArticle {
     content: string;
 }
 
+export type UpdateArticle = CreateArticle;
+
 export interface InitSession {
     session_id: string;
 }

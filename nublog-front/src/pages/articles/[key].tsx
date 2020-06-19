@@ -2,7 +2,7 @@ import React from "react";
 
 import { GetServerSideProps } from "next";
 import ReactMarkdown from "react-markdown";
-import { Row, Space, Layout, Col } from "antd";
+import { Row, Space, Layout, Col, Divider } from "antd";
 import { css } from "emotion";
 
 import BlogError from "../../components/Error";
@@ -52,6 +52,7 @@ const Article: React.FC<ArticleProps> = (props: ArticleProps) => {
                                 <Space direction="horizontal"><span>作者：{article.author}</span>{time}</Space>
                                 {tags}
                             </Row>
+                            <Divider />
                             <ReactMarkdown source={article.content} />
                         </Col>
                     </Row>

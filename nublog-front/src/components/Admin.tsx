@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
 
-import { Tabs, Row, Space, Comment as AntdComment, Avatar, Button, Input, List, Col, message, Alert, Table, Modal, Form } from "antd";
-import { css } from "emotion";
-import { GithubOutlined, PlusSquareOutlined, CloseSquareOutlined } from "@ant-design/icons";
+import { Tabs, Row, Avatar, Button, Input, message, Alert, Table, Modal, Form } from "antd";
+import { PlusSquareOutlined, } from "@ant-design/icons";
 
 import *  as vo from "../vo";
 import * as csr from "../api/csr";
-import ReactMarkdown from "react-markdown";
-import Link from "next/link";
 
 
 export interface ManageProps {
@@ -19,7 +16,7 @@ const ArticlesManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProp
     console.debug(userId, sessionId);
 
     const [modalCreate, setModalCreate] = useState<boolean>(false);
-    const [form] = Form.useForm();
+    const [formCreate] = Form.useForm();
     const [articles, setArticles] = useState<vo.ArticleMeta[]>([]);
     const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
 
@@ -47,11 +44,11 @@ const ArticlesManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProp
     };
 
     const handleCreate = async (): Promise<void> => {
-        const articleKey = form.getFieldValue("article_key");
-        const title = form.getFieldValue("title");
-        const author = form.getFieldValue("author");
-        const summary = form.getFieldValue("summary");
-        const content = form.getFieldValue("content");
+        const articleKey = formCreate.getFieldValue("article_key");
+        const title = formCreate.getFieldValue("title");
+        const author = formCreate.getFieldValue("author");
+        const summary = formCreate.getFieldValue("summary");
+        const content = formCreate.getFieldValue("content");
 
         const data = {
             "article_key": articleKey,
@@ -89,9 +86,37 @@ const ArticlesManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProp
         });
     };
 
+    const [formUpdate] = Form.useForm();
+    const [modalUpdate, setModalUpdate] = useState<boolean>(false);
+    const [targetArticleId, setTargetArticleId] = useState<number | null>(null);
 
+    const handleUpdate = async (): Promise<void> => {
+        const articleKey = formUpdate.getFieldValue("article_key");
+        const title = formUpdate.getFieldValue("title");
+        const author = formUpdate.getFieldValue("author");
+        const summary = formUpdate.getFieldValue("summary");
+        const content = formUpdate.getFieldValue("content");
+        const data = {
+            "article_key": articleKey,
+            title, author, summary, content
+        };
+        if (targetArticleId === null) {
+            throw new Error("unexpected UI error");
+        }
 
+        setConfirmLoading(true);
+        try {
+            await csr.updateArticle(sessionId, targetArticleId, data);
+            setModalUpdate(false);
+        } catch (err) {
+            console.error(err);
+            message.error("操作失败");
+        } finally {
+            setConfirmLoading(false);
+        }
 
+        await reload();
+    };
 
     return (
         <>
@@ -111,12 +136,31 @@ const ArticlesManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProp
                 onOk={handleCreate}
                 confirmLoading={confirmLoading}
             >
-                <Form form={form} layout="vertical">
+                <Form form={formCreate} layout="vertical">
                     <Form.Item name="article_key" label="URL 关键字" required><Input required /></Form.Item>
                     <Form.Item name="title" label="标题" required><Input required /></Form.Item>
                     <Form.Item name="author" label="作者" required><Input required /></Form.Item>
                     <Form.Item name="summary" label="摘要" required><Input required /></Form.Item>
-                    <Form.Item name="content" label="内容" required><Input.TextArea required /></Form.Item>
+                    <Form.Item name="content" label="内容" required><Input.TextArea required rows={10} /></Form.Item>
+                </Form>
+            </Modal>
+            <Modal
+                visible={modalUpdate}
+                onCancel={(): void => setModalUpdate(false)}
+                cancelText="取消"
+                okText="确定"
+                onOk={handleUpdate}
+                confirmLoading={confirmLoading}
+            >
+                <Form form={formUpdate} layout="vertical" initialValues={{ "article_key": "", title: "", author: "", summary: "", content: "" }}>
+                    <Form.Item name="id" label="ID" required>
+                        <Input required disabled placeholder={`${targetArticleId}`} />
+                    </Form.Item>
+                    <Form.Item name="article_key" label="URL 关键字" required><Input required /></Form.Item>
+                    <Form.Item name="title" label="标题" required><Input required /></Form.Item>
+                    <Form.Item name="author" label="作者" required><Input required /></Form.Item>
+                    <Form.Item name="summary" label="摘要" required><Input required /></Form.Item>
+                    <Form.Item name="content" label="内容" required><Input.TextArea required rows={10} /></Form.Item>
                 </Form>
             </Modal>
             <Table
@@ -182,9 +226,18 @@ const ArticlesManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProp
                         title: "操作",
                         key: "action", dataIndex: "id",
                         // eslint-disable-next-line react/display-name
-                        render: (id: number): JSX.Element => (
+                        render: (id: number, record: vo.ArticleMeta): JSX.Element => (
                             <>
-                                <Button>
+                                <Button onClick={async (): Promise<void> => {
+                                    try {
+                                        const article = await csr.getArticleByKey(record.article_key);
+                                        setModalUpdate(true); setTargetArticleId(id); formUpdate.resetFields();
+                                        formUpdate.setFieldsValue(article);
+                                    } catch (err) {
+                                        console.error(err);
+                                        message.error("加载失败");
+                                    }
+                                }}>
                                     修改
                                 </Button>
                                 <Button onClick={(): void => handleDelete(id)} >
@@ -440,7 +493,7 @@ const UsersManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) 
 
     const handleUpdate = async (): Promise<void> => {
         const roleCode = parseInt(formUpdate.getFieldValue("role_code"));
-        
+
         if (targetUserId === null) {
             throw new Error("unexpected UI error");
         }

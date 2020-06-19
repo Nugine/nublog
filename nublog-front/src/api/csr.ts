@@ -98,6 +98,16 @@ export async function createArticle(sessionId: string, data: dto.CreateArticle):
     return ans.id;
 }
 
+
+export async function updateArticle(sessionId: string, articleId: number, data: dto.UpdateArticle): Promise<boolean> {
+    const url = `${PREFIX}/articles/${articleId}`;
+    const config = { headers: { "x-session-id": sessionId } };
+    const res = await axios.post(url, data, config);
+    const ans = res.data as unknown as { is_updated: boolean };
+    return ans.is_updated;
+}
+
+
 export async function deleteUser(sessionId: string, userId: number): Promise<boolean> {
     const url = `${PREFIX}/users/${userId}`;
     const config = { headers: { "x-session-id": sessionId } };
@@ -136,4 +146,11 @@ export async function updateUser(sessionId: string, userId: number, roleCode: nu
     const res = await axios.post(url, { "role_code": roleCode }, config);
     const ans = res.data as unknown as { is_updated: boolean };
     return ans.is_updated;
+}
+
+export async function getArticleByKey(key: string): Promise<dto.Article> {
+    const url = `${PREFIX}/articles/key/${key}`;
+    const res = await axios.get(url);
+    const ans = res.data as unknown as dto.Article;
+    return ans;
 }
