@@ -392,7 +392,7 @@ const UsersManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) 
     };
 
     const handleCreate = async (): Promise<void> => {
-        const roleCode = form.getFieldValue("role_code");
+        const roleCode = parseInt(form.getFieldValue("role_code"));
         const name = form.getFieldValue("name");
         const email = form.getFieldValue("email");
         const avatarUrl = form.getFieldValue("avatar_url");
@@ -433,6 +433,31 @@ const UsersManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) 
         });
     };
 
+
+    const [formUpdate] = Form.useForm();
+    const [modalUpdate, setModalUpdate] = useState<boolean>(false);
+    const [targetUserId, setTargetTagId] = useState<number | null>(null);
+
+    const handleUpdate = async (): Promise<void> => {
+        const roleCode = parseInt(formUpdate.getFieldValue("role_code"));
+        
+        if (targetUserId === null) {
+            throw new Error("unexpected UI error");
+        }
+        setConfirmLoading(true);
+        try {
+            await csr.updateUser(sessionId, targetUserId, roleCode);
+            setModalUpdate(false);
+        } catch (err) {
+            console.error(err);
+            message.error("操作失败");
+        }
+        finally {
+            setConfirmLoading(false);
+        }
+        await reload();
+    };
+
     return (
         <>
             <Button
@@ -470,6 +495,26 @@ const UsersManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) 
                     </Form.Item>
                 </Form>
             </Modal>
+            <Modal
+                visible={modalUpdate}
+                onCancel={(): void => setModalUpdate(false)}
+                cancelText="取消"
+                okText="确定"
+                closable={false}
+                confirmLoading={confirmLoading}
+                onOk={handleUpdate}
+            >
+                <Form form={formUpdate} layout="vertical"
+                    initialValues={{ "role_code": 1 }}
+                >
+                    <Form.Item name="id" label="ID" required>
+                        <Input required disabled placeholder={`${targetUserId}`} />
+                    </Form.Item>
+                    <Form.Item name="role_code" label="角色代码" required>
+                        <Input type="number" required />
+                    </Form.Item>
+                </Form>
+            </Modal>
             <Table
                 columns={[
                     { title: "ID", key: "id", dataIndex: "id" },
@@ -492,7 +537,10 @@ const UsersManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) 
                         // eslint-disable-next-line react/display-name
                         render: (id: number): JSX.Element => (
                             <>
-                                <Button>
+                                <Button
+                                    onClick={(): void => { setModalUpdate(true); setTargetTagId(id); formUpdate.resetFields(); }}
+                                    disabled={id === userId}
+                                >
                                     修改
                                 </Button>
                                 <Button onClick={(): void => handleDelete(id)} >

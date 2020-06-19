@@ -129,3 +129,11 @@ export async function updateTag(sessionId: string, tagId: number, name: string):
     const ans = res.data as unknown as { is_updated: boolean };
     return ans.is_updated;
 }
+
+export async function updateUser(sessionId: string, userId: number, roleCode: number): Promise<boolean> {
+    const url = `${PREFIX}/users/${userId}`;
+    const config = { headers: { "x-session-id": sessionId } };
+    const res = await axios.post(url, { "role_code": roleCode }, config);
+    const ans = res.data as unknown as { is_updated: boolean };
+    return ans.is_updated;
+}
