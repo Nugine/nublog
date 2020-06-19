@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { Space, Spin, Alert, Button, Row, Avatar, Col } from "antd";
+import { Space, Spin, Alert, Button, Row, Avatar, Tag } from "antd";
 import { GithubOutlined } from "@ant-design/icons";
 import { useRouter } from "next/dist/client/router";
 import dynamic from "next/dynamic";
@@ -57,6 +57,8 @@ const HomeIndex: React.FC = () => {
 
     const router = useRouter();
 
+    const isAdmin = user?.role_code === 0;
+
     if (loadingState === "success") {
         if (user === null) {
             const handleLogin = (): void => {
@@ -79,11 +81,15 @@ const HomeIndex: React.FC = () => {
                 <div>
                     <Row justify="space-between" style={{ alignItems: "center" }}>
                         <Row justify="start" style={{ alignItems: "center" }}>
-                            <a href={user.profile_url} rel="noreferrer noopener" target="_blank">
-                                <Avatar shape="square" src={user.avatar_url} />
-                            </a>
+                            <Space>
+                                <a href={user.profile_url} rel="noreferrer noopener" target="_blank">
+                                    <Avatar shape="square" src={user.avatar_url} />
+                                </a>
 
-                            <span style={{ fontSize: "1.5em", marginLeft: "0.5em" }}>{user.name}</span>
+                                <span style={{ fontSize: "1.5em" }} > {user.name}</span>
+
+                                {isAdmin ? (<Tag>管理员</Tag>) : null}
+                            </Space>
                         </Row>
                         <Button type="default" onClick={handleLogout}>
                             登出
@@ -95,7 +101,6 @@ const HomeIndex: React.FC = () => {
         }
     }
 
-    const isAdmin = user?.role_code === 0;
 
     return (
         <Row justify="center" style={{ padding: "0 1em" }}>
