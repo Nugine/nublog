@@ -121,3 +121,11 @@ export async function deleteArticle(sessionId: string, articleId: number): Promi
     const ans = res.data as unknown as { is_deleted: boolean };
     return ans.is_deleted;
 }
+
+export async function updateTag(sessionId: string, tagId: number, name: string): Promise<boolean> {
+    const url = `${PREFIX}/tags/${tagId}`;
+    const config = { headers: { "x-session-id": sessionId } };
+    const res = await axios.post(url, { name }, config);
+    const ans = res.data as unknown as { is_updated: boolean };
+    return ans.is_updated;
+}

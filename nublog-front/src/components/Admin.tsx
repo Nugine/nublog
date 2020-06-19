@@ -204,7 +204,7 @@ const ArticlesManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProp
 const TagsManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) => {
     console.debug(userId, sessionId);
 
-    const [form] = Form.useForm();
+    const [formCreate] = Form.useForm();
     const [modalCreate, setModalCreate] = useState<boolean>(false);
     const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
 
@@ -234,7 +234,7 @@ const TagsManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) =
     };
 
     const handleCreate = async (): Promise<void> => {
-        const tagName = form.getFieldValue("name");
+        const tagName = formCreate.getFieldValue("name");
 
         setConfirmLoading(true);
         try {
@@ -267,6 +267,29 @@ const TagsManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) =
         });
     };
 
+    const [modalUpdate, setModalUpdate] = useState<boolean>(false);
+    const [formUpdate] = Form.useForm();
+    const [targetTagId, setTargetTagId] = useState<number | null>(null);
+
+    const handleUpdate = async (): Promise<void> => {
+        const name = formUpdate.getFieldValue("name");
+        if (targetTagId === null) {
+            throw new Error("unexpected UI error");
+        }
+        setConfirmLoading(true);
+        try {
+            await csr.updateTag(sessionId, targetTagId, name);
+            setModalUpdate(false);
+        } catch (err) {
+            console.error(err);
+            message.error("操作失败");
+        }
+        finally {
+            setConfirmLoading(false);
+        }
+        await reload();
+    };
+
     return (
         <>
             <Button
@@ -275,6 +298,7 @@ const TagsManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) =
             >
                 新增标签
             </Button>
+
             <Modal
                 visible={modalCreate}
                 onCancel={(): void => setModalCreate(false)}
@@ -284,8 +308,27 @@ const TagsManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) =
                 confirmLoading={confirmLoading}
                 onOk={handleCreate}
             >
-                <Form form={form} layout="vertical">
+                <Form form={formCreate} layout="vertical">
                     <Form.Item name="name" label="标签名称" required>
+                        <Input required />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            <Modal
+                visible={modalUpdate}
+                onCancel={(): void => setModalUpdate(false)}
+                cancelText="取消"
+                okText="确定"
+                closable={false}
+                confirmLoading={confirmLoading}
+                onOk={handleUpdate}
+            >
+                <Form form={formUpdate} layout="vertical" initialValues={{ name: "" }}>
+                    <Form.Item name="id" label="ID" required>
+                        <Input required disabled placeholder={`${targetTagId}`} />
+                    </Form.Item>
+                    <Form.Item name="name" label="名称" required>
                         <Input required />
                     </Form.Item>
                 </Form>
@@ -301,7 +344,7 @@ const TagsManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) =
                         // eslint-disable-next-line react/display-name
                         render: (id: number): JSX.Element => (
                             <>
-                                <Button>
+                                <Button onClick={(): void => { setModalUpdate(true); setTargetTagId(id); formUpdate.resetFields(); }}>
                                     修改
                                 </Button>
                                 <Button onClick={(): void => handleDelete(id)} >
