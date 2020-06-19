@@ -63,6 +63,16 @@ pub mod dto {
     }
 
     #[derive(Debug, Serialize, Deserialize)]
+    pub struct UpdateUserReq {
+        pub role_code: i32,
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct UpdateUserRes {
+        pub is_updated: bool,
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
     pub struct LoginRes {
         pub session_id: Uuid,
     }
@@ -335,6 +345,26 @@ pub mod endpoint {
 
         Ok(reply::json(res))
     }
+
+    pub async fn update_user(mut req: Request) -> Result<Json<UpdateUserRes>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE])?;
+
+        let id: i32 = req.expect_param("id").parse()?;
+        let dto: UpdateUserReq = req.json().await?;
+        let mut conn: Conn = req.get_conn().await?;
+        let is_updated = {
+            let ans = sqlx::query!(
+                "UPDATE users SET role_code = $1 WHERE id = $2",
+                dto.role_code,
+                id
+            )
+            .execute(&mut conn)
+            .await?;
+            ans == 1
+        };
+
+        Ok(reply::json(UpdateUserRes { is_updated }))
+    }
 }
 
 pub mod ext {
@@ -370,6 +400,10 @@ pub fn register(router: &mut SimpleRouter) {
     router.at("/users/auth/login").get(login);
     router.at("/users/oauth/github").get(github_oauth_callback);
     router.at("/users/self").get(query_self);
-    router.at("/users/:id").get(query_user).delete(delete_user);
+    router
+        .at("/users/:id")
+        .get(query_user)
+        .delete(delete_user)
+        .post(update_user);
     router.at("/users/:id/comments").get(query_user_comments);
 }
