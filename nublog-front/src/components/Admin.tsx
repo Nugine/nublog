@@ -19,6 +19,7 @@ const ArticlesManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProp
     const [modalCreate, setModalCreate] = useState<boolean>(false);
     const [form] = Form.useForm();
     const [articles, setArticles] = useState<vo.ArticleMeta[]>([]);
+    const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
 
     useEffect(() => {
         const f = async (): Promise<void> => {
@@ -41,6 +42,32 @@ const ArticlesManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProp
             console.error(err);
             message.error("加载失败，请刷新重试");
         }
+    };
+
+    const handleCreate = async (): Promise<void> => {
+        const articleKey = form.getFieldValue("article_key");
+        const title = form.getFieldValue("title");
+        const author = form.getFieldValue("author");
+        const summary = form.getFieldValue("summary");
+        const content = form.getFieldValue("content");
+
+        const data = {
+            "article_key": articleKey,
+            title, author, summary, content
+        };
+
+        setConfirmLoading(true);
+        try {
+            await csr.createArticle(sessionId, data);
+            setModalCreate(false);
+        } catch (err) {
+            console.error(err);
+            message.error("操作失败");
+        } finally {
+            setConfirmLoading(false);
+        }
+
+        await reload();
     };
 
     const handleDelete = async (articleId: number): Promise<void> => {
@@ -69,20 +96,50 @@ const ArticlesManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProp
                 onCancel={(): void => setModalCreate(false)}
                 cancelText="取消"
                 okText="确定"
+                onOk={handleCreate}
+                confirmLoading={confirmLoading}
             >
-                新增文章 对话框
+                <Form form={form} layout="vertical">
+                    <Form.Item name="article_key" label="URL 关键字" required><Input required /></Form.Item>
+                    <Form.Item name="title" label="标题" required><Input required /></Form.Item>
+                    <Form.Item name="author" label="作者" required><Input required /></Form.Item>
+                    <Form.Item name="summary" label="摘要" required><Input required /></Form.Item>
+                    <Form.Item name="content" label="内容" required><Input.TextArea required /></Form.Item>
+                </Form>
             </Modal>
             <Table
                 columns={[
-                    { title: "id", key: "id", dataIndex: "id" },
-                    { title: "key", key: "article_key", dataIndex: "article_key" },
-                    { title: "title", key: "title", dataIndex: "title" },
-                    { title: "author", key: "author", dataIndex: "author" },
-                    { title: "summary", key: "summary", dataIndex: "summary" },
-                    { title: "create_at", key: "create_at", dataIndex: "create_at" },
-                    { title: "update_at", key: "update_at", dataIndex: "update_at" },
+                    { title: "ID", key: "id", dataIndex: "id" },
+                    { title: "URL 关键字", key: "article_key", dataIndex: "article_key" },
+                    { title: "标题", key: "title", dataIndex: "title" },
+                    { title: "作者", key: "author", dataIndex: "author" },
+                    { title: "摘要", key: "summary", dataIndex: "summary" },
+                    { title: "创建时间", key: "create_at", dataIndex: "create_at" },
+                    { title: "更新时间", key: "update_at", dataIndex: "update_at" },
                     {
-                        key: "action-delete", dataIndex: "id",
+                        title: "标签", key: "tags", dataIndex: "tags",
+                        // eslint-disable-next-line react/display-name
+                        render: (tags: vo.Tag[]): JSX.Element => (
+                            <Button onClick={(): void => {
+                                Modal.info({
+                                    title: "标签", content: (
+                                        <Table
+                                            columns={[
+                                                { title: "ID", key: "id", dataIndex: "id" },
+                                                { title: "名称", key: "name", dataIndex: "name" },
+                                            ]}
+                                            dataSource={tags}
+                                        />
+                                    )
+                                });
+                            }}>
+                                查看
+                            </Button>
+                        )
+                    },
+                    {
+                        title: "操作",
+                        key: "action", dataIndex: "id",
                         // eslint-disable-next-line react/display-name
                         render: (id: number): JSX.Element => (
                             <Button onClick={(): void => {
@@ -176,7 +233,7 @@ const TagsManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) =
                 confirmLoading={confirmLoading}
                 onOk={handleCreate}
             >
-                <Form form={form}>
+                <Form form={form} layout="vertical">
                     <Form.Item name="name" label="标签名称" required>
                         <Input required />
                     </Form.Item>
@@ -185,10 +242,11 @@ const TagsManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) =
 
             <Table
                 columns={[
-                    { title: "id", key: "id", dataIndex: "id" },
-                    { title: "name", key: "name", dataIndex: "name" },
+                    { title: "ID", key: "id", dataIndex: "id" },
+                    { title: "名称", key: "name", dataIndex: "name" },
                     {
-                        key: "action-delete", dataIndex: "id",
+                        title: "操作",
+                        key: "action", dataIndex: "id",
                         // eslint-disable-next-line react/display-name
                         render: (id: number): JSX.Element => (
                             <Button onClick={(): void => {
@@ -288,7 +346,9 @@ const UsersManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) 
                 confirmLoading={confirmLoading}
                 onOk={handleCreate}
             >
-                <Form form={form} initialValues={{ "role_code": 1, name: "", email: "", "avatar_url": "", "profile_url": "" }} >
+                <Form form={form} layout="vertical"
+                    initialValues={{ "role_code": 1, name: "", email: "", "avatar_url": "", "profile_url": "" }}
+                >
                     <Form.Item name="role_code" label="角色代码" required>
                         <Input type="number" required />
                     </Form.Item>
@@ -308,22 +368,23 @@ const UsersManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) 
             </Modal>
             <Table
                 columns={[
-                    { title: "id", key: "id", dataIndex: "id" },
-                    { title: "role_code", key: "role_code", dataIndex: "role_code" },
-                    { title: "name", key: "name", dataIndex: "name" },
-                    { title: "email", key: "email", dataIndex: "email" },
+                    { title: "ID", key: "id", dataIndex: "id" },
+                    { title: "角色代码", key: "role_code", dataIndex: "role_code" },
+                    { title: "昵称", key: "name", dataIndex: "name" },
+                    { title: "邮箱", key: "email", dataIndex: "email" },
                     {
-                        title: "avatar", key: "avatar_url", dataIndex: "avatar_url",
+                        title: "头像", key: "avatar_url", dataIndex: "avatar_url",
                         // eslint-disable-next-line react/display-name
                         render: (avatarUrl: string): JSX.Element => (<Avatar src={avatarUrl} shape="square" />)
                     },
                     {
-                        title: "profile", key: "profile_url", dataIndex: "profile_url",
+                        title: "主页", key: "profile_url", dataIndex: "profile_url",
                         // eslint-disable-next-line react/display-name
                         render: (profileUrl: string): JSX.Element => (<a href={profileUrl} target="_blank" rel="noopener noreferrer">{profileUrl}</a>)
                     },
                     {
-                        key: "action-delete", dataIndex: "id",
+                        title: "操作",
+                        key: "action", dataIndex: "id",
                         // eslint-disable-next-line react/display-name
                         render: (id: number): JSX.Element => (
                             <Button onClick={(): void => {

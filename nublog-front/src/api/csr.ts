@@ -90,6 +90,14 @@ export async function createUser(sessionId: string, data: dto.CreateUser): Promi
     return ans.id;
 }
 
+export async function createArticle(sessionId: string, data: dto.CreateArticle): Promise<number> {
+    const url = `${PREFIX}/articles`;
+    const config = { headers: { "x-session-id": sessionId } };
+    const res = await axios.post(url, data, config);
+    const ans = res.data as unknown as { id: number };
+    return ans.id;
+}
+
 export async function deleteUser(sessionId: string, userId: number): Promise<boolean> {
     const url = `${PREFIX}/users/${userId}`;
     const config = { headers: { "x-session-id": sessionId } };

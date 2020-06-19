@@ -45,6 +45,14 @@ export interface CreateUser {
     profile_url: string;
 }
 
+export interface CreateArticle {
+    article_key: string;
+    title: string;
+    author: string;
+    summary: string;
+    content: string;
+}
+
 export interface InitSession {
     session_id: string;
 }
