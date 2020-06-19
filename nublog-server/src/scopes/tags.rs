@@ -38,9 +38,13 @@ pub mod dto {
     }
 
     #[derive(Debug, Serialize, Deserialize)]
-
     pub struct DeleteTagRes {
         pub is_deleted: bool,
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct RelateTagArticleReq {
+        pub article_id: i32,
     }
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -63,7 +67,7 @@ pub mod endpoint {
     pub async fn query_all_tags(req: Request) -> Result<Json<QueryAllTagsRes>> {
         let mut conn: Conn = req.get_conn().await?;
         let anss = {
-            sqlx::query_as!(QueryTagRes, "SELECT * FROM tags")
+            sqlx::query_as!(QueryTagRes, "SELECT * FROM tags ORDER BY id ASC")
                 .fetch_all(&mut conn)
                 .await?
         };
@@ -145,6 +149,23 @@ pub mod endpoint {
 
         Ok(reply::json(UpdateTagRes { is_updated }))
     }
+
+    pub async fn relate_tag_article(mut req: Request) -> Result<Json<()>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE])?;
+        let id: i32 = req.expect_param("id").parse()?;
+        let dto: RelateTagArticleReq = req.json().await?;
+        let mut conn: Conn = req.get_conn().await?;
+        {
+            sqlx::query!(
+                "INSERT INTO articles_tags_relation(article_id, tag_id) VALUES($1,$2)",
+                dto.article_id,
+                id
+            )
+            .execute(&mut conn)
+            .await?;
+        }
+        Ok(reply::json(()))
+    }
 }
 
 use crate::prelude::*;
@@ -152,6 +173,9 @@ use crate::prelude::*;
 pub fn register(router: &mut SimpleRouter) {
     use self::endpoint::*;
     router.at("/tags").get(query_all_tags).post(create_tag);
-    router.at("/tags/:id/articles").get(query_tag_articles);
+    router
+        .at("/tags/:id/articles")
+        .get(query_tag_articles)
+        .post(relate_tag_article);
     router.at("/tags/:id").delete(delete_tag).post(update_tag);
 }
