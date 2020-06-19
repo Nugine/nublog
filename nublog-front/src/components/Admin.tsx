@@ -6,6 +6,8 @@ import { GithubOutlined, PlusSquareOutlined, CloseSquareOutlined } from "@ant-de
 
 import *  as vo from "../vo";
 import * as csr from "../api/csr";
+import ReactMarkdown from "react-markdown";
+import Link from "next/link";
 
 
 export interface ManageProps {
@@ -70,16 +72,26 @@ const ArticlesManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProp
         await reload();
     };
 
-    const handleDelete = async (articleId: number): Promise<void> => {
-        try {
-            await csr.deleteArticle(sessionId, articleId);
-        } catch (err) {
-            console.error(err);
-            message.error("操作失败");
-        }
+    const handleDelete = (articleId: number): void => {
+        Modal.confirm({
+            title: `即将删除文章 id = ${articleId}`,
+            okText: "确定", cancelText: "取消",
+            onOk: async (): Promise<void> => {
+                try {
+                    await csr.deleteArticle(sessionId, articleId);
+                } catch (err) {
+                    console.error(err);
+                    message.error("操作失败");
+                }
 
-        await reload();
+                await reload();
+            }
+        });
     };
+
+
+
+
 
     return (
         <>
@@ -113,9 +125,38 @@ const ArticlesManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProp
                     { title: "URL 关键字", key: "article_key", dataIndex: "article_key" },
                     { title: "标题", key: "title", dataIndex: "title" },
                     { title: "作者", key: "author", dataIndex: "author" },
-                    { title: "摘要", key: "summary", dataIndex: "summary" },
-                    { title: "创建时间", key: "create_at", dataIndex: "create_at" },
-                    { title: "更新时间", key: "update_at", dataIndex: "update_at" },
+                    {
+                        title: "摘要", key: "summary", dataIndex: "summary",
+                        // eslint-disable-next-line react/display-name
+                        render: (summary: string): JSX.Element => (
+                            <Button onClick={(): void => {
+                                Modal.info({
+                                    title: "摘要", content: (summary)
+                                });
+                            }}>
+                                查看
+                            </Button>
+                        )
+                    },
+                    {
+                        title: "内容", key: "content", dataIndex: "article_key",
+                        // eslint-disable-next-line react/display-name
+                        render: (key: string): JSX.Element => (
+                            <a href={`/articles/${key}`} target="_blank" rel="noopener noreferrer">
+                                <Button>
+                                    跳转
+                                </Button>
+                            </a>
+                        )
+                    },
+                    {
+                        title: "创建时间", key: "create_at", dataIndex: "create_at",
+                        render: (time: string): string => vo.fmtTimeDetail(new Date(time))
+                    },
+                    {
+                        title: "更新时间", key: "update_at", dataIndex: "update_at",
+                        render: (time: string): string => vo.fmtTimeDetail(new Date(time))
+                    },
                     {
                         title: "标签", key: "tags", dataIndex: "tags",
                         // eslint-disable-next-line react/display-name
@@ -142,11 +183,14 @@ const ArticlesManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProp
                         key: "action", dataIndex: "id",
                         // eslint-disable-next-line react/display-name
                         render: (id: number): JSX.Element => (
-                            <Button onClick={(): void => {
-                                Modal.confirm({ title: `即将删除文章 id = ${id}`, okText: "确定", cancelText: "取消", onOk: () => handleDelete(id) });
-                            }} >
-                                删除
-                            </Button>
+                            <>
+                                <Button>
+                                    修改
+                                </Button>
+                                <Button onClick={(): void => handleDelete(id)} >
+                                    删除
+                                </Button>
+                            </>
                         )
                     }
                 ]}
@@ -206,14 +250,21 @@ const TagsManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) =
         await reload();
     };
 
-    const handleDelete = async (tagId: number): Promise<void> => {
-        try {
-            await csr.deleteTag(sessionId, tagId);
-        } catch (err) {
-            console.error(err);
-            message.error("操作失败");
-        }
-        await reload();
+    const handleDelete = (tagId: number): void => {
+        Modal.confirm({
+            title: `即将删除标签 id = ${tagId}`,
+            okText: "确定",
+            cancelText: "取消",
+            onOk: async (): Promise<void> => {
+                try {
+                    await csr.deleteTag(sessionId, tagId);
+                } catch (err) {
+                    console.error(err);
+                    message.error("操作失败");
+                }
+                await reload();
+            }
+        });
     };
 
     return (
@@ -249,11 +300,14 @@ const TagsManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) =
                         key: "action", dataIndex: "id",
                         // eslint-disable-next-line react/display-name
                         render: (id: number): JSX.Element => (
-                            <Button onClick={(): void => {
-                                Modal.confirm({ title: `即将删除标签 id = ${id}`, okText: "确定", cancelText: "取消", onOk: () => handleDelete(id) });
-                            }} >
-                                删除
-                            </Button>
+                            <>
+                                <Button>
+                                    修改
+                                </Button>
+                                <Button onClick={(): void => handleDelete(id)} >
+                                    删除
+                                </Button>
+                            </>
                         )
                     }
                 ]}
@@ -318,15 +372,22 @@ const UsersManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) 
         await reload();
     };
 
-    const handleDelete = async (targetUserId: number): Promise<void> => {
-        try {
-            await csr.deleteUser(sessionId, targetUserId);
-        } catch (err) {
-            console.error(err);
-            message.error("操作失败");
-        }
+    const handleDelete = (targetUserId: number): void => {
+        Modal.confirm({
+            title: `即将删除用户 id = ${targetUserId}`,
+            okText: "确定",
+            cancelText: "取消",
+            onOk: async (): Promise<void> => {
+                try {
+                    await csr.deleteUser(sessionId, targetUserId);
+                } catch (err) {
+                    console.error(err);
+                    message.error("操作失败");
+                }
 
-        await reload();
+                await reload();
+            }
+        });
     };
 
     return (
@@ -387,11 +448,14 @@ const UsersManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) 
                         key: "action", dataIndex: "id",
                         // eslint-disable-next-line react/display-name
                         render: (id: number): JSX.Element => (
-                            <Button onClick={(): void => {
-                                Modal.confirm({ title: `即将删除用户 id = ${id}`, okText: "确定", cancelText: "取消", onOk: () => handleDelete(id) });
-                            }} >
-                                删除
-                            </Button>
+                            <>
+                                <Button>
+                                    修改
+                                </Button>
+                                <Button onClick={(): void => handleDelete(id)} >
+                                    删除
+                                </Button>
+                            </>
                         )
                     }
                 ]}
