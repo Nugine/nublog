@@ -258,12 +258,25 @@ pub mod endpoint {
     pub async fn query_all_article_meta(req: Request) -> Result<Json<QueryAllArticleMetaRes>> {
         let mut conn: Conn = req.get_conn().await?;
 
-        // not verified
-        // FIXME: sqlx bug: query_as!
-        let anss: Vec<QueryArticleMetaRes> = {
-            sqlx::query_as("SELECT * FROM article_meta_view ORDER BY create_at DESC")
+        #[derive(Debug, Deserialize)]
+        struct Query {
+            search: Option<String>,
+        }
+
+        let query: Query = req.query()?;
+
+        let anss: Vec<QueryArticleMetaRes> = match query.search{
+            None =>{
+                sqlx::query_as("SELECT * FROM article_meta_view ORDER BY create_at DESC")
                 .fetch_all(&mut conn)
                 .await?
+            }
+            Some(search)=>{
+                sqlx::query_as("SELECT view.* FROM article_meta_view view JOIN articles ON view.id = articles.id WHERE articles.content LIKE $1 ORDER BY create_at DESC")
+                .bind(format!("%{}%",search))
+                .fetch_all(&mut conn)
+                .await?
+            }
         };
 
         Ok(reply::json(QueryAllArticleMetaRes { articles: anss }))
