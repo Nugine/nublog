@@ -42,6 +42,17 @@ pub mod dto {
     pub struct DeleteTagRes {
         pub is_deleted: bool,
     }
+
+    #[derive(Debug, Serialize, Deserialize)]
+    pub struct UpdateTagReq {
+        pub name: String,
+    }
+
+    #[derive(Debug, Serialize, Deserialize)]
+
+    pub struct UpdateTagRes {
+        pub is_updated: bool,
+    }
 }
 
 pub mod endpoint {
@@ -101,7 +112,7 @@ pub mod endpoint {
         Ok(reply::json(res))
     }
 
-    pub async fn delete_tag(mut req: Request) -> Result<Json<DeleteTagRes>> {
+    pub async fn delete_tag(req: Request) -> Result<Json<DeleteTagRes>> {
         req.ensure_roles(&[ADMIN_ROLE_CODE])?;
 
         let id: i32 = req.expect_param("id").parse()?;
@@ -117,6 +128,23 @@ pub mod endpoint {
 
         Ok(reply::json(DeleteTagRes { is_deleted }))
     }
+
+    pub async fn update_tag(mut req: Request) -> Result<Json<UpdateTagRes>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE])?;
+
+        let id: i32 = req.expect_param("id").parse()?;
+        let dto: UpdateTagReq = req.json().await?;
+
+        let mut conn: Conn = req.get_conn().await?;
+        let is_updated = {
+            let ans = sqlx::query!("UPDATE tags SET name = $1 WHERE id = $2", dto.name, id)
+                .execute(&mut conn)
+                .await?;
+            ans == 1
+        };
+
+        Ok(reply::json(UpdateTagRes { is_updated }))
+    }
 }
 
 use crate::prelude::*;
@@ -125,5 +153,5 @@ pub fn register(router: &mut SimpleRouter) {
     use self::endpoint::*;
     router.at("/tags").get(query_all_tags).post(create_tag);
     router.at("/tags/:id/articles").get(query_tag_articles);
-    router.at("/tags/:id").delete(delete_tag);
+    router.at("/tags/:id").delete(delete_tag).post(update_tag);
 }
