@@ -154,3 +154,11 @@ export async function getArticleByKey(key: string): Promise<dto.Article> {
     const ans = res.data as unknown as dto.Article;
     return ans;
 }
+
+export async function relateTagArticle(sessionId: string, tagId: number, articleId: number): Promise<void> {
+    const url = `${PREFIX}/tags/${tagId}/articles`;
+    const config = { headers: { "x-session-id": sessionId } };
+    const data = { "article_id": articleId };
+    await axios.post(url, data, config);
+    return;
+}

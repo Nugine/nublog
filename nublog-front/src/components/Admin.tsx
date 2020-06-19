@@ -343,6 +343,27 @@ const TagsManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) =
         await reload();
     };
 
+    const [modalRelate, setModalRelate] = useState<boolean>(false);
+    const [formRelate] = Form.useForm();
+
+    const handleRelate = async (): Promise<void> => {
+        const articleId = parseInt(formRelate.getFieldValue("article_id"));
+        if (targetTagId === null) {
+            throw new Error("unexpected UI error");
+        }
+        setConfirmLoading(true);
+        try {
+            await csr.relateTagArticle(sessionId, targetTagId, articleId);
+            setModalRelate(false);
+        } catch (err) {
+            console.error(err);
+            message.error("操作失败");
+        } finally {
+            setConfirmLoading(false);
+        }
+        await reload();
+    };
+
     return (
         <>
             <Button
@@ -387,6 +408,24 @@ const TagsManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) =
                 </Form>
             </Modal>
 
+            <Modal
+                visible={modalRelate}
+                onCancel={(): void => setModalRelate(false)}
+                cancelText="取消"
+                okText="确定"
+                confirmLoading={confirmLoading}
+                onOk={handleRelate}
+            >
+                <Form form={formRelate} layout="vertical" initialValues={{ "article_id": "" }}>
+                    <Form.Item name="tag_id" label="标签 ID" required>
+                        <Input required disabled placeholder={`${targetTagId}`} />
+                    </Form.Item>
+                    <Form.Item name="article_id" label="文章 ID" required>
+                        <Input required />
+                    </Form.Item>
+                </Form>
+            </Modal>
+
             <Table
                 columns={[
                     { title: "ID", key: "id", dataIndex: "id" },
@@ -397,6 +436,9 @@ const TagsManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) =
                         // eslint-disable-next-line react/display-name
                         render: (id: number): JSX.Element => (
                             <>
+                                <Button onClick={(): void => { setModalRelate(true); setTargetTagId(id); formRelate.resetFields(); }}>
+                                    关联
+                                </Button>
                                 <Button onClick={(): void => { setModalUpdate(true); setTargetTagId(id); formUpdate.resetFields(); }}>
                                     修改
                                 </Button>
