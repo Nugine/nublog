@@ -175,8 +175,8 @@ pub mod endpoint {
         {
             sqlx::query!(
                 "DELETE FROM articles_tags_relation WHERE tag_id = $1 AND article_id = $2",
+                id,
                 dto.article_id,
-                id
             )
             .execute(&mut conn)
             .await?;
