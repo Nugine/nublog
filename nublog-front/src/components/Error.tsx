@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { Row } from "antd";
 
 export interface ErrorProps {
     statusCode: number;
