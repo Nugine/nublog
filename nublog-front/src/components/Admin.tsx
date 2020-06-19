@@ -346,14 +346,18 @@ const TagsManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) =
     const [modalRelate, setModalRelate] = useState<boolean>(false);
     const [formRelate] = Form.useForm();
 
-    const handleRelate = async (): Promise<void> => {
+    const handleRelate = async (ty: "insert" | "delete"): Promise<void> => {
         const articleId = parseInt(formRelate.getFieldValue("article_id"));
         if (targetTagId === null) {
             throw new Error("unexpected UI error");
         }
         setConfirmLoading(true);
         try {
-            await csr.relateTagArticle(sessionId, targetTagId, articleId);
+            if (ty === "insert") {
+                await csr.relateTagArticle(sessionId, targetTagId, articleId);
+            } else if (ty === "delete") {
+                await csr.unrelateTagArticle(sessionId, targetTagId, articleId);
+            }
             setModalRelate(false);
         } catch (err) {
             console.error(err);
@@ -410,11 +414,17 @@ const TagsManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProps) =
 
             <Modal
                 visible={modalRelate}
-                onCancel={(): void => setModalRelate(false)}
-                cancelText="取消"
-                okText="确定"
-                confirmLoading={confirmLoading}
-                onOk={handleRelate}
+                footer={<>
+                    <Button onClick={(): void => setModalRelate(false)}>
+                        取消
+                    </Button>
+                    <Button type="primary" loading={confirmLoading} onClick={(): Promise<void> => handleRelate("delete")}>
+                        删除
+                    </Button>
+                    <Button type="primary" loading={confirmLoading} onClick={(): Promise<void> => handleRelate("insert")}>
+                        新增
+                    </Button>
+                </>}
             >
                 <Form form={formRelate} layout="vertical" initialValues={{ "article_id": "" }}>
                     <Form.Item name="tag_id" label="标签 ID" required>

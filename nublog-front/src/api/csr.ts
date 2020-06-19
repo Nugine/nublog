@@ -162,3 +162,11 @@ export async function relateTagArticle(sessionId: string, tagId: number, article
     await axios.post(url, data, config);
     return;
 }
+
+export async function unrelateTagArticle(sessionId: string, tagId: number, articleId: number): Promise<void> {
+    const url = `${PREFIX}/tags/${tagId}/articles`;
+    const data = { "article_id": articleId };
+    const config = { headers: { "x-session-id": sessionId }, data };
+    await axios.delete(url, config);
+    return;
+}
