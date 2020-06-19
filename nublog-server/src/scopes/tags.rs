@@ -166,6 +166,23 @@ pub mod endpoint {
         }
         Ok(reply::json(()))
     }
+
+    pub async fn unrelate_tag_article(mut req: Request) -> Result<Json<()>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE])?;
+        let id: i32 = req.expect_param("id").parse()?;
+        let dto: RelateTagArticleReq = req.json().await?;
+        let mut conn: Conn = req.get_conn().await?;
+        {
+            sqlx::query!(
+                "DELETE FROM articles_tags_relation WHERE tag_id = $1 AND article_id = $2",
+                dto.article_id,
+                id
+            )
+            .execute(&mut conn)
+            .await?;
+        }
+        Ok(reply::json(()))
+    }
 }
 
 use crate::prelude::*;
@@ -176,6 +193,7 @@ pub fn register(router: &mut SimpleRouter) {
     router
         .at("/tags/:id/articles")
         .get(query_tag_articles)
-        .post(relate_tag_article);
+        .post(relate_tag_article)
+        .delete(unrelate_tag_article);
     router.at("/tags/:id").delete(delete_tag).post(update_tag);
 }
