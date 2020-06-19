@@ -67,9 +67,10 @@ export async function getAllTags(): Promise<dto.Tag[]> {
     return ans.tags;
 }
 
-export async function getAllArticlesMeta(): Promise<dto.ArticleMeta[]> {
+export async function getAllArticlesMeta(search?: string): Promise<dto.ArticleMeta[]> {
     const url = `${PREFIX}/articles`;
-    const res = await axios.get(url);
+    const config = { params: { search } };
+    const res = await axios.get(url, config);
     const ans = res.data as unknown as { articles: dto.ArticleMeta[] };
     return ans.articles;
 }

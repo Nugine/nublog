@@ -214,6 +214,7 @@ const ArticlesManage: React.FC<ManageProps> = ({ userId, sessionId }: ManageProp
                                                 { title: "名称", key: "name", dataIndex: "name" },
                                             ]}
                                             dataSource={tags}
+                                            rowKey={(r): number => r.id}
                                         />
                                     )
                                 });
