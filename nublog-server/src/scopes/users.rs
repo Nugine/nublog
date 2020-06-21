@@ -324,6 +324,17 @@ pub mod endpoint {
         }))
     }
 
+    pub async fn logout(req: Request) -> Result<Response> {
+        let sess = req.try_get_session_ref()?;
+        let mut conn: Conn = req.get_conn().await?;
+        {
+            sqlx::query!("DELETE FROM sessions WHERE id = $1", sess.id)
+                .execute(&mut conn)
+                .await?;
+        }
+        Ok(Response::empty())
+    }
+
     pub async fn create_user(mut req: Request) -> Result<Json<CreateUserRes>> {
         req.ensure_roles(&[ADMIN_ROLE_CODE])?;
 
@@ -398,6 +409,7 @@ pub fn register(router: &mut SimpleRouter) {
     use self::endpoint::*;
     router.at("/users").get(query_all_users).post(create_user);
     router.at("/users/auth/login").get(login);
+    router.at("/users/auth/logout").post(logout);
     router.at("/users/oauth/github").get(github_oauth_callback);
     router.at("/users/self").get(query_self);
     router
