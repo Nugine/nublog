@@ -171,3 +171,10 @@ export async function unrelateTagArticle(sessionId: string, tagId: number, artic
     await axios.delete(url, config);
     return;
 }
+
+export async function logout(sessionId: string): Promise<void> {
+    const url = `${PREFIX}/users/auth/logout`;
+    const config = { headers: { "x-session-id": sessionId } };
+    await axios.post(url, undefined, config);
+    return;
+}

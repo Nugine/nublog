@@ -73,6 +73,10 @@ const HomeIndex: React.FC = () => {
             );
         } else {
             const handleLogout = (): void => {
+                const sessionId = vo.getSessionId();
+                if (sessionId) {
+                    csr.logout(sessionId);
+                }
                 localStorage.removeItem("x-session-id");
                 router.reload();
             };
