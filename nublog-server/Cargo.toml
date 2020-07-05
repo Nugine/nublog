@@ -13,3 +13,7 @@ serde_json = "1.0.56"
 anyhow = "1.0.31"
 env_logger = "0.7.1"
 dotenv = "0.15.0"
+
+[dependencies.nuclear]
+path = "/home/nugine/projects/nuclear"
+version = "0.0.8"
