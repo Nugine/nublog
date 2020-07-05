@@ -7,8 +7,7 @@ mod conn;
 mod error;
 mod middlewares;
 mod rpc;
-
-mod articles;
+mod scopes;
 
 use crate::config::Config;
 
@@ -28,7 +27,7 @@ async fn build_app(builder: AppBuilder) -> Result<App> {
 
     let router = {
         let mut router = SimpleRouter::new();
-        crate::articles::register(&mut router);
+        crate::scopes::articles::register(&mut router);
         router
     };
 
