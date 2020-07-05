@@ -3,3 +3,22 @@
 [[package]]
 name = "nublog-server"
 version = "0.1.0"
+dependencies = [
+ "serde",
+ "toml",
+]
+
+[[package]]
+name = "serde"
+version = "1.0.114"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5317f7588f0a5078ee60ef675ef96735a1442132dc645eb1d12c018620ed8cd3"
+
+[[package]]
+name = "toml"
+version = "0.5.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ffc92d160b1eef40665be3a05630d003936a3bc7da7421277846c2613e92c71a"
+dependencies = [
+ "serde",
+]
