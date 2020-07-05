@@ -19,3 +19,22 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER articles_update_at BEFORE UPDATE ON articles
 FOR EACH ROW
 EXECUTE PROCEDURE set_update_at();
+
+
+
+CREATE TABLE users(
+    id SERIAL NOT NULL PRIMARY KEY,
+    role_code INTEGER NOT NULL CONSTRAINT users_role_code_check CHECK (role_code BETWEEN 0 AND 1),
+    name VARCHAR(256) NOT NULL UNIQUE,
+    email VARCHAR(256) NOT NULL,
+    avatar_url VARCHAR(512) NOT NULL,
+    profile_url VARCHAR(512) NOT NULL,
+    github_token VARCHAR(512),
+    last_login TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE sessions(
+    id UUID NOT NULL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    create_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
