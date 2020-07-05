@@ -3,6 +3,7 @@
 mod prelude;
 
 mod config;
+mod conn;
 
 use crate::config::Config;
 
