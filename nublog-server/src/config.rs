@@ -2,26 +2,26 @@ use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
-    server: Server,
-    database: Database,
-    github: GitHub,
+    pub server: Server,
+    pub database: Database,
+    pub github: GitHub,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Server {
-    addr: String,
-    root_url: String,
+    pub addr: String,
+    pub root_url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Database {
-    url: String,
+    pub url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GitHub {
-    client_id: String,
-    client_secret: String,
+    pub client_id: String,
+    pub client_secret: String,
 }
 
 impl Config {
