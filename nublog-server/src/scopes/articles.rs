@@ -68,8 +68,8 @@ pub mod dto {
         pub author: String,
         pub summary: String,
         pub content: Option<String>,
-        pub create_at: DateTime,
-        pub update_at: DateTime,
+        pub created_at: DateTime,
+        pub updated_at: DateTime,
     }
 
     pub type QueryAllArticleRes = Vec<QueryArticleRes>;
@@ -170,7 +170,14 @@ pub mod endpoints {
 
     pub async fn query_all_articles(req: Request) -> Result<Json<QueryAllArticleRes>> {
         let mut conn = req.get_conn().await?;
-        let ans = sqlx::query_as!(QueryArticleRes, "SELECT * FROM articles")
+        let ans = sqlx::query_as!(QueryArticleRes, 
+            r#"
+                SELECT 
+                    id, url_key, title, author, summary, 
+                    created_at, updated_at, 
+                    NULL AS content
+                FROM articles
+            "#)
             .fetch_all(&mut conn)
             .await?;
         Ok(reply::json(ans))
