@@ -79,8 +79,8 @@ pub mod endpoints {
     use super::dto::*;
     use crate::prelude::*;
 
-    pub async fn create_article(req: Request) -> Result<Json<CreateArticleRes>> {
-        // FIXME: check permission
+    pub async fn create_article(mut req: Request) -> Result<Json<CreateArticleRes>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE]).await?;
 
         jsonrpc(req, |mut conn, dto: CreateArticleReq| async move {
             let ans = sqlx::query!(
@@ -103,7 +103,7 @@ pub mod endpoints {
     }
 
     pub async fn delete_article(mut req: Request) -> Result<Json<DeleteArticleRes>> {
-        // FIXME: check permission
+        req.ensure_roles(&[ADMIN_ROLE_CODE]).await?;
 
         jsonrpc(req, |mut conn, dto: DeleteArticleReq| async move {
             let ans = sqlx::query!("DELETE FROM articles WHERE id = $1", dto.id)
@@ -117,8 +117,8 @@ pub mod endpoints {
         .await
     }
 
-    pub async fn update_article(req: Request) -> Result<Json<UpdateArticleRes>> {
-        // FIXME: check permission
+    pub async fn update_article(mut req: Request) -> Result<Json<UpdateArticleRes>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE]).await?;
 
         jsonrpc(req, |mut conn, dto: UpdateArticleReq| async move {
             let ans = sqlx::query!(
@@ -170,16 +170,18 @@ pub mod endpoints {
 
     pub async fn query_all_articles(req: Request) -> Result<Json<QueryAllArticleRes>> {
         let mut conn = req.get_conn().await?;
-        let ans = sqlx::query_as!(QueryArticleRes, 
+        let ans = sqlx::query_as!(
+            QueryArticleRes,
             r#"
                 SELECT 
                     id, url_key, title, author, summary, 
                     created_at, updated_at, 
                     NULL AS content
                 FROM articles
-            "#)
-            .fetch_all(&mut conn)
-            .await?;
+            "#
+        )
+        .fetch_all(&mut conn)
+        .await?;
         Ok(reply::json(ans))
     }
 }
