@@ -10,7 +10,6 @@ pub struct Config {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Server {
     pub addr: String,
-    pub root_url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

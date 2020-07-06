@@ -28,6 +28,7 @@ async fn build_app(builder: AppBuilder) -> Result<App> {
     let router = {
         let mut router = SimpleRouter::new();
         crate::scopes::articles::register(&mut router);
+        crate::scopes::users::register(&mut router);
         router
     };
 

@@ -4,6 +4,12 @@ use crate::prelude::*;
 pub enum ApiError {
     #[error("NotFound")]
     NotFound = 1001,
+
+    #[error("NoSession")]
+    NoSession = 1002,
+
+    #[error("NoPermission")]
+    NoPermission = 1003,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -17,7 +23,10 @@ pub fn catch_api_error(e: ApiError) -> Result<Response> {
 
     match &e {
         ApiError::NotFound => {
-            res.set_status(StatusCode::NOT_FOUND);
+            res.set_status(http::StatusCode::NOT_FOUND);
+        }
+        ApiError::NoSession | ApiError::NoPermission => {
+            res.set_status(http::StatusCode::FORBIDDEN);
         }
     };
 
