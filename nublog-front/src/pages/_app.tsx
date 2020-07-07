@@ -2,6 +2,7 @@ import React from "react";
 
 import "../styles/global.css";
 import * as config from "../config";
+import { LINK_STYLE_NAME } from "../util";
 
 import { AppProps } from "next/app";
 import Link from "next/link";
@@ -12,34 +13,30 @@ import { UserOutlined } from "@ant-design/icons";
 import { css } from "emotion";
 
 const AppHeader: React.FC = () => {
-    const linksStyleName = css`
-        a {
-            color: black;
-        }
-
-        a:hover{
-            text-decoration: underline;
-        }
-    `;
-
     return (
-        <Row justify="space-between">
+        <Row justify="space-between" className={LINK_STYLE_NAME}>
             <div style={{ fontSize: "1.5em" }}>
                 <Link href="/">
-                    <a style={{ color: "black", }}>{config.site.title}</a>
+                    <a>{config.site.title}</a>
                 </Link>
             </div>
-            <Space direction="horizontal" className={linksStyleName}>
+            <Space direction="horizontal">
                 <Link href="/articles">
-                    <a>文章</a>
+                    <a>
+                        文章
+                    </a>
                 </Link>
 
                 <Link href="/about">
-                    <a>关于</a>
+                    <a>
+                        关于
+                    </a>
                 </Link>
 
                 <Link href="/home">
-                    <a><UserOutlined /></a>
+                    <a>
+                        <UserOutlined />
+                    </a>
                 </Link>
             </Space>
         </Row>
