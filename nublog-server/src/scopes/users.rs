@@ -1,15 +1,16 @@
 pub mod entities {
     use crate::prelude::*;
 
+    #[derive(Debug, Serialize, Deserialize)]
     pub struct User {
-        id: i32,
-        role_code: i32,
-        name: String,
-        email: String,
-        avatar_url: String,
-        profile_url: String,
-        github_token: String,
-        last_login: String,
+        pub id: i32,
+        pub role_code: i32,
+        pub name: String,
+        pub email: String,
+        pub avatar_url: String,
+        pub profile_url: String,
+        pub github_token: String,
+        pub last_login: DateTime,
     }
 
     pub struct Session {
@@ -28,6 +29,16 @@ pub mod dto {
     #[derive(Debug, Serialize, Deserialize)]
     pub struct LoginRes {
         pub session_id: Uuid,
+    }
+
+    #[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
+    pub struct QueryUserRes {
+        pub id: i32,
+        pub role_code: i32,
+        pub name: String,
+        pub email: String,
+        pub avatar_url: String,
+        pub profile_url: String,
     }
 }
 
@@ -199,6 +210,42 @@ pub mod endpoints {
         }
         Ok(Response::empty())
     }
+
+    pub async fn query_self(mut req: Request) -> Result<Json<QueryUserRes>> {
+        let sess = req.get_session().await?;
+
+        let mut conn: Conn = req.get_conn().await?;
+        let res = {
+            sqlx::query_as!(
+                QueryUserRes,
+                r#"
+                    SELECT 
+                        id, role_code, name, email, 
+                        avatar_url, profile_url 
+                    FROM users WHERE id = $1
+                "#,
+                sess.user_id
+            )
+            .fetch_one(&mut conn)
+            .await?
+        };
+
+        Ok(reply::json(res))
+    }
+
+    pub async fn query_all_users(mut req: Request) -> Result<Json<Vec<User>>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE]).await?;
+
+        let mut conn: Conn = req.get_conn().await?;
+
+        let res: Vec<User> = {
+            sqlx::query_as!(User, "SELECT * FROM users")
+                .fetch_all(&mut conn)
+                .await?
+        };
+
+        Ok(reply::json(res))
+    }
 }
 
 pub mod ext {
@@ -282,4 +329,6 @@ pub fn register(router: &mut SimpleRouter) {
     router.at("/users/login").get(login);
     router.at("/users/oauth/github").post(github_oauth);
     router.at("/users/logout").post(logout);
+    router.at("/users/query_self").get(query_self);
+    router.at("/users/query_all").get(query_all_users);
 }
