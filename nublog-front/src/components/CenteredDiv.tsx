@@ -1,6 +1,8 @@
 import React from "react";
 
-type CenteredDivProps = React.PropsWithChildren<{ style: React.CSSProperties }>;
+type CenteredDivProps = React.PropsWithChildren<{ 
+    style?: React.CSSProperties;
+}>;
 
 const CenteredDiv: React.FC<CenteredDivProps> = ({ children, style }: CenteredDivProps) => {
     const divStyle: React.CSSProperties = {
