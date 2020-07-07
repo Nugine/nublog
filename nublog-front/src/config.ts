@@ -21,5 +21,7 @@ export const site = util.toReadonly({
     }
 });
 
-
-
+export const api = util.toReadonly({
+    ssrUrlPrefix: "http://localhost/api",
+    csrUrlPrefix: "/api"
+});
