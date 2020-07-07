@@ -8,3 +8,7 @@ body{
     min-width: 100vw;
     min-height: 100vh;
 }
+
+h1 {
+    font-size: 2em;
+}
