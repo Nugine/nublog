@@ -5,7 +5,7 @@ import { css, cx } from "emotion";
 import { Card, Row } from "antd";
 
 import * as config from "../config";
-import { LINK_STYLE_NAME } from "../util";
+import { LINK_STYLE_NAME } from "../styles/local";
 
 const About: React.FC = () => {
 

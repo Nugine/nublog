@@ -1,6 +1,6 @@
-import * as util from "./util";
+import * as utils from "./utils";
 
-export const beian = util.toReadonly({
+export const beian = utils.toReadonly({
     icp: {
         url: "http://www.miitbeian.gov.cn/",
         text: "苏ICP备19007025号"
@@ -11,7 +11,7 @@ export const beian = util.toReadonly({
     }
 });
 
-export const site = util.toReadonly({
+export const site = utils.toReadonly({
     title: "Nugine 的个人博客",
     startYear: 2019,
     author: {
@@ -21,7 +21,7 @@ export const site = util.toReadonly({
     }
 });
 
-export const api = util.toReadonly({
+export const api = utils.toReadonly({
     ssrUrlPrefix: "http://localhost/api",
     csrUrlPrefix: "/api"
 });

@@ -4,7 +4,7 @@ import { Card, Row } from "antd";
 import Link from "next/link";
 
 import *  as vo from "../vo";
-import { LINK_STYLE_NAME } from "../util";
+import { LINK_STYLE_NAME } from "../styles/local";
 
 export interface ArticleCardProps {
     article: vo.Article;

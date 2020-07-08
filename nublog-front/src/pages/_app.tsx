@@ -2,7 +2,7 @@ import React from "react";
 
 import "../styles/global.css";
 import * as config from "../config";
-import { LINK_STYLE_NAME } from "../util";
+import { LINK_STYLE_NAME } from "../styles/local";
 
 import { AppProps } from "next/app";
 import Link from "next/link";
