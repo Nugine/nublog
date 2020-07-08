@@ -9,3 +9,15 @@ export interface QueryArticleRes {
     updated_at: string;
 }
 
+export interface QueryUserRes {
+    id: number;
+    role_code: number;
+    name: string;
+    email: string;
+    avatar_url: string;
+    profile_url: string;
+}
+
+export interface LoginRes{
+    session_id: string;
+}
