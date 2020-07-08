@@ -52,8 +52,8 @@ pub mod endpoints {
 
     pub async fn login(req: Request) -> Result<Redirect> {
         #[derive(Debug, Deserialize)]
-        struct Query<'a> {
-            redirect_uri: &'a str,
+        struct Query {
+            redirect_uri: String,
         }
 
         let query: Query = req.query()?;
