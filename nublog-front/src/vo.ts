@@ -17,3 +17,5 @@ export function fmtTime(time: Date, withDetail?: boolean): string {
         return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     }
 }
+
+export type LoadingState = "initial" | "loading" | "success" | "error";
