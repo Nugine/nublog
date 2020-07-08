@@ -3,7 +3,6 @@ import React, { useMemo, useState, useRef, useEffect } from "react";
 import { GetServerSideProps } from "next";
 
 import { Space, Collapse, Input, Row, Col, Spin } from "antd";
-import { css } from "emotion";
 
 import * as vo from "../../vo";
 import * as ssr from "../../api/ssr";
@@ -44,12 +43,6 @@ function displayMonth(time: string): string {
 }
 
 const ArticlesIndex: React.FC<ArticleIndexProps> = ({ articles }: ArticleIndexProps) => {
-    const overrideStyleName = css`
-        div {
-            border-bottom: none !important;
-        }
-    `;
-
     const [searchArticles, setSearchArticles] = useState<vo.Article[] | null>(null);
 
     const groups = useMemo(() => {
@@ -85,8 +78,8 @@ const ArticlesIndex: React.FC<ArticleIndexProps> = ({ articles }: ArticleIndexPr
             direction="vertical"
             style={{ padding: "0 1em", marginTop: "1em", width: "100%" }}
         >
-            <Row justify="center">
-                <Col span={24} lg={12}>
+            <Row justify="center" style={{ padding: "0 1em" }}>
+                <Col span={24} md={12}>
                     <Input.Search
                         onSearch={handleSearch}
                         placeholder="搜索一下"
@@ -96,10 +89,9 @@ const ArticlesIndex: React.FC<ArticleIndexProps> = ({ articles }: ArticleIndexPr
             </Row>
             <Spin spinning={loadingState === "loading"} delay={256} >
                 <Collapse
-                    className={overrideStyleName}
-                    style={{ width: "100%" }}
-                    bordered={false}
+                    style={{ width: "100%", backgroundColor: "white", borderBottom: "none" }}
                     defaultActiveKey={groups.map(group => group[0])}
+                    ghost
                 >
                     {groups.map(group => (
                         <Collapse.Panel key={group[0]}

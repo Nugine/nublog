@@ -17,13 +17,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, style }: ArticleCard
             style={{ cursor: "auto", ...style }}
             hoverable={true}
         >
-            <Row justify="center">
+            <Row justify="center" className={LINK_STYLE_NAME}>
                 <Link href="/articles/[key]" as={`/articles/${article.url_key}`}>
-                    <h1 className={LINK_STYLE_NAME}>
-                        <a href={`/articles/${article.url_key}`}>
+                    <a>
+                        <h1>
                             {article.title}
-                        </a>
-                    </h1>
+                        </h1>
+                    </a>
                 </Link>
             </Row>
             <Row justify="space-between" style={{ borderBottom: "1px solid #eaeaea", marginBottom: "1em" }}>
