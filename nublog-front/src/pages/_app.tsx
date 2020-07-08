@@ -68,6 +68,10 @@ const AppFooter: React.FC = () => {
             outline: 0;
             color: inherit;
         }
+
+        a:hover {
+            text-decoration: underline;
+        }
     `;
 
     return (
