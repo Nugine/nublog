@@ -37,3 +37,13 @@ export async function initSession(code: string): Promise<dto.LoginRes> {
     const config = { params: { code } };
     return await csrPost("/users/oauth/github", undefined, config) as dto.LoginRes;
 }
+
+export async function getArticleByKey(key: string): Promise<dto.QueryArticleRes> {
+    const config = { params: { "url_key": key } };
+    return await csrGet("/articles/query_by_key", config) as dto.QueryArticleRes;
+}
+
+export async function getAllUsers(sessionId: string): Promise<dto.QueryUserRes[]> {
+    const config = { headers: { "x-session-id": sessionId } };
+    return await csrGet("/users/query_all", config) as dto.QueryUserRes[];
+}
