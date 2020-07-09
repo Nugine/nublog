@@ -7,6 +7,7 @@ import { Space, Collapse, Input, Row, Col, Spin } from "antd";
 import * as vo from "../../vo";
 import * as ssr from "../../api/ssr";
 import * as csr from "../../api/csr";
+import * as utils from "../../utils";
 import ArticleCard from "../../components/ArticleCard";
 import { useLoading } from "../../hooks";
 
@@ -87,7 +88,7 @@ const ArticlesIndex: React.FC<ArticleIndexProps> = ({ articles }: ArticleIndexPr
                     />
                 </Col>
             </Row>
-            <Spin spinning={loadingState === "loading"} delay={256} >
+            <Spin spinning={loadingState === "loading"} delay={utils.COMMON_WAIT_TIME} >
                 <Collapse
                     style={{ width: "100%", backgroundColor: "white", borderBottom: "none" }}
                     defaultActiveKey={groups.map(group => group[0])}

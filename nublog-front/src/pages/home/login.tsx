@@ -9,6 +9,7 @@ import { css } from "emotion";
 import { useLoading } from "../../hooks";
 import * as vo from "../../vo";
 import * as csr from "../../api/csr";
+import * as utils from "../../utils";
 
 const Login: React.FC = () => {
     const router = useRouter();
@@ -42,6 +43,11 @@ const Login: React.FC = () => {
 
     if (loadingState === "initial") {
         const handleLogin = (): void => {
+            const sessionId = vo.getSessionId();
+            if (sessionId) {
+                csr.logout(sessionId);
+            }
+
             localStorage.setItem("goback-path", document.location.pathname);
             const redirectUri = document.location.origin + document.location.pathname;
             document.location.href = (
@@ -85,7 +91,7 @@ const Login: React.FC = () => {
             <Col>
                 <Space direction="vertical">
                     <Row justify="center">
-                        <Spin delay={256} size="large" />
+                        <Spin delay={utils.COMMON_WAIT_TIME} size="large" />
                     </Row>
                     <Row justify="center">
                         <span style={{ fontSize: "1.5em" }} className={breathStyleName}>

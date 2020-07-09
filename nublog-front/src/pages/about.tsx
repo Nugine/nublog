@@ -6,6 +6,7 @@ import { Card, Row } from "antd";
 
 import * as config from "../config";
 import { LINK_STYLE_NAME } from "../styles/local";
+import TargetBlankA from "../components/TargetBlankA";
 
 const About: React.FC = () => {
 
@@ -27,11 +28,15 @@ const About: React.FC = () => {
             <Card bordered={false}>
                 <p>
                     <span><GithubOutlined /></span>
-                    <a href={config.site.author.githubUrl} rel="noopener noreferrer" target="_blank">{config.site.author.githubUrl}</a>
+                    <TargetBlankA href={config.site.author.githubUrl}>
+                        {config.site.author.githubUrl}
+                    </TargetBlankA>
                 </p>
                 <p>
                     <span><MailOutlined /></span>
-                    <a href={`mailto:${config.site.author.email}`} rel="noopener noreferrer" target="_blank">{config.site.author.email}</a>
+                    <TargetBlankA href={`mailto:${config.site.author.email}`}>
+                        {config.site.author.email}
+                    </TargetBlankA>
                 </p>
             </Card>
         </Row>
