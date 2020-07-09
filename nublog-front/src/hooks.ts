@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 
-import { LoadingState } from "./vo";
+import * as vo from "./vo";
 
 import { message } from "antd";
 
-export type UseLoading = [LoadingState, (f: () => Promise<void>, e: string | ((e: unknown) => void)) => Promise<void>];
+export type UseLoading = [vo.LoadingState, (f: () => Promise<void>, e: string | ((e: unknown) => void)) => Promise<void>];
 
-export function useLoading(init?: LoadingState): UseLoading {
+export function useLoading(init?: vo.LoadingState): UseLoading {
     const [loading, setLoading] = useState(init ?? "initial");
     const withLoading: UseLoading[1] = useCallback(async (f, e) => {
         setLoading("loading");
@@ -38,27 +38,15 @@ export type UseCsrData<T> = {
     error: unknown;
 };
 
-export function useCsrData<T>(f: () => Promise<T>): UseCsrData<T> {
-    const [loadingState, withLoading] = useLoading();
-    const [data, setData] = useState<T | undefined>();
-    const [error, setError] = useState<unknown>();
+export type UseUser = [
+    vo.User | null,
+    (u: vo.User) => void,
+    vo.LoadingState,
+    (f: () => Promise<void>, e: string | ((e: unknown) => void)) => Promise<void>,
+];
 
-    useEffect(() => {
-        withLoading(async () => {
-            const ans = await f();
-            setData(ans);
-        }, (err) => {
-            setError(err);
-        });
-    }, [f, withLoading]);
-
-    if (loadingState === "success" && data !== undefined) {
-        return { loadingState, data };
-    } else if (loadingState === "error") {
-        return { loadingState, error };
-    } else if (loadingState === "initial" || loadingState === "loading") {
-        return { loadingState };
-    } else {
-        throw new Error("unreachable");
-    }
+export function useUser(): UseUser {
+    const u = useState<vo.User | null>(null);
+    const l = useLoading();
+    return [...u, ...l];
 }

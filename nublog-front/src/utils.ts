@@ -7,3 +7,5 @@ export function delay(ms: number): Promise<void> {
         setTimeout(() => resolve(), ms);
     });
 }
+
+export const COMMON_WAIT_TIME = 120;

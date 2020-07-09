@@ -35,5 +35,7 @@ export function setSessionId(sessionId: string): void {
     localStorage.setItem("x-session-id", sessionId);
 }
 
-export const ADMIN_ROLE_CODE = 0;
-export const READER_ROLE_CODE = 1;
+export enum RoleCode {
+    ADMIN = 0,
+    READER = 1
+}
