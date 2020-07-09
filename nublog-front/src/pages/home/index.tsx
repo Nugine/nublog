@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useEffect } from "react";
 
-import { Space, Spin, Alert, Button, Row, Avatar, Tag } from "antd";
-import { GithubOutlined } from "@ant-design/icons";
+import { Space, Spin, Button, Row, Avatar, Col, message, } from "antd";
 import { useRouter } from "next/router";
-import dynamic from "next/dynamic";
 
+import * as state from "../../state";
 import * as vo from "../../vo";
 import * as csr from "../../api/csr";
-import { useCsrData } from "../../hooks";
-
-// const Admin = dynamic(() => import("../../components/Admin"));
+import * as utils from "../../utils";
+import CenteredDiv from "../../components/CenteredDiv";
+import TargetBlankA from "../../components/TargetBlankA";
+import { LINK_STYLE_NAME } from "../../styles/local";
 
 interface UserHomeProps {
     user: vo.User;
@@ -26,42 +26,45 @@ const UserHome: React.FC<UserHomeProps> = ({ user }: UserHomeProps) => {
         router.reload();
     };
 
-    const isAdmin = user.role_code === vo.ADMIN_ROLE_CODE;
+    const isAdmin = user.role_code === vo.RoleCode.ADMIN;
 
     const handleGotoAdmin = (): void => {
         router.push("/home/admin");
     };
 
     return (
-        <Row justify="space-between" style={{ alignItems: "center", flexWrap: "wrap" }}>
-            <span
-                style={{
-                    display: "flex",
-                    justifyContent: "start",
-                    alignItems: "center"
-                }}
-            >
-                <Space>
-                    <a href={user.profile_url} rel="noreferrer noopener" target="_blank">
-                        <Avatar shape="square" src={user.avatar_url} />
-                    </a>
-
-                    <span style={{ fontSize: "1.5em" }} > {user.name}</span>
-
-                    {isAdmin ? (<Tag>管理员</Tag>) : null}
-                </Space>
-            </span>
-            <span>
-                {isAdmin ? (
-                    <Button type="default" onClick={handleGotoAdmin}>
-                        管理
-                    </Button>
-                ) : null}
-                <Button type="default" onClick={handleLogout}>
-                    登出
-                </Button>
-            </span>
-        </Row>
+        <Row justify="center" style={{ width: "100%" }}>
+            <Col span={24} lg={12} style={{ display: "flex", justifyContent: "space-between" }}>
+                <span
+                    style={{
+                        display: "inline-flex",
+                        justifyContent: "start",
+                        alignItems: "center"
+                    }}
+                >
+                    <Space direction="horizontal" className={LINK_STYLE_NAME}>
+                        <TargetBlankA href={user.profile_url}>
+                            <Avatar shape="square" src={user.avatar_url} />
+                        </TargetBlankA>
+                        <TargetBlankA href={user.profile_url} style={{ fontSize: "1.5em", color: "inherit" }}>
+                            {user.name}
+                        </TargetBlankA>
+                    </Space>
+                </span>
+                <span>
+                    <Space>
+                        {isAdmin ? (
+                            <Button type="default" onClick={handleGotoAdmin}>
+                                管理
+                            </Button>
+                        ) : null}
+                        <Button type="default" onClick={handleLogout}>
+                            登出
+                        </Button>
+                    </Space>
+                </span>
+            </Col>
+        </Row >
     );
 };
 
@@ -69,53 +72,46 @@ const UserHome: React.FC<UserHomeProps> = ({ user }: UserHomeProps) => {
 const HomeIndex: React.FC = () => {
     const router = useRouter();
 
-    const csrData = useCsrData<vo.User | null>(useCallback(async () => {
+    const [user, setUser, loadingState, withLoading] = state.useUserCtx();
+
+    useEffect(() => {
         const sessionId = vo.getSessionId();
         if (sessionId) {
-            return await csr.getSelf(sessionId);
+            if (!user) {
+                withLoading(async () => {
+                    await utils.delay(3000);
+                    setUser(await csr.getSelf(sessionId));
+                }, (err) => {
+                    console.error(err);
+                    message.error("加载失败，请重新登录");
+                    setTimeout((): void => { router.push("/home/login"); }, 2000);
+                });
+            }
         } else {
-            return null;
+            router.push("/home/login");
         }
-    }, []));
+    }, [withLoading, setUser, user, router]);
 
     let inner: JSX.Element | null = null;
 
-    if (csrData.loadingState === "error") {
-        vo.removeSessionId();
-        inner = (
-            <Alert
-                message="加载失败，请重新登录"
-                type="error"
-                showIcon
-            />
-        );
-    }
-
-    if (csrData.loadingState === "loading") {
+    if (loadingState === "loading") {
         inner = (
             <Row justify="center">
-                <Spin spinning delay={256} size="large" />
+                <Spin spinning delay={utils.COMMON_WAIT_TIME} size="large" />
             </Row>
         );
     }
 
-
-    if (csrData.loadingState === "success") {
-        const user = csrData.data;
-
-        if (user === null) {
-            router.push("/home/login");
-        } else {
+    if (loadingState === "success") {
+        if (user) {
             inner = (<UserHome user={user} />);
         }
     }
 
     return (
-        <Row justify="center" style={{ padding: "0 1em" }}>
-            <Space direction="vertical" style={{ width: "100%", padding: "0 1em", marginTop: "1em" }}>
-                {inner}
-            </Space>
-        </Row>
+        <CenteredDiv style={{ marginTop: "1em", padding: "0 1.5em", width: "100%" }}>
+            {inner}
+        </CenteredDiv>
     );
 };
 
