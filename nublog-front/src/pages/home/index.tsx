@@ -1,6 +1,8 @@
 import React, { useEffect } from "react";
 
 import { Space, Spin, Button, Row, Avatar, Col, message, } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
+
 import { useRouter } from "next/router";
 
 import * as state from "../../state";
@@ -97,7 +99,7 @@ const HomeIndex: React.FC = () => {
     if (loadingState === "loading") {
         inner = (
             <Row justify="center">
-                <Spin spinning delay={utils.COMMON_WAIT_TIME} size="large" />
+                <Spin indicator={<LoadingOutlined/>} spinning delay={utils.COMMON_WAIT_TIME} size="large" />
             </Row>
         );
     }

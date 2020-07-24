@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 
 import { Row, Button, Spin, Col, Space } from "antd";
-import { GithubOutlined } from "@ant-design/icons";
+import { GithubOutlined, LoadingOutlined } from "@ant-design/icons";
 import { css } from "emotion";
 
 import { useLoading } from "../../hooks";
@@ -91,7 +91,7 @@ const Login: React.FC = () => {
             <Col>
                 <Space direction="vertical">
                     <Row justify="center">
-                        <Spin delay={utils.COMMON_WAIT_TIME} size="large" />
+                        <Spin indicator={<LoadingOutlined />} delay={utils.COMMON_WAIT_TIME} size="large" />
                     </Row>
                     <Row justify="center">
                         <span style={{ fontSize: "1.5em" }} className={breathStyleName}>

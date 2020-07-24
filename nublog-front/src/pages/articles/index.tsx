@@ -3,6 +3,7 @@ import React, { useMemo, useState, useRef, useEffect } from "react";
 import { GetServerSideProps } from "next";
 
 import { Space, Collapse, Input, Row, Col, Spin } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 
 import * as vo from "../../vo";
 import * as ssr from "../../api/ssr";
@@ -88,7 +89,7 @@ const ArticlesIndex: React.FC<ArticleIndexProps> = ({ articles }: ArticleIndexPr
                     />
                 </Col>
             </Row>
-            <Spin spinning={loadingState === "loading"} delay={utils.COMMON_WAIT_TIME} >
+            <Spin indicator={<LoadingOutlined />} spinning={loadingState === "loading"} delay={utils.COMMON_WAIT_TIME} >
                 <Collapse
                     style={{ width: "100%", backgroundColor: "white", borderBottom: "none" }}
                     defaultActiveKey={groups.map(group => group[0])}
