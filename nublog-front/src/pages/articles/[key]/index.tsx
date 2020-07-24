@@ -3,9 +3,9 @@ import React from "react";
 import { GetServerSideProps } from "next";
 import { Row, Layout, Col } from "antd";
 
-import Error404 from "../404";
-import * as vo from "../../vo";
-import * as ssr from "../../api/ssr";
+import Error404 from "../../404";
+import * as vo from "../../../vo";
+import * as ssr from "../../../api/ssr";
 
 export type ArticleProps = {
     article?: vo.Article;

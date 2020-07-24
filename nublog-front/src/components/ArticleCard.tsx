@@ -18,7 +18,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, style }: ArticleCard
             hoverable={true}
         >
             <Row justify="center" className={LINK_STYLE_NAME}>
-                <Link href="/articles/[key]" as={`/articles/${article.url_key}`}>
+                <Link href="/articles/[key]/" as={`/articles/${article.url_key}/`}>
                     <a>
                         <h1>
                             {article.title}
