@@ -9,7 +9,7 @@ pub mod entities {
         pub email: String,
         pub avatar_url: String,
         pub profile_url: String,
-        pub github_token: String,
+        pub github_token: Option<String>,
         pub last_login: DateTime,
     }
 
@@ -259,9 +259,19 @@ pub mod endpoints {
         let mut conn: Conn = req.get_conn().await?;
 
         let res: Vec<User> = {
-            sqlx::query_as!(User, "SELECT * FROM users")
-                .fetch_all(&mut conn)
-                .await?
+            sqlx::query_as!(
+                User,
+                r#"
+                    SELECT 
+                        id, role_code, name, email, 
+                        avatar_url, profile_url,
+                        NULL AS github_token,
+                        last_login 
+                    FROM users
+                "#
+            )
+            .fetch_all(&mut conn)
+            .await?
         };
 
         Ok(reply::json(res))
