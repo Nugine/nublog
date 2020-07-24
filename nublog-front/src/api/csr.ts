@@ -1,6 +1,5 @@
 import * as dto from "./dto";
 import * as config from "../config";
-import * as utils from "../utils";
 
 import axios, { AxiosRequestConfig } from "axios";
 

@@ -43,7 +43,7 @@ const Login: React.FC = () => {
 
     if (loadingState === "initial") {
         const handleLogin = (): void => {
-            const sessionId = vo.getSessionId();
+            const sessionId = vo.removeSessionId();
             if (sessionId) {
                 csr.logout(sessionId);
             }

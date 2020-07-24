@@ -41,7 +41,7 @@ const AppHeader: React.FC = () => {
             <Space direction="horizontal">
                 <Link href="/articles">
                     <a>
-                        文章
+                        归档
                     </a>
                 </Link>
 
