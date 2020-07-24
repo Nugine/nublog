@@ -118,19 +118,39 @@ pub mod endpoints {
             html_url: String,
         }
 
-        let profile: Profile = {
-            let res = client
-                .get("https://api.github.com/user")
-                .header(
-                    http::header::AUTHORIZATION,
-                    format!("token {}", access_token),
-                )
-                .header(http::header::ACCEPT, "application/json")
-                .send()
-                .await?;
+        async fn get_profile(
+            client: &reqwest::Client,
+            access_token: &str,
+            retry: usize,
+        ) -> Result<Profile> {
+            let mut err: Option<reqwest::Error> = None;
+            for i in 1..=retry {
+                let ret = client
+                    .get("https://api.github.com/user")
+                    .header(
+                        http::header::AUTHORIZATION,
+                        format!("token {}", access_token),
+                    )
+                    .header(http::header::ACCEPT, "application/json")
+                    .send()
+                    .await;
 
-            res.json().await?
-        };
+                match ret {
+                    Ok(res) => return Ok(res.json::<Profile>().await?),
+                    Err(e) => {
+                        log::debug!("get_profile: error = {}, retry_cnt = {}", e, i);
+                        if e.is_status() {
+                            return Err(e.into());
+                        } else {
+                            err = Some(e)
+                        }
+                    }
+                }
+            }
+            Err(err.unwrap().into())
+        }
+
+        let profile: Profile = get_profile(&client, &access_token, 5).await?;
 
         let session_id: Uuid = {
             let conn: Conn = req.get_conn().await?;
