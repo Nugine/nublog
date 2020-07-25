@@ -1,17 +1,25 @@
-import React, { useCallback, useState, useEffect, useRef } from "react";
+import React, { useCallback, useState, useEffect, } from "react";
 
 import { useLoading } from "../../hooks";
 import * as vo from "../../vo";
 import * as csr from "../../api/csr";
 import CenteredDiv from "../../components/CenteredDiv";
+import TargetBlankA from "../../components/TargetBlankA";
 import * as utils from "../../utils";
 import * as state from "../../state";
 
 import { useRouter } from "next/router";
 
-import { Spin, Avatar, Row, Space, Tabs, Table, Modal, Button, Tooltip, Result, message, } from "antd";
-import { EditOutlined, DeleteOutlined, InfoCircleOutlined, ReloadOutlined, PlusSquareOutlined, ArrowRightOutlined } from "@ant-design/icons";
-import TargetBlankA from "../../components/TargetBlankA";
+import {
+    Spin, Avatar, Row, Space, Tabs,
+    Table, Modal, Button, Tooltip,
+    Result, message, Form, Input, Radio,
+} from "antd";
+import {
+    EditOutlined, DeleteOutlined, InfoCircleOutlined,
+    ReloadOutlined, PlusSquareOutlined, ArrowRightOutlined,
+    LoadingOutlined
+} from "@ant-design/icons";
 
 interface ArticleTableProps {
     articles: vo.Article[];
@@ -80,14 +88,95 @@ const ArticlesAdmin: React.FC<AdminPaneProps> = () => {
     const [articles, setArticles] = useState<vo.Article[]>([]);
     const [loadingState, withLoading] = useLoading();
 
-    const handleLoad = useCallback(() => {
-        withLoading(async () => {
-            await utils.delay(1000); // FIXME
-            setArticles(await csr.getAllArticles());
-        }, "加载失败");
-    }, [setArticles, withLoading]);
+    const reload = useCallback(async () => {
+        await utils.delay(1000); // FIXME
+        setArticles(await csr.getAllArticles());
+    }, []);
+
+    const handleLoad = useCallback(() => { withLoading(reload, "加载失败"); }, [withLoading, reload]);
 
     useEffect(() => { handleLoad(); }, [handleLoad]);
+
+    const [formCreate] = Form.useForm();
+    const handleCreate = (): void => {
+        const form = (
+            <Form form={formCreate} layout="vertical" >
+                <Form.Item name="url_key" label="URL 关键字" required><Input required /></Form.Item>
+                <Form.Item name="title" label="标题" required><Input required /></Form.Item>
+                <Form.Item name="author" label="作者" required><Input required /></Form.Item>
+                <Form.Item name="summary" label="摘要" required><Input required /></Form.Item>
+                <Form.Item name="content" label="内容" required><Input.TextArea required rows={10} /></Form.Item>
+            </Form>
+        );
+
+        const submit = async (): Promise<void> => {
+            await utils.delay(1000);
+        };
+
+        Modal.confirm({
+            icon: null,
+            okText: "新增",
+            cancelText: "取消",
+            content: form,
+            onOk: submit,
+            style: {
+                minWidth: "50%"
+            }
+        });
+    };
+
+    const [formUpdate] = Form.useForm();
+    const handleUpdate = async (article: vo.Article): Promise<void> => {
+        const form = (
+            <Form form={formUpdate} layout="vertical" >
+                <Form.Item name="id" label="ID" required><Input required disabled /></Form.Item>
+                <Form.Item name="url_key" label="URL 关键字" required><Input required /></Form.Item>
+                <Form.Item name="title" label="标题" required><Input required /></Form.Item>
+                <Form.Item name="author" label="作者" required><Input required /></Form.Item>
+                <Form.Item name="summary" label="摘要" required><Input required /></Form.Item>
+                <Form.Item name="content" label="内容" required><Input.TextArea required rows={10} /></Form.Item>
+            </Form>
+        );
+
+        const submit = async (): Promise<void> => {
+            await utils.delay(1000);
+        };
+
+        try {
+            const ans = await csr.getArticleByKey(article.url_key);
+            formUpdate.setFieldsValue(ans);
+        } catch (err) {
+            console.error(err);
+            message.error("加载失败");
+            return;
+        }
+
+        Modal.confirm({
+            icon: null,
+            okText: "修改",
+            cancelText: "取消",
+            content: form,
+            onOk: submit,
+            style: {
+                minWidth: "50%"
+            }
+        });
+    };
+
+    const handleDelete = (article: vo.Article): void => {
+        const submit = async (): Promise<void> => {
+            await utils.delay(1000);
+            console.debug("delete", article);
+            await reload();
+        };
+
+        Modal.confirm({
+            content: `确认删除文章 ${article.title} ？`,
+            okText: "确认",
+            cancelText: "取消",
+            onOk: submit,
+        });
+    };
 
     return (
         <>
@@ -99,14 +188,18 @@ const ArticlesAdmin: React.FC<AdminPaneProps> = () => {
                         </Button>
                     </Tooltip>
                     <Tooltip title="新增">
-                        <Button>
+                        <Button onClick={handleCreate}>
                             <PlusSquareOutlined />
                         </Button>
                     </Tooltip>
                 </Space>
             </Row>
-            <Spin spinning={loadingState === "loading"} delay={utils.COMMON_WAIT_TIME}>
-                <ArticleTable articles={articles} onUpdate={console.log} onDelete={console.log} />
+            <Spin indicator={<LoadingOutlined />} spinning={loadingState === "loading"} delay={utils.COMMON_WAIT_TIME}>
+                <ArticleTable
+                    articles={articles}
+                    onUpdate={handleUpdate}
+                    onDelete={handleDelete}
+                />
             </Spin>
         </>
     );
@@ -166,6 +259,12 @@ const UserTable: React.FC<UserTableProps> = (props: UserTableProps) => {
                     }
                 },
                 {
+                    title: "最后登录时间", key: "last_login", dataIndex: "last_login",
+                    render(lastLogin: string): string {
+                        return vo.fmtTime(new Date(lastLogin), true);
+                    }
+                },
+                {
                     title: "操作",
                     key: "action", dataIndex: "id",
                     render(id: number, record: vo.User): JSX.Element {
@@ -179,7 +278,7 @@ const UserTable: React.FC<UserTableProps> = (props: UserTableProps) => {
                                 <Tooltip title="删除">
                                     <Button
                                         onClick={(): void => props.onDelete(record)}
-                                        disabled={id == props.adminUser.id}
+                                    // disabled={id == props.adminUser.id}
                                     >
                                         <DeleteOutlined />
                                     </Button>
@@ -201,17 +300,77 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ adminUser }: UsersAdminProps) =
     const [users, setUsers] = useState<vo.User[]>([]);
     const [loadingState, withLoading] = useLoading();
 
+    const reload = useCallback(async () => {
+        await utils.delay(1000);
+        const sessionId = vo.getSessionId();
+        if (sessionId) {
+            setUsers(await csr.getAllUsers(sessionId));
+        }
+    }, []);
+
     const handleLoad = useCallback(() => {
-        withLoading(async () => {
-            await utils.delay(1000);
-            const sessionId = vo.getSessionId();
-            if (sessionId) {
-                setUsers(await csr.getAllUsers(sessionId));
-            }
-        }, "加载失败");
-    }, [withLoading]);
+        withLoading(reload, "加载失败");
+    }, [withLoading, reload]);
 
     useEffect(() => { handleLoad(); }, [handleLoad]);
+
+    const [formUpdate] = Form.useForm();
+
+    const handleUpdate = (user: vo.User): void => {
+        formUpdate.setFieldsValue({
+            id: user.id,
+            "role_code": user.role_code
+        });
+
+        const form = (
+            <Form form={formUpdate}>
+                <Form.Item name="id" label="ID" required>
+                    <Input required disabled />
+                </Form.Item>
+                <Form.Item name="role_code" label="角色" required>
+                    <Radio.Group>
+                        <Radio value={0}>
+                            管理员
+                        </Radio>
+                        <Radio value={1}>
+                            读者
+                        </Radio>
+                    </Radio.Group>
+                </Form.Item>
+            </Form>
+        );
+
+        const submit = async (): Promise<void> => {
+            const store = formUpdate.getFieldsValue();
+            const dto = { id: store.id, "role_code": store.role_code };
+            await utils.delay(1000);
+            console.debug(dto);
+            await reload();
+        };
+
+        Modal.confirm({
+            icon: null,
+            okText: "修改",
+            cancelText: "取消",
+            onOk: submit,
+            content: form,
+        });
+    };
+
+    const handleDelete = (user: vo.User): void => {
+        const submit = async (): Promise<void> => {
+            await utils.delay(1000);
+            console.debug("delete", user);
+            await reload();
+        };
+
+        Modal.confirm({
+            content: `确认删除用户 ${user.name} ？`,
+            okText: "确认",
+            cancelText: "取消",
+            onOk: submit,
+        });
+    };
 
     return (
         <>
@@ -224,12 +383,12 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ adminUser }: UsersAdminProps) =
                     </Tooltip>
                 </Space>
             </Row>
-            <Spin spinning={loadingState === "loading"} delay={utils.COMMON_WAIT_TIME}>
+            <Spin indicator={<LoadingOutlined />} spinning={loadingState === "loading"} delay={utils.COMMON_WAIT_TIME}>
                 <UserTable
                     users={users}
                     adminUser={adminUser}
-                    onUpdate={console.log}
-                    onDelete={console.log}
+                    onUpdate={handleUpdate}
+                    onDelete={handleDelete}
                 />
             </Spin>
         </>
@@ -287,7 +446,7 @@ const AdminEntry: React.FC = () => {
 
     if (loadingState === "loading") {
         inner = (
-            <Spin spinning delay={utils.COMMON_WAIT_TIME} size="large" />
+            <Spin indicator={<LoadingOutlined />} spinning delay={utils.COMMON_WAIT_TIME} size="large" />
         );
     }
 
