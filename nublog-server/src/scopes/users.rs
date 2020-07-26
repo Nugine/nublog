@@ -40,6 +40,27 @@ pub mod dto {
         pub avatar_url: String,
         pub profile_url: String,
     }
+
+    #[derive(Debug, Deserialize)]
+    pub struct UpdateUserReq {
+        pub id: i32,
+        pub role_code: i32,
+    }
+
+    #[derive(Debug, Serialize)]
+    pub struct UpdateUserRes {
+        pub is_updated: bool,
+    }
+
+    #[derive(Debug, Deserialize)]
+    pub struct DeleteUserReq {
+        pub id: i32,
+    }
+
+    #[derive(Debug, Serialize)]
+    pub struct DeleteUserRes {
+        pub is_deleted: bool,
+    }
 }
 
 pub mod endpoints {
@@ -276,6 +297,43 @@ pub mod endpoints {
 
         Ok(reply::json(res))
     }
+
+    pub async fn update_user(mut req: Request) -> Result<Json<UpdateUserRes>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE]).await?;
+
+        jsonrpc(req, |mut conn, dto: UpdateUserReq| async move {
+            let ans = sqlx::query!(
+                "UPDATE users SET role_code = $1 WHERE id = $2",
+                dto.role_code,
+                dto.id
+            )
+            .execute(&mut conn)
+            .await?;
+            Ok(UpdateUserRes {
+                is_updated: ans == 1,
+            })
+        })
+        .await
+    }
+
+    pub async fn delete_user(mut req: Request) -> Result<Json<DeleteUserRes>> {
+        req.ensure_roles(&[ADMIN_ROLE_CODE]).await?;
+        let user_id = req.get_session().await?.user_id;
+
+        jsonrpc(req, |mut conn, dto: DeleteUserReq| async move {
+            let ans = sqlx::query!(
+                "DELETE FROM users WHERE id = $1 AND id != $2",
+                dto.id,
+                user_id
+            )
+            .execute(&mut conn)
+            .await?;
+            Ok(DeleteUserRes {
+                is_deleted: ans == 1,
+            })
+        })
+        .await
+    }
 }
 
 pub mod ext {
@@ -361,4 +419,6 @@ pub fn register(router: &mut SimpleRouter) {
     router.at("/users/logout").post(logout);
     router.at("/users/query_self").get(query_self);
     router.at("/users/query_all").get(query_all_users);
+    router.at("/users/update").post(update_user);
+    router.at("/users/delete").post(delete_user);
 }
