@@ -29,6 +29,7 @@ const AppHeader: React.FC = () => {
                     setUser(await csr.getSelf(sessionId));
                 }, (err) => {
                     console.error(err);
+                    vo.removeSessionId();
                 });
             }
         }
