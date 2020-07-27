@@ -81,7 +81,6 @@ const HomeIndex: React.FC = () => {
         if (sessionId) {
             if (!user) {
                 withLoading(async () => {
-                    await utils.delay(3000);
                     setUser(await csr.getSelf(sessionId));
                 }, (err) => {
                     console.error(err);

@@ -377,7 +377,6 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ adminUser }: UsersAdminProps) =
     const [loadingState, withLoading] = useLoading();
 
     const reload = useCallback(async () => {
-        await utils.delay(1000);
         const sessionId = vo.getSessionId();
         if (sessionId) {
             setUsers(await csr.getAllUsers(sessionId));
