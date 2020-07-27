@@ -100,19 +100,27 @@ const ArticlesAdmin: React.FC<AdminPaneProps> = () => {
 
     const [formCreate] = Form.useForm();
     const handleCreate = (): void => {
+        formCreate.resetFields();
+
         const form = (
             <Form form={formCreate} layout="vertical" >
-                <Form.Item name="url_key" label="URL 关键字" required><Input required /></Form.Item>
-                <Form.Item name="title" label="标题" required><Input required /></Form.Item>
-                <Form.Item name="author" label="作者" required><Input required /></Form.Item>
-                <Form.Item name="summary" label="摘要" required><Input required /></Form.Item>
-                <Form.Item name="content" label="内容" required>
+                <Form.Item name="url_key" label="URL 关键字" required rules={[{ required: true }]}>
+                    <Input required />
+                </Form.Item>
+                <Form.Item name="title" label="标题" required rules={[{ required: true }]}>
+                    <Input required /></Form.Item>
+                <Form.Item name="author" label="作者" required rules={[{ required: true }]}>
+                    <Input required /></Form.Item>
+                <Form.Item name="summary" label="摘要" required rules={[{ required: true }]}>
+                    <Input required /></Form.Item>
+                <Form.Item name="content" label="内容" required rules={[{ required: true }]}>
                     <Input.TextArea required rows={10} />
                 </Form.Item>
             </Form>
         );
 
         const submit = async (): Promise<void> => {
+            await formCreate.validateFields();
             const data = {
                 "url_key": formCreate.getFieldValue("url_key"),
                 "title": formCreate.getFieldValue("title"),
@@ -123,8 +131,14 @@ const ArticlesAdmin: React.FC<AdminPaneProps> = () => {
 
             const sessionId = vo.getSessionId();
             if (sessionId) {
-                await csr.createArticle(sessionId, data);
-                message.success("操作成功");
+                try {
+                    await csr.createArticle(sessionId, data);
+                    message.success("操作成功");
+                } catch (err) {
+                    console.error(err);
+                    message.error("操作失败");
+                    throw err;
+                }
                 await reload();
             } else {
                 message.error("操作失败，请重新登录");
@@ -169,11 +183,17 @@ const ArticlesAdmin: React.FC<AdminPaneProps> = () => {
 
             const sessionId = vo.getSessionId();
             if (sessionId) {
-                const ans = await csr.updateArticle(sessionId, data);
-                if (ans.is_updated) {
-                    message.success("操作成功");
-                } else {
-                    message.warn("操作无效");
+                try {
+                    const ans = await csr.updateArticle(sessionId, data);
+                    if (ans.is_updated) {
+                        message.success("操作成功");
+                    } else {
+                        message.warn("操作无效");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    message.error("操作失败");
+                    throw err;
                 }
                 await reload();
             } else {
@@ -207,11 +227,17 @@ const ArticlesAdmin: React.FC<AdminPaneProps> = () => {
         const submit = async (): Promise<void> => {
             const sessionId = vo.getSessionId();
             if (sessionId) {
-                const ans = await csr.deleteArticle(sessionId, article.id);
-                if (ans.is_deleted) {
-                    message.success("操作成功");
-                } else {
-                    message.warn("操作无效");
+                try {
+                    const ans = await csr.deleteArticle(sessionId, article.id);
+                    if (ans.is_deleted) {
+                        message.success("操作成功");
+                    } else {
+                        message.warn("操作无效");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    message.error("操作失败");
+                    throw err;
                 }
                 await reload();
             } else {
@@ -396,11 +422,17 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ adminUser }: UsersAdminProps) =
             const data = { id: store.id, "role_code": store.role_code };
             const sessionId = vo.getSessionId();
             if (sessionId) {
-                const ans = await csr.updateUser(sessionId, data);
-                if (ans.is_updated) {
-                    message.success("操作成功");
-                } else {
-                    message.warn("操作无效");
+                try {
+                    const ans = await csr.updateUser(sessionId, data);
+                    if (ans.is_updated) {
+                        message.success("操作成功");
+                    } else {
+                        message.warn("操作无效");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    message.error("操作失败");
+                    throw err;
                 }
                 await reload();
             } else {
@@ -422,11 +454,17 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ adminUser }: UsersAdminProps) =
         const submit = async (): Promise<void> => {
             const sessionId = vo.getSessionId();
             if (sessionId) {
-                const ans = await csr.deleteUser(sessionId, user.id);
-                if (ans.is_deleted) {
-                    message.success("操作成功");
-                } else {
-                    message.warn("操作无效");
+                try {
+                    const ans = await csr.deleteUser(sessionId, user.id);
+                    if (ans.is_deleted) {
+                        message.success("操作成功");
+                    } else {
+                        message.warn("操作无效");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    message.error("操作失败");
+                    throw err;
                 }
                 await reload();
             } else {
