@@ -28,7 +28,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, style }: ArticleCard
             </Row>
             <Row justify="space-between" style={{ borderBottom: "1px solid #eaeaea", marginBottom: "1em" }}>
                 <span>作者：{article.author}</span>
-                <span>时间：{vo.fmtTime(new Date(article.updated_at), true)}</span>
+                <span>时间：{vo.fmtTime(new Date(article.created_at), true)}</span>
             </Row>
             <Row>
                 {article.summary}
