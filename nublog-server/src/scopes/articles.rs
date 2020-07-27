@@ -179,6 +179,7 @@ pub mod endpoints {
                     created_at, updated_at, 
                     NULL AS content
                 FROM articles
+                ORDER BY created_at DESC
             "#
         )
         .fetch_all(&mut conn)
