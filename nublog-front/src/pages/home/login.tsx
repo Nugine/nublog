@@ -10,6 +10,7 @@ import { useLoading } from "../../hooks";
 import * as vo from "../../vo";
 import * as csr from "../../api/csr";
 import * as utils from "../../utils";
+import Head from "next/head";
 
 const Login: React.FC = () => {
     const router = useRouter();
@@ -104,9 +105,14 @@ const Login: React.FC = () => {
     }
 
     return (
-        <Row justify="center" style={{ marginTop: "1em" }}>
-            {inner}
-        </Row>
+        <>
+            <Head>
+                <title>{vo.generateTitle("登录")}</title>
+            </Head>
+            <Row justify="center" style={{ marginTop: "1em" }}>
+                {inner}
+            </Row>
+        </>
     );
 };
 

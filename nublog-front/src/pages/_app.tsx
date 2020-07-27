@@ -9,10 +9,11 @@ import * as state from "../state";
 
 import { AppProps } from "next/app";
 import Link from "next/link";
+import Head from "next/head";
 
 import "antd/dist/antd.css";
 import { Layout, Col, Row, Space, Tooltip, Avatar } from "antd";
-import { LoginOutlined, } from "@ant-design/icons";
+import { LoginOutlined, UserOutlined, } from "@ant-design/icons";
 import { css } from "emotion";
 
 const AppHeader: React.FC = () => {
@@ -56,7 +57,7 @@ const AppHeader: React.FC = () => {
                         return (
                             <Link href="/home">
                                 <a>
-                                    <Avatar shape="square" src={user.avatar_url} size="small" />
+                                    <Avatar shape="square" src={user.avatar_url} size="small" icon={<UserOutlined/>}/>
                                 </a>
                             </Link>
                         );
@@ -147,23 +148,28 @@ const App: React.FC<AppProps> = ({ Component, pageProps }: AppProps) => {
     };
 
     return (
-        <state.UserProvider>
-            <Row justify="center" style={layoutStyle}>
-                <Col xs={24} sm={24} md={16} lg={16} xl={16} xxl={16}>
-                    <Layout style={layoutStyle}>
-                        <Layout.Header style={headerStyle}>
-                            <AppHeader />
-                        </Layout.Header>
-                        <Layout.Content style={centerStyle}>
-                            <Component {...pageProps} />
-                        </Layout.Content>
-                        <Layout.Footer style={footerStyle}>
-                            <AppFooter />
-                        </Layout.Footer>
-                    </Layout>
-                </Col>
-            </Row>
-        </state.UserProvider>
+        <>
+            <Head>
+                <link rel="icon" href="favicon.ico"></link>
+            </Head>
+            <state.UserProvider>
+                <Row justify="center" style={layoutStyle}>
+                    <Col xs={24} sm={24} md={16} lg={16} xl={16} xxl={16}>
+                        <Layout style={layoutStyle}>
+                            <Layout.Header style={headerStyle}>
+                                <AppHeader />
+                            </Layout.Header>
+                            <Layout.Content style={centerStyle}>
+                                <Component {...pageProps} />
+                            </Layout.Content>
+                            <Layout.Footer style={footerStyle}>
+                                <AppFooter />
+                            </Layout.Footer>
+                        </Layout>
+                    </Col>
+                </Row>
+            </state.UserProvider>
+        </>
     );
 };
 

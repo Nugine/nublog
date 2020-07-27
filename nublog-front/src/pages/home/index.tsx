@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 
 import { Space, Spin, Button, Row, Avatar, Col, message, } from "antd";
-import { LoadingOutlined } from "@ant-design/icons";
+import { LoadingOutlined, UserOutlined } from "@ant-design/icons";
 
 import { useRouter } from "next/router";
 
@@ -12,6 +12,7 @@ import * as utils from "../../utils";
 import CenteredDiv from "../../components/CenteredDiv";
 import TargetBlankA from "../../components/TargetBlankA";
 import { LINK_STYLE_NAME } from "../../styles/local";
+import Head from "next/head";
 
 interface UserHomeProps {
     user: vo.User;
@@ -46,7 +47,7 @@ const UserHome: React.FC<UserHomeProps> = ({ user }: UserHomeProps) => {
                 >
                     <Space direction="horizontal" className={LINK_STYLE_NAME}>
                         <TargetBlankA href={user.profile_url}>
-                            <Avatar shape="square" src={user.avatar_url} />
+                            <Avatar shape="square" src={user.avatar_url} icon={<UserOutlined />} />
                         </TargetBlankA>
                         <TargetBlankA href={user.profile_url} style={{ fontSize: "1.5em", color: "inherit" }}>
                             {user.name}
@@ -98,7 +99,7 @@ const HomeIndex: React.FC = () => {
     if (loadingState === "loading") {
         inner = (
             <Row justify="center">
-                <Spin indicator={<LoadingOutlined/>} spinning delay={utils.COMMON_WAIT_TIME} size="large" />
+                <Spin indicator={<LoadingOutlined />} spinning delay={utils.COMMON_WAIT_TIME} size="large" />
             </Row>
         );
     }
@@ -110,9 +111,14 @@ const HomeIndex: React.FC = () => {
     }
 
     return (
-        <CenteredDiv style={{ marginTop: "1em", padding: "0 1.5em", width: "100%" }}>
-            {inner}
-        </CenteredDiv>
+        <>
+            <Head>
+                <title>{vo.generateTitle(user?.name)}</title>
+            </Head>
+            <CenteredDiv style={{ marginTop: "1em", padding: "0 1.5em", width: "100%" }}>
+                {inner}
+            </CenteredDiv>
+        </>
     );
 };
 

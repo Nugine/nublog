@@ -20,6 +20,7 @@ import {
     ReloadOutlined, PlusSquareOutlined, ArrowRightOutlined,
     LoadingOutlined
 } from "@ant-design/icons";
+import Head from "next/head";
 
 interface ArticleTableProps {
     articles: vo.Article[];
@@ -573,9 +574,14 @@ const AdminEntry: React.FC = () => {
     }
 
     return (
-        <CenteredDiv style={{ marginTop: "1em", padding: "0 1.5em" }}>
-            {inner}
-        </CenteredDiv>
+        <>
+            <Head>
+                <title>{vo.generateTitle("管理")}</title>
+            </Head>
+            <CenteredDiv style={{ marginTop: "1em", padding: "0 1.5em" }}>
+                {inner}
+            </CenteredDiv>
+        </>
     );
 };
 

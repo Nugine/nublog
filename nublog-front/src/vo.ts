@@ -1,4 +1,5 @@
 import * as dto from "./api/dto";
+import * as config from "./config";
 
 export type Article = dto.QueryArticleRes;
 export type User = dto.QueryUserRes;
@@ -38,4 +39,12 @@ export function setSessionId(sessionId: string): void {
 export enum RoleCode {
     ADMIN = 0,
     READER = 1
+}
+
+export function generateTitle(position?: string): string {
+    if(position){
+        return `${position} - ${config.site.title}`;
+    }else{
+        return config.site.title;
+    }
 }
