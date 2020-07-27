@@ -89,13 +89,14 @@ const ArticlesAdmin: React.FC<AdminPaneProps> = () => {
     const [loadingState, withLoading] = useLoading();
 
     const reload = useCallback(async () => {
-        await utils.delay(1000); // FIXME
         setArticles(await csr.getAllArticles());
     }, []);
 
     const handleLoad = useCallback(() => { withLoading(reload, "加载失败"); }, [withLoading, reload]);
 
     useEffect(() => { handleLoad(); }, [handleLoad]);
+
+    const router = useRouter();
 
     const [formCreate] = Form.useForm();
     const handleCreate = (): void => {
@@ -105,12 +106,30 @@ const ArticlesAdmin: React.FC<AdminPaneProps> = () => {
                 <Form.Item name="title" label="标题" required><Input required /></Form.Item>
                 <Form.Item name="author" label="作者" required><Input required /></Form.Item>
                 <Form.Item name="summary" label="摘要" required><Input required /></Form.Item>
-                <Form.Item name="content" label="内容" required><Input.TextArea required rows={10} /></Form.Item>
+                <Form.Item name="content" label="内容" required>
+                    <Input.TextArea required rows={10} />
+                </Form.Item>
             </Form>
         );
 
         const submit = async (): Promise<void> => {
-            await utils.delay(1000);
+            const data = {
+                "url_key": formCreate.getFieldValue("url_key"),
+                "title": formCreate.getFieldValue("title"),
+                "author": formCreate.getFieldValue("author"),
+                "summary": formCreate.getFieldValue("summary"),
+                "content": formCreate.getFieldValue("content")
+            };
+
+            const sessionId = vo.getSessionId();
+            if (sessionId) {
+                await csr.createArticle(sessionId, data);
+                message.success("操作成功");
+                await reload();
+            } else {
+                message.error("操作失败，请重新登录");
+                router.push("/home/login");
+            }
         };
 
         Modal.confirm({
@@ -139,7 +158,28 @@ const ArticlesAdmin: React.FC<AdminPaneProps> = () => {
         );
 
         const submit = async (): Promise<void> => {
-            await utils.delay(1000);
+            const data = {
+                "id": article.id,
+                "url_key": formUpdate.getFieldValue("url_key"),
+                "title": formUpdate.getFieldValue("title"),
+                "author": formUpdate.getFieldValue("author"),
+                "summary": formUpdate.getFieldValue("summary"),
+                "content": formUpdate.getFieldValue("content")
+            };
+
+            const sessionId = vo.getSessionId();
+            if (sessionId) {
+                const ans = await csr.updateArticle(sessionId, data);
+                if (ans.is_updated) {
+                    message.success("操作成功");
+                } else {
+                    message.warn("操作无效");
+                }
+                await reload();
+            } else {
+                message.error("操作失败，请重新登录");
+                router.push("/home/login");
+            }
         };
 
         try {
@@ -165,9 +205,19 @@ const ArticlesAdmin: React.FC<AdminPaneProps> = () => {
 
     const handleDelete = (article: vo.Article): void => {
         const submit = async (): Promise<void> => {
-            await utils.delay(1000);
-            console.debug("delete", article);
-            await reload();
+            const sessionId = vo.getSessionId();
+            if (sessionId) {
+                const ans = await csr.deleteArticle(sessionId, article.id);
+                if (ans.is_deleted) {
+                    message.success("操作成功");
+                } else {
+                    message.warn("操作无效");
+                }
+                await reload();
+            } else {
+                message.error("操作失败，请重新登录");
+                router.push("/home/login");
+            }
         };
 
         Modal.confirm({
@@ -278,7 +328,7 @@ const UserTable: React.FC<UserTableProps> = (props: UserTableProps) => {
                                 <Tooltip title="删除">
                                     <Button
                                         onClick={(): void => props.onDelete(record)}
-                                    // disabled={id == props.adminUser.id}
+                                        disabled={id == props.adminUser.id}
                                     >
                                         <DeleteOutlined />
                                     </Button>
@@ -314,8 +364,9 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ adminUser }: UsersAdminProps) =
 
     useEffect(() => { handleLoad(); }, [handleLoad]);
 
-    const [formUpdate] = Form.useForm();
+    const router = useRouter();
 
+    const [formUpdate] = Form.useForm();
     const handleUpdate = (user: vo.User): void => {
         formUpdate.setFieldsValue({
             id: user.id,
@@ -342,10 +393,20 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ adminUser }: UsersAdminProps) =
 
         const submit = async (): Promise<void> => {
             const store = formUpdate.getFieldsValue();
-            const dto = { id: store.id, "role_code": store.role_code };
-            await utils.delay(1000);
-            console.debug(dto);
-            await reload();
+            const data = { id: store.id, "role_code": store.role_code };
+            const sessionId = vo.getSessionId();
+            if (sessionId) {
+                const ans = await csr.updateUser(sessionId, data);
+                if (ans.is_updated) {
+                    message.success("操作成功");
+                } else {
+                    message.warn("操作无效");
+                }
+                await reload();
+            } else {
+                message.error("操作失败，请重新登录");
+                router.push("/home/login");
+            }
         };
 
         Modal.confirm({
@@ -359,9 +420,19 @@ const UsersAdmin: React.FC<UsersAdminProps> = ({ adminUser }: UsersAdminProps) =
 
     const handleDelete = (user: vo.User): void => {
         const submit = async (): Promise<void> => {
-            await utils.delay(1000);
-            console.debug("delete", user);
-            await reload();
+            const sessionId = vo.getSessionId();
+            if (sessionId) {
+                const ans = await csr.deleteUser(sessionId, user.id);
+                if (ans.is_deleted) {
+                    message.success("操作成功");
+                } else {
+                    message.warn("操作无效");
+                }
+                await reload();
+            } else {
+                message.error("操作失败，请重新登录");
+                router.push("/home/login");
+            }
         };
 
         Modal.confirm({
