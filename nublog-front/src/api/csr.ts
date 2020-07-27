@@ -46,3 +46,28 @@ export async function getAllUsers(sessionId: string): Promise<dto.QueryUserRes[]
     const config = { headers: { "x-session-id": sessionId } };
     return await csrGet("/users/query_all", config) as dto.QueryUserRes[];
 }
+
+export async function updateUser(sessionId: string,data: dto.UpdateUserReq): Promise<dto.UpdateUserRes>{
+    const config = { headers: { "x-session-id": sessionId } };
+    return await csrPost("/users/update",data,config) as dto.UpdateUserRes;
+}
+
+export async function updateArticle(sessionId: string,data: dto.UpdateArticleReq): Promise<dto.UpdateArticleRes>{
+    const config = { headers: { "x-session-id": sessionId } };
+    return await csrPost("/articles/update",data,config) as dto.UpdateArticleRes;
+}
+
+export async function deleteUser(sessionId: string,userId: number): Promise<dto.DeleteUserRes>{
+    const config = { headers: { "x-session-id": sessionId } };
+    return await csrPost("/users/delete",{id:userId} as dto.DeleteUserReq,config) as dto.DeleteUserRes;
+}
+
+export async function deleteArticle(sessionId: string,articleId: number): Promise<dto.DeleteArticleRes>{
+    const config = { headers: { "x-session-id": sessionId } };
+    return await csrPost("/articles/delete",{id:articleId} as dto.DeleteArticleReq,config) as dto.DeleteArticleRes;
+}
+
+export async function createArticle(sessionId: string,data: dto.CreateArticleReq): Promise<dto.CreateArticleRes>{
+    const config = { headers: { "x-session-id": sessionId } };
+    return await csrPost("/articles/create",data,config) as dto.CreateArticleRes;
+}
