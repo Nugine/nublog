@@ -1,3 +1,6 @@
+@import "../assets/fonts/FiraCode/fira_code.css";
+@import "../assets/js/prismjs/prism.css";
+
 html
 body{
     min-width: 100vw;
@@ -11,4 +14,12 @@ body{
 
 h1 {
     font-size: 2em;
+}
+
+code,
+.code-area {
+    font-family: "Fira Code", -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, "Helvetica Neue", "微软雅黑", Arial, "Noto Sans", sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji" !important;
 }

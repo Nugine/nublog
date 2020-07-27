@@ -7,6 +7,7 @@ import Error404 from "../../404";
 import * as vo from "../../../vo";
 import * as ssr from "../../../api/ssr";
 import Head from "next/head";
+import MarkdownView from "../../../components/MarkdownView";
 
 export type ArticleProps = {
     article?: vo.Article;
@@ -48,7 +49,7 @@ const Article: React.FC<ArticleProps> = ({ article }: ArticleProps) => {
                                     <span>作者：{article.author}</span>
                                     <span>时间：{vo.fmtTime(new Date(article.created_at), true)}</span>
                                 </Row>
-                                {article.content} {/*TODO: markdown*/}
+                                <MarkdownView source={article.content ?? ""} />
                             </Col>
                         </Row>
                     </Layout.Content>

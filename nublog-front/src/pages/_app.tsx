@@ -1,6 +1,8 @@
 import React, { useEffect, } from "react";
 
 import "../styles/global.css";
+import "katex/dist/katex.min.css";
+
 import * as config from "../config";
 import { LINK_STYLE_NAME } from "../styles/local";
 import * as vo from "../vo";
@@ -150,7 +152,7 @@ const App: React.FC<AppProps> = ({ Component, pageProps }: AppProps) => {
     return (
         <>
             <Head>
-                <link rel="icon" href="favicon.ico"></link>
+                <link rel="icon" href="/favicon.ico"></link>
             </Head>
             <state.UserProvider>
                 <Row justify="center" style={layoutStyle}>
