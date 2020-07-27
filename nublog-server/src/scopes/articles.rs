@@ -1,6 +1,7 @@
 mod entities {
     use crate::prelude::*;
 
+    #[allow(unused)]
     pub struct Article {
         pub id: i32,
         pub url_key: String,

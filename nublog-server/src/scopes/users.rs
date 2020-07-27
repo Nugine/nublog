@@ -13,6 +13,7 @@ pub mod entities {
         pub last_login: DateTime,
     }
 
+    #[allow(unused)]
     pub struct Session {
         id: Uuid,
         user_id: i32,
