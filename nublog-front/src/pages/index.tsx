@@ -2,11 +2,11 @@ import React from "react";
 
 import * as vo from "../vo";
 import * as ssr from "../api/ssr";
-import CenteredDiv from "../components/CenteredDiv";
 import ArticleCard from "../components/ArticleCard";
 
 import { GetServerSideProps } from "next";
 import Head from "next/head";
+import { Row, Col } from "antd";
 
 export interface IndexProps {
     articles: vo.Article[];
@@ -23,11 +23,13 @@ const Index: React.FC<IndexProps> = ({ articles }: IndexProps) => {
             <Head>
                 <title>{vo.generateTitle()}</title>
             </Head>
-            <CenteredDiv style={{ padding: "0 1em" }}>
-                {articles.map(article => (
-                    <ArticleCard article={article} key={article.id} style={{ width: "100%", marginTop: "1em" }} />
-                ))}
-            </CenteredDiv>
+            <Row justify="center">
+                <Col span={24} lg={16}>
+                    {articles.map(article => (
+                        <ArticleCard article={article} key={article.id} style={{ width: "100%", marginTop: "1em" }} />
+                    ))}
+                </Col>
+            </Row>
         </>
     );
 };

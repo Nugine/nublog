@@ -37,7 +37,7 @@ const Article: React.FC<ArticleProps> = ({ article }: ArticleProps) => {
                 <Head>
                     <title>{vo.generateTitle(article.title)}</title>
                 </Head>
-                <Layout style={{ padding: "0 1em", marginTop: "1em", backgroundColor: "white", flexGrow: 1 }}>
+                <Layout style={{ padding: "0 1em", marginTop: "2.5em", backgroundColor: "white", flexGrow: 1 }}>
                     <Layout.Content style={{ flexGrow: 1 }}>
                         <Row justify="center">
                             <Col span={24} lg={16}>

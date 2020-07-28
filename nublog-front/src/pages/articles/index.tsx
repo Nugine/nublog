@@ -2,7 +2,7 @@ import React, { useMemo, } from "react";
 
 import { GetServerSideProps } from "next";
 
-import { Space, Collapse } from "antd";
+import { Space, Collapse, Row, Col } from "antd";
 
 import * as vo from "../../vo";
 import * as ssr from "../../api/ssr";
@@ -66,31 +66,35 @@ const ArticlesIndex: React.FC<ArticleIndexProps> = ({ articles }: ArticleIndexPr
             <Head>
                 <title>{vo.generateTitle("归档")}</title>
             </Head>
-            <Space
-                direction="vertical"
-                style={{ padding: "0 1em", marginTop: "1em", width: "100%" }}
-            >
-                <Collapse
-                    style={{ width: "100%", backgroundColor: "white", borderBottom: "none" }}
-                    defaultActiveKey={groups.map(group => group.month)}
-                    ghost
-                >
-                    {groups.map(group => (
-                        <Collapse.Panel key={group.month}
-                            header={
-                                <h1 style={{ fontSize: "1.5em" }}>{displayMonth(group.month)}</h1>
-                            }
-                            style={{ width: "100%" }}
+            <Row justify="center">
+                <Col span={24} lg={16}>
+                    <Space
+                        direction="vertical"
+                        style={{ padding: "0 1em", marginTop: "1em", width: "100%" }}
+                    >
+                        <Collapse
+                            style={{ width: "100%", backgroundColor: "white", borderBottom: "none" }}
+                            defaultActiveKey={groups.map(group => group.month)}
+                            ghost
                         >
-                            <Space direction="vertical" style={{ width: "100%" }} >
-                                {group.articles.map(article => (
-                                    <ArticleCard key={article.id} article={article} />
-                                ))}
-                            </Space>
-                        </Collapse.Panel>
-                    ))}
-                </Collapse>
-            </Space >
+                            {groups.map(group => (
+                                <Collapse.Panel key={group.month}
+                                    header={
+                                        <h1 style={{ fontSize: "1.5em" }}>{displayMonth(group.month)}</h1>
+                                    }
+                                    style={{ width: "100%" }}
+                                >
+                                    <Space direction="vertical" style={{ width: "100%" }} >
+                                        {group.articles.map(article => (
+                                            <ArticleCard key={article.id} article={article} />
+                                        ))}
+                                    </Space>
+                                </Collapse.Panel>
+                            ))}
+                        </Collapse>
+                    </Space >
+                </Col>
+            </Row>
         </>
     );
 };
