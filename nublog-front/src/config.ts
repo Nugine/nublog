@@ -2,7 +2,7 @@ import * as utils from "./utils";
 
 export const beian = utils.toReadonly({
     icp: {
-        url: "http://www.miitbeian.gov.cn/",
+        url: "http://beian.miit.gov.cn/",
         text: "苏ICP备19007025号"
     },
     gov: {
