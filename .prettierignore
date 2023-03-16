@@ -1,0 +1,9 @@
+/.nitro
+/.nuxt
+/.output
+/dist
+
+/package-lock.json
+/.vscode
+
+*.md
