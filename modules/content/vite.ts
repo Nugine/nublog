@@ -1,11 +1,20 @@
 import { useLogger } from "@nuxt/kit";
-import assert from "node:assert";
 import { PluginOption } from "vite";
 import { compile } from "./markdown";
-import { stripPrefix } from "./utils";
+import { stripPrefix, stripSuffix } from "./utils";
 
 export interface Options {
     contentDir: string;
+}
+
+const logger = () => useLogger("vite-plugin-nuxt-content");
+
+function matchFile(file: string, contentDir: string): string | null {
+    const fullPath = stripSuffix(file, "?macro=true") ?? file;
+    const filePath = stripPrefix(fullPath, contentDir);
+    if (filePath === null) return null;
+    if (!filePath.endsWith(".md")) return null;
+    return filePath;
 }
 
 export default (opts: Options): PluginOption => ({
@@ -13,27 +22,23 @@ export default (opts: Options): PluginOption => ({
     enforce: "pre",
 
     async transform(content, file) {
-        if (!file.endsWith(".md")) return;
-
-        const filePath = stripPrefix(file, opts.contentDir + "/");
-        assert(filePath !== null);
+        const filePath = matchFile(file, opts.contentDir);
+        if (!filePath) return;
 
         const output = await compile(filePath, content);
         return output.vue;
     },
 
     async handleHotUpdate(ctx) {
-        if (!ctx.file.endsWith(".md")) return;
-
-        const filePath = stripPrefix(ctx.file, opts.contentDir + "/");
-        assert(filePath !== null);
+        const filePath = matchFile(ctx.file, opts.contentDir);
+        if (!filePath) return;
 
         const read = ctx.read;
         ctx.read = async () => {
             const content = await read();
             const output = await compile(filePath, content);
 
-            const consola = useLogger("vite-plugin-nuxt-content");
+            const consola = logger();
             consola.log(`Compiling: ${filePath}`);
 
             return output.vue;

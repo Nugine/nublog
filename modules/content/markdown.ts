@@ -35,8 +35,8 @@ export function toUrlPath(filePath: string): string {
         throw new Error("Not Implemented");
     }
 
-    if (path == "index") {
-        return "";
+    if (path == "/index") {
+        return "/";
     }
 
     const stripped = stripSuffix(path, "/index");
