@@ -1,7 +1,3 @@
-import { globby } from "globby";
-import { readFile } from "node:fs/promises";
-import { hasDuplicate, stripSuffix, mapJoinAll, sortInplace } from "./utils";
-
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
@@ -10,20 +6,14 @@ import rehypeStringify from "rehype-stringify";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkExtractFrontmatter from "remark-extract-frontmatter";
 import yaml from "yaml";
-import { validateDateString } from "./date";
 import assert from "node:assert";
-
 import { visit, SKIP } from "unist-util-visit";
 import * as mdast from "mdast";
 import type { VFile } from "vfile";
-
 import * as hast from "hast";
 
-export interface MarkdownSource {
-    filePath: string;
-    urlPath: string;
-    body: string;
-}
+import { validateDateString } from "./date";
+import { stripSuffix } from "./utils";
 
 export interface MarkdownOutput {
     filePath: string;
@@ -39,7 +29,7 @@ export interface MarkdownOutput {
     vue: string;
 }
 
-function toUrlPath(filePath: string): string {
+export function toUrlPath(filePath: string): string {
     const path = stripSuffix(filePath, ".md");
     if (path === null) {
         throw new Error("Not Implemented");
@@ -51,23 +41,6 @@ function toUrlPath(filePath: string): string {
 
     const stripped = stripSuffix(path, "/index");
     return stripped ?? path;
-}
-
-export async function readSources(contentDir: string): Promise<MarkdownSource[]> {
-    const filePaths = sortInplace(await globby("**/*.md", { cwd: contentDir }));
-
-    const sources = await mapJoinAll(filePaths, async (filePath) => {
-        const urlPath = toUrlPath(filePath);
-        const fullPath = `${contentDir}/${filePath}`;
-        const body = await readFile(fullPath, { encoding: "utf-8" });
-        return { filePath, urlPath, body };
-    });
-
-    if (hasDuplicate(sources.map((s) => s.urlPath))) {
-        throw new Error("URL path conflict");
-    }
-
-    return sources;
 }
 
 const remarkExtractTitle = () => (tree: mdast.Root, file: VFile) => {
@@ -129,9 +102,9 @@ const processor = unified()
     .use(rehypeExtractImages) // custom
     .use(rehypeStringify);
 
-export async function compile(src: MarkdownSource): Promise<MarkdownOutput> {
-    const { filePath, urlPath, body } = src;
-    const vfile = await processor.process(body);
+export async function compile(filePath: string, content: string): Promise<MarkdownOutput> {
+    const urlPath = toUrlPath(filePath);
+    const vfile = await processor.process(content);
 
     const frontmatter = (vfile.data.frontmatter as Record<string, unknown>) ?? {};
     checkDate(frontmatter.postDate);

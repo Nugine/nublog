@@ -9,6 +9,13 @@ export function stripSuffix(s: string, suffix: string): string | null {
     return null;
 }
 
+export function stripPrefix(s: string, prefix: string): string | null {
+    if (s.startsWith(prefix)) {
+        return s.substring(prefix.length);
+    }
+    return null;
+}
+
 export function hasDuplicate(arr: string[]): boolean {
     return new Set(arr).size !== arr.length;
 }
