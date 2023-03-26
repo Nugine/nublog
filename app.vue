@@ -8,7 +8,6 @@
 
 <style>
 @import "~/assets/global.css";
-@import "~/assets/markdown.css";
 </style>
 
 <style scoped>

@@ -116,12 +116,14 @@ export async function compile(filePath: string, content: string): Promise<Markdo
     const meta = { ...frontmatter };
 
     const script_setup_statements = [];
+    script_setup_statements.push(`import MarkdownPage from "~/components/MarkdownPage.vue";`);
+
     const images = vfile.data.images as Map<string, string>;
     for (const [importName, src] of images.entries()) {
         script_setup_statements.push(`import ${importName} from "${src}";`);
     }
 
-    const html = `<div class="markdown-area">${String(vfile)}</div>`;
+    const html = `<MarkdownPage>${String(vfile)}</MarkdownPage>`;
     const script_setup = `<script setup lang="ts">${script_setup_statements.join("")}</script>`;
     const vue = `<template>${html}</template>${script_setup}`;
 
