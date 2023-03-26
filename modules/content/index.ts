@@ -1,15 +1,28 @@
-import { defineNuxtModule, resolvePath } from "@nuxt/kit";
-import { readSources } from "./markdown";
+import { defineNuxtModule, resolvePath, useLogger } from "@nuxt/kit";
+import { compile, readSources } from "./markdown";
+import { ensureDir, createFile } from "./utils";
 
 export default defineNuxtModule({
-    async setup() {
-        console.log("------ content module setup start -------");
+    async setup(_opts, nuxt) {
+        const consola = useLogger("content");
+        consola.log("------ module setup start -------");
+
+        const buildDir = `${nuxt.options.buildDir}/content`;
+        ensureDir(buildDir);
 
         const contentDir = await resolvePath("content");
-
         const sources = await readSources(contentDir);
-        console.dir(sources);
+        const outputs = [];
+        for (const src of sources) {
+            consola.log(`compiling: ${src.filePath} -> ${src.urlPath}`);
+            const output = await compile(src);
+            outputs.push(output);
 
-        console.log("------ content module setup end   -------\n\n");
+            const dataPath = `${buildDir}/${output.urlPath}.json`;
+            await createFile(dataPath, JSON.stringify(output, null, 4));
+        }
+        consola.log("done");
+
+        consola.log("------ module setup end   -------\n\n");
     },
 });

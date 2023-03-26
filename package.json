@@ -13,6 +13,18 @@
         "eslint": "^8.34.0",
         "eslint-plugin-vue": "^9.9.0",
         "nuxt": "^3.3.1",
-        "prettier": "^2.8.4"
+        "prettier": "^2.8.4",
+        "rehype-stringify": "^9.0.3",
+        "remark-extract-frontmatter": "^3.2.0",
+        "remark-frontmatter": "^4.0.1",
+        "remark-gfm": "^3.0.1",
+        "remark-parse": "^10.0.1",
+        "remark-rehype": "^10.1.0",
+        "unified": "^10.1.2",
+        "unist-util-visit": "^4.1.2",
+        "yaml": "^2.2.1"
+    },
+    "dependencies": {
+        "lodash": "^4.17.21"
     }
 }
