@@ -17,6 +17,8 @@ import { visit, SKIP } from "unist-util-visit";
 import * as mdast from "mdast";
 import type { VFile } from "vfile";
 
+import * as hast from "hast";
+
 export interface MarkdownSource {
     filePath: string;
     urlPath: string;
@@ -94,13 +96,37 @@ const remarkExtractTitle = () => (tree: mdast.Root, file: VFile) => {
     frontmatter.title ??= title;
 };
 
-const processor = unified() //
+const rehypeExtractImages = () => (tree: hast.Root, file: VFile) => {
+    const images = new Map();
+    let cnt = 0;
+    visit(tree, (node) => {
+        if (node.type === "element" && node.tagName === "img") {
+            const properties = (node.properties ??= {});
+
+            const src = properties.src;
+            assert(typeof src === "string" && src !== "");
+
+            if (!src.startsWith("http")) {
+                const importName = `img${++cnt}`;
+                images.set(importName, src);
+
+                delete properties.src;
+                properties[":src"] = importName;
+            }
+        }
+    });
+
+    file.data.images = images;
+};
+
+const processor = unified()
     .use(remarkParse)
     .use(remarkFrontmatter, ["yaml"])
     .use(remarkExtractFrontmatter, { name: "frontmatter", yaml: yaml.parse })
     .use(remarkGfm)
-    .use(remarkExtractTitle)
+    .use(remarkExtractTitle) // custom
     .use(remarkRehype)
+    .use(rehypeExtractImages) // custom
     .use(rehypeStringify);
 
 export async function compile(src: MarkdownSource): Promise<MarkdownOutput> {
@@ -110,11 +136,16 @@ export async function compile(src: MarkdownSource): Promise<MarkdownOutput> {
     const frontmatter = (vfile.data.frontmatter as Record<string, unknown>) ?? {};
     checkDate(frontmatter.postDate);
     checkDate(frontmatter.editDate);
-
     const meta = { ...frontmatter };
 
+    const images = vfile.data.images as Map<string, string>;
+    const statements = [];
+    for (const [importName, src] of images.entries()) {
+        statements.push(`import ${importName} from "${src}";`);
+    }
+
     const html = String(vfile);
-    const vue = `<template>${html}</template>`;
+    const vue = `<template>${html}</template><script setup lang="ts">${statements.join()}</script>`;
 
     return { filePath, urlPath, meta, vue };
 }
