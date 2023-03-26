@@ -17,6 +17,7 @@
 <script setup lang="ts">
 import type { NuxtLinkProps } from "nuxt/dist/app/components/nuxt-link";
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface HLinkProps extends NuxtLinkProps {}
 
 const props = defineProps<HLinkProps>();

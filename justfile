@@ -8,7 +8,7 @@ check:
     npx prettier --check .
 
 lint:
-    npx eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore
+    npx eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts
 
 build: check lint
     npx nuxt typecheck
