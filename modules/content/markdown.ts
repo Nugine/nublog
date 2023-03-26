@@ -115,14 +115,15 @@ export async function compile(filePath: string, content: string): Promise<Markdo
     checkDate(frontmatter.editDate);
     const meta = { ...frontmatter };
 
+    const script_setup_statements = [];
     const images = vfile.data.images as Map<string, string>;
-    const statements = [];
     for (const [importName, src] of images.entries()) {
-        statements.push(`import ${importName} from "${src}";`);
+        script_setup_statements.push(`import ${importName} from "${src}";`);
     }
 
     const html = `<div class="markdown-area">${String(vfile)}</div>`;
-    const vue = `<template>${html}</template><script setup lang="ts">${statements.join()}</script>`;
+    const script_setup = `<script setup lang="ts">${script_setup_statements.join("")}</script>`;
+    const vue = `<template>${html}</template>${script_setup}`;
 
     return { filePath, urlPath, meta, vue };
 }
