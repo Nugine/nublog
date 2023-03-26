@@ -6,13 +6,10 @@ import {
     useLogger,
     useNuxt,
 } from "@nuxt/kit";
-import { globby } from "globby";
 import assert from "node:assert";
-import { readFile } from "node:fs/promises";
 import { NuxtOptions } from "nuxt/schema";
 
-import { compile, MarkdownOutput } from "./markdown";
-import { ensureDir, sortInplace } from "./utils";
+import { buildRegistry } from "./markdown";
 import VitePluginNuxtContent from "./vite";
 
 const logger = () => useLogger("content");
@@ -23,10 +20,12 @@ export default defineNuxtModule({
     },
 
     async setup() {
+        const nuxt = useNuxt();
         const consola = logger();
 
         const contentDir = await resolvePath("content");
-        const outputs = await compileAllMarkdownFiles(contentDir);
+        const contentsJsonPath = `${nuxt.options.buildDir}/contents.json`;
+        const registry = await buildRegistry({ contentDir, contentsJsonPath });
 
         extendViteConfig((vite: NuxtOptions["vite"]) => {
             assert(vite.vue);
@@ -34,10 +33,12 @@ export default defineNuxtModule({
             vite.vue.include = [/.vue$/, /.md$/];
 
             const vitePlugins = (vite.plugins ??= []);
-            vitePlugins.push(VitePluginNuxtContent({ contentDir }));
+            vitePlugins.push(VitePluginNuxtContent({ registry }));
         });
 
         extendPages((pages) => {
+            const outputs = [...Object.values(registry.getOutputs())];
+
             const urlPaths = new Set<string>(outputs.map((o) => o.urlPath));
             for (const page of pages) {
                 if (urlPaths.has(page.path)) {
@@ -58,33 +59,33 @@ export default defineNuxtModule({
     },
 });
 
-async function compileAllMarkdownFiles(contentDir: string): Promise<MarkdownOutput[]> {
-    const nuxt = useNuxt();
-    const consola = logger();
+// async function compileAllMarkdownFiles(contentDir: string): Promise<MarkdownOutput[]> {
+//     const nuxt = useNuxt();
+//     const consola = logger();
 
-    consola.info("Compiling markdown files ...");
+//     consola.info("Compiling markdown files ...");
 
-    const filePaths = sortInplace(await globby("**/*.md", { cwd: contentDir })).map((s) => "/" + s);
+//     const filePaths = sortInplace(await globby("**/*.md", { cwd: contentDir })).map((s) => "/" + s);
 
-    const buildDir = `${nuxt.options.buildDir}/content`;
-    ensureDir(buildDir);
+//     const buildDir = `${nuxt.options.buildDir}/content`;
+//     ensureDir(buildDir);
 
-    const urlPaths = new Set<string>();
-    const outputs = [];
-    for (const filePath of filePaths) {
-        consola.info(`Compiling: ${filePath}`);
+//     const urlPaths = new Set<string>();
+//     const outputs = [];
+//     for (const filePath of filePaths) {
+//         consola.info(`Compiling: ${filePath}`);
 
-        const fullPath = contentDir + filePath;
-        const content = await readFile(fullPath, { encoding: "utf-8" });
-        const output = await compile(filePath, content);
-        outputs.push(output);
+//         const fullPath = contentDir + filePath;
+//         const content = await readFile(fullPath, { encoding: "utf-8" });
+//         const output = await compile(filePath, content);
+//         outputs.push(output);
 
-        if (urlPaths.has(output.urlPath)) {
-            throw new Error(`URL path conflict: ${output.urlPath}`);
-        }
-        urlPaths.add(output.urlPath);
-    }
-    consola.success("Validated markdown files");
+//         if (urlPaths.has(output.urlPath)) {
+//             throw new Error(`URL path conflict: ${output.urlPath}`);
+//         }
+//         urlPaths.add(output.urlPath);
+//     }
+//     consola.success("Validated markdown files");
 
-    return outputs;
-}
+//     return outputs;
+// }

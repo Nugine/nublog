@@ -13,7 +13,11 @@ import type { VFile } from "vfile";
 import * as hast from "hast";
 
 import { validateDateString } from "./date";
-import { stripSuffix } from "./utils";
+import { sortInplace, stripSuffix } from "./utils";
+import { useLogger } from "@nuxt/kit";
+import { globby } from "globby";
+import { readFile, writeFile } from "node:fs/promises";
+import { isEqual } from "lodash";
 
 export interface MarkdownOutput {
     filePath: string;
@@ -128,4 +132,80 @@ function checkDate(s: unknown) {
         assert(typeof s === "string");
         validateDateString(s);
     }
+}
+
+export interface MarkdownRegistryOptions {
+    contentDir: string;
+    contentsJsonPath: string;
+}
+
+export interface MarkdownRegistry {
+    readonly contentDir: string;
+
+    compile(filePath: string, content: string): Promise<MarkdownOutput>;
+
+    getOutputs(): Readonly<Record<string, MarkdownOutput>>;
+}
+
+export type MarkdownData = Omit<MarkdownOutput, "vue">;
+
+export async function buildRegistry(opts: MarkdownRegistryOptions): Promise<MarkdownRegistry> {
+    const consola = useLogger("markdown");
+    const contentDir = opts.contentDir;
+
+    consola.info("Compiling markdown files ...");
+
+    const filePaths = sortInplace(await globby("**/*.md", { cwd: contentDir })).map((s) => "/" + s);
+
+    const urlPaths = new Set<string>();
+    const outputs: Record<string, MarkdownOutput> = {};
+    for (const filePath of filePaths) {
+        consola.info(`Compiling: ${filePath}`);
+
+        const fullPath = contentDir + filePath;
+
+        const content = await readFile(fullPath, { encoding: "utf-8" });
+        const output = await compile(filePath, content);
+
+        if (urlPaths.has(output.urlPath)) {
+            throw new Error(`URL path conflict: ${output.urlPath}`);
+        }
+        urlPaths.add(output.urlPath);
+
+        outputs[filePath] = output;
+    }
+    const indexData = gatherIndexData(outputs);
+    await writeFile(opts.contentsJsonPath, JSON.stringify(indexData, null, 4));
+    consola.success("Validated markdown files");
+
+    return {
+        contentDir,
+
+        async compile(filePath: string, content: string) {
+            const output = await compile(filePath, content);
+
+            const needsWrite = !isEqual(output.meta, outputs[filePath].meta);
+            outputs[filePath] = output;
+
+            if (needsWrite) {
+                consola.info(`Meta changed: ${filePath}`);
+                const indexData = gatherIndexData(outputs);
+                await writeFile(opts.contentsJsonPath, JSON.stringify(indexData, null, 4));
+            }
+
+            return output;
+        },
+
+        getOutputs() {
+            return outputs;
+        },
+    };
+}
+
+function gatherIndexData(outputs: Record<string, MarkdownOutput>): MarkdownData[] {
+    return Object.values(outputs).map((output) => ({
+        filePath: output.filePath,
+        urlPath: output.urlPath,
+        meta: output.meta,
+    }));
 }
