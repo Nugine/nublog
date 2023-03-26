@@ -145,6 +145,8 @@ export interface MarkdownRegistry {
     compile(filePath: string, content: string): Promise<MarkdownOutput>;
 
     getOutputs(): Readonly<Record<string, MarkdownOutput>>;
+
+    getIndexData(): MarkdownData[];
 }
 
 export type MarkdownData = Omit<MarkdownOutput, "vue">;
@@ -198,6 +200,10 @@ export async function buildRegistry(opts: MarkdownRegistryOptions): Promise<Mark
 
         getOutputs() {
             return outputs;
+        },
+
+        getIndexData() {
+            return gatherIndexData(outputs);
         },
     };
 }
