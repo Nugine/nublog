@@ -10,9 +10,12 @@ import rehypeStringify from "rehype-stringify";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkExtractFrontmatter from "remark-extract-frontmatter";
 import yaml from "yaml";
-import remarkExtractTitle from "./remark-extract-title";
 import { validateDateString } from "./date";
 import assert from "node:assert";
+
+import { visit, SKIP } from "unist-util-visit";
+import * as mdast from "mdast";
+import type { VFile } from "vfile";
 
 export interface MarkdownSource {
     filePath: string;
@@ -28,11 +31,10 @@ export interface MarkdownOutput {
         title?: string;
         postDate?: string;
         editDate?: string;
-
         [key: string]: unknown;
     };
 
-    html: string;
+    vue: string;
 }
 
 function toUrlPath(filePath: string): string {
@@ -66,10 +68,36 @@ export async function readSources(contentDir: string): Promise<MarkdownSource[]>
     return sources;
 }
 
+const remarkExtractTitle = () => (tree: mdast.Root, file: VFile) => {
+    let first: mdast.Content | undefined;
+    visit(tree, (node) => {
+        if (node.type === "root") return;
+        if (node.type === "yaml") return SKIP;
+
+        if (first) {
+            assert(node.type !== "heading" || node.depth > 1, "Expected single h1 node");
+        } else {
+            first = node;
+        }
+    });
+
+    assert(first !== undefined, "Expected a h1 node");
+    assert(first.type === "heading" && first.depth === 1, "Expected h1 as the first node");
+    assert(first.children.length === 1, "Expected a single child in h1");
+
+    const firstChild = first.children[0];
+    assert(firstChild.type === "text", "Expected a text node");
+
+    const title = firstChild.value;
+
+    const frontmatter = ((file.data.frontmatter as Record<string, unknown>) ??= {});
+    frontmatter.title ??= title;
+};
+
 const processor = unified() //
     .use(remarkParse)
     .use(remarkFrontmatter, ["yaml"])
-    .use(remarkExtractFrontmatter, { yaml: yaml.parse })
+    .use(remarkExtractFrontmatter, { name: "frontmatter", yaml: yaml.parse })
     .use(remarkGfm)
     .use(remarkExtractTitle)
     .use(remarkRehype)
@@ -79,20 +107,21 @@ export async function compile(src: MarkdownSource): Promise<MarkdownOutput> {
     const { filePath, urlPath, body } = src;
     const vfile = await processor.process(body);
 
-    const meta = vfile.data;
-    validateMeta(meta);
+    const frontmatter = (vfile.data.frontmatter as Record<string, unknown>) ?? {};
+    checkDate(frontmatter.postDate);
+    checkDate(frontmatter.editDate);
+
+    const meta = { ...frontmatter };
 
     const html = String(vfile);
-    return { filePath, urlPath, meta, html };
+    const vue = `<template>${html}</template>`;
+
+    return { filePath, urlPath, meta, vue };
 }
 
-export function validateMeta(meta: MarkdownOutput["meta"]): void {
-    if (meta.postDate !== undefined) {
-        assert(typeof meta.postDate === "string");
-        validateDateString(meta.postDate);
-    }
-    if (meta.editDate !== undefined) {
-        assert(typeof meta.editDate === "string");
-        validateDateString(meta.editDate);
+function checkDate(s: unknown) {
+    if (s !== undefined) {
+        assert(typeof s === "string");
+        validateDateString(s);
     }
 }
