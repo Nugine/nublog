@@ -36,8 +36,8 @@
 
 <script setup lang="ts">
 import { queryContentAll } from "~~/composables/queryContent";
-import { orderBy } from "lodash";
+import { cmp, reverse } from "~~/utils/cmp";
 
-const contents = await queryContentAll({ urlPrefix: "/articles" });
-const articles = orderBy(contents, ["meta.postDate"], ["desc"]);
+const articles = await queryContentAll({ urlPrefix: "/articles" });
+articles.sort((lhs, rhs) => reverse(cmp)(lhs.meta.postDate, rhs.meta.postDate));
 </script>
