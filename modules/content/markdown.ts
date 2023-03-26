@@ -123,7 +123,9 @@ export async function compile(filePath: string, content: string): Promise<Markdo
         script_setup_statements.push(`import ${importName} from "${src}";`);
     }
 
-    const html = `<MarkdownPage>${String(vfile)}</MarkdownPage>`;
+    script_setup_statements.push(`const meta = ${JSON.stringify(meta)};`);
+
+    const html = `<MarkdownPage :meta="meta">${String(vfile)}</MarkdownPage>`;
     const script_setup = `<script setup lang="ts">${script_setup_statements.join("")}</script>`;
     const vue = `<template>${html}</template>${script_setup}`;
 

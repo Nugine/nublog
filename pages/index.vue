@@ -37,7 +37,11 @@
 <script setup lang="ts">
 import { queryContentAll } from "~~/composables/queryContent";
 import { cmp, reverse } from "~~/utils/cmp";
+import { useAppConfig, useHead } from "#imports";
 
 const articles = await queryContentAll({ urlPrefix: "/articles" });
 articles.sort((lhs, rhs) => reverse(cmp)(lhs.meta.postDate, rhs.meta.postDate));
+
+const config = useAppConfig();
+useHead({ title: config.siteTitle });
 </script>
