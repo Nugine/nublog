@@ -39,7 +39,7 @@ export default (opts: Options): PluginOption => ({
             const output = await compile(filePath, content);
 
             const consola = logger();
-            consola.log(`Compiling: ${filePath}`);
+            consola.info(`hot update: ${filePath}`);
 
             return output.vue;
         };

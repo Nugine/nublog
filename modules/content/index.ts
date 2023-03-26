@@ -23,6 +23,8 @@ export default defineNuxtModule({
     },
 
     async setup() {
+        const consola = logger();
+
         const contentDir = await resolvePath("content");
         const outputs = await compileAllMarkdownFiles(contentDir);
 
@@ -51,6 +53,8 @@ export default defineNuxtModule({
                 });
             }
         });
+
+        consola.success("Loaded contents\n");
     },
 });
 
@@ -58,7 +62,7 @@ async function compileAllMarkdownFiles(contentDir: string): Promise<MarkdownOutp
     const nuxt = useNuxt();
     const consola = logger();
 
-    consola.log("Compiling all markdown files ...");
+    consola.info("Compiling markdown files ...");
 
     const filePaths = sortInplace(await globby("**/*.md", { cwd: contentDir })).map((s) => "/" + s);
 
@@ -68,7 +72,7 @@ async function compileAllMarkdownFiles(contentDir: string): Promise<MarkdownOutp
     const urlPaths = new Set<string>();
     const outputs = [];
     for (const filePath of filePaths) {
-        consola.log(`Compiling: ${filePath}`);
+        consola.info(`Compiling: ${filePath}`);
 
         const fullPath = contentDir + filePath;
         const content = await readFile(fullPath, { encoding: "utf-8" });
@@ -80,7 +84,7 @@ async function compileAllMarkdownFiles(contentDir: string): Promise<MarkdownOutp
         }
         urlPaths.add(output.urlPath);
     }
-    consola.log("Done");
+    consola.success("Validated markdown files");
 
     return outputs;
 }
