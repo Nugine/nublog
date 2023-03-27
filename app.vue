@@ -1,24 +1,5 @@
 <template>
-    <AppHeader />
-    <main>
+    <AppLayout>
         <NuxtPage />
-    </main>
-    <AppFooter />
+    </AppLayout>
 </template>
-
-<style>
-@import "~/assets/global.css";
-</style>
-
-<style scoped>
-main {
-    width: 100%;
-    flex-grow: 1;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    margin-bottom: 2em;
-}
-</style>
