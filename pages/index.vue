@@ -1,13 +1,18 @@
 <template>
     <div class="content-list">
-        <div v-for="c in articles" :key="c.urlPath" class="article">
-            <div class="article-date" v-if="c.meta.postDate">
-                <span>{{ c.meta.postDate }}</span>
+        <template v-for="[month, group] in groups.entries()" :key="month">
+            <div style="width: 100%">
+                <h2>{{ displayMonth(month) }}</h2>
             </div>
-            <div class="article-title">
-                <NuxtLink :to="c.urlPath">{{ c.meta.title }}</NuxtLink>
+            <div v-for="c in group" :key="c.urlPath" class="article">
+                <div class="article-date" v-if="c.meta.postDate">
+                    <span>{{ c.meta.postDate }}</span>
+                </div>
+                <div class="article-title">
+                    <NuxtLink :to="c.urlPath">{{ c.meta.title }}</NuxtLink>
+                </div>
             </div>
-        </div>
+        </template>
     </div>
 </template>
 
@@ -46,10 +51,12 @@
 
     .article-title {
         display: inline-block;
+        font-size: 1.25rem;
     }
 
     .article {
-        font-size: 1.25rem;
+        display: flex;
+        align-items: baseline;
     }
 }
 </style>
@@ -58,10 +65,26 @@
 import { queryContentAll } from "~~/composables/queryContent";
 import { cmp, reverse } from "~~/utils/cmp";
 import { useAppConfig, useHead } from "#imports";
+import { MarkdownData } from "~~/modules/content/markdown";
+
+const config = useAppConfig();
+useHead({ title: config.siteTitle });
 
 const articles = await queryContentAll({ urlPrefix: "/articles" });
 articles.sort((lhs, rhs) => reverse(cmp)(lhs.meta.postDate, rhs.meta.postDate));
 
-const config = useAppConfig();
-useHead({ title: config.siteTitle });
+const groups = new Map<string, MarkdownData[]>();
+for (const article of articles) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const month = article.meta.postDate!.slice(0, 7);
+    if (!groups.has(month)) {
+        groups.set(month, []);
+    }
+    groups.get(month)?.push(article);
+}
+
+function displayMonth(month: string): string {
+    const [year, m] = month.split("-").map(Number);
+    return `${year} 年 ${m} 月`;
+}
 </script>
