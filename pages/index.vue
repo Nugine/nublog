@@ -1,7 +1,9 @@
 <template>
     <div class="content-list">
         <div v-for="c in articles" :key="c.urlPath" class="article">
-            <div class="article-date">{{ c.meta.postDate }}</div>
+            <div class="article-date">
+                <span>{{ c.meta.postDate }}</span>
+            </div>
             <div class="article-title">
                 <NuxtLink :to="c.urlPath">{{ c.meta.title }}</NuxtLink>
             </div>
@@ -23,14 +25,32 @@
     margin: 1em 0;
 }
 
-.article-date {
-    width: 100%;
-    margin-bottom: 0.25em;
+@media screen and (max-width: 600px) {
+    .article-date {
+        display: block;
+        width: 100%;
+        margin-bottom: 0.25em;
+    }
+
+    .article-title {
+        width: 100%;
+        font-size: 1.25rem;
+    }
 }
 
-.article-title {
-    width: 100%;
-    font-size: 1.25rem;
+@media screen and (min-width: 601px) {
+    .article-date {
+        display: inline-block;
+        margin-right: 1em;
+    }
+
+    .article-title {
+        display: inline-block;
+    }
+
+    .article {
+        font-size: 1.25rem;
+    }
 }
 </style>
 
