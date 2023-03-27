@@ -18,9 +18,13 @@ import { isEqual } from "lodash";
 import * as shiki from "shiki";
 import { fromHtml } from "hast-util-from-html";
 import { toString } from "hast-util-to-string";
+import path from "node:path";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import type { KatexOptions } from "katex";
+
 import { validateDateString } from "./date";
 import { asyncCached, sortInplace, stripSuffix } from "./utils";
-import path from "node:path";
 
 export interface MarkdownOutput {
     filePath: string;
@@ -164,6 +168,23 @@ const rehypeFixLink = () => (tree: hast.Root, file: VFile) => {
     });
 };
 
+const rehypeKatexShim = (opts?: KatexOptions) => {
+    const transform = rehypeKatex(opts) as (tree: hast.Root, vfile: VFile) => void;
+    return (tree: hast.Root, vfile: VFile) => {
+        transform(tree, vfile);
+
+        visit(tree, "element", (node) => {
+            const className = node.properties?.className ?? [];
+            assert(Array.isArray(className));
+            if (className.includes("math")) {
+                node.properties ??= {};
+                node.properties["v-pre"] = "";
+                return SKIP;
+            }
+        });
+    };
+};
+
 async function buildProcessor() {
     const hl = await shiki.getHighlighter({ theme: "github-light" });
 
@@ -172,9 +193,11 @@ async function buildProcessor() {
         .use(remarkFrontmatter, ["yaml"])
         .use(remarkExtractFrontmatter, { name: "frontmatter", yaml: yaml.parse })
         .use(remarkGfm)
+        .use(remarkMath)
         .use(remarkExtractTitle) // custom
         .use(remarkRehype)
         .use(rehypeShiki, { hl })
+        .use(rehypeKatexShim) // custom
         .use(rehypeExtractImages) // custom
         .use(rehypeFixLink) // custom
         .use(rehypeStringify);

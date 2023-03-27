@@ -4,13 +4,14 @@
     </div>
 </template>
 
-<style>
-@import "~/assets/markdown.css";
-</style>
+<style></style>
 
 <script setup lang="ts">
 import { MarkdownData } from "~~/modules/content/markdown";
 import { useAppConfig, useHead } from "#imports";
+
+import "~/assets/markdown.css";
+import "katex/dist/katex.min.css";
 
 const props = defineProps<{
     meta: MarkdownData["meta"];

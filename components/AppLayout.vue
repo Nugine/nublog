@@ -6,10 +6,6 @@
     <AppFooter />
 </template>
 
-<style>
-@import "~/assets/global.css";
-</style>
-
 <style scoped>
 main {
     width: 100%;
@@ -22,3 +18,7 @@ main {
     margin-bottom: 2em;
 }
 </style>
+
+<script setup lang="ts">
+import "~/assets/global.css";
+</script>
