@@ -38,3 +38,13 @@ export async function createFile(filePath: string, content: string) {
     ensureDir(path.dirname(filePath));
     await writeFile(filePath, content);
 }
+
+export function asyncCached<T>(f: () => Promise<T>): () => Promise<T> {
+    let ans: T | undefined;
+    return async () => {
+        if (ans === undefined) {
+            ans = await f();
+        }
+        return ans;
+    };
+}

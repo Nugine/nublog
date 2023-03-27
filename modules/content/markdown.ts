@@ -11,13 +11,15 @@ import { visit, SKIP } from "unist-util-visit";
 import * as mdast from "mdast";
 import type { VFile } from "vfile";
 import * as hast from "hast";
-
-import { validateDateString } from "./date";
-import { sortInplace, stripSuffix } from "./utils";
 import { useLogger } from "@nuxt/kit";
 import { globby } from "globby";
 import { readFile, writeFile } from "node:fs/promises";
 import { isEqual } from "lodash";
+import * as shiki from "shiki";
+import { fromHtml } from "hast-util-from-html";
+import { toString } from "hast-util-to-string";
+import { validateDateString } from "./date";
+import { asyncCached, sortInplace, stripSuffix } from "./utils";
 
 export interface MarkdownOutput {
     filePath: string;
@@ -73,6 +75,46 @@ const remarkExtractTitle = () => (tree: mdast.Root, file: VFile) => {
     frontmatter.title ??= title;
 };
 
+interface RehypeShikiOptions {
+    hl: shiki.Highlighter;
+}
+
+const rehypeShiki = ({ hl }: RehypeShikiOptions) => {
+    const loadedLanguages = new Set<string>(hl.getLoadedLanguages());
+
+    const findLanguage = (node: hast.Element) => {
+        const dataLanguage = node.properties?.dataLanguage;
+        if (typeof dataLanguage === "string" && dataLanguage !== "") {
+            return dataLanguage;
+        }
+        const classNames = node.properties?.className ?? [];
+        assert(Array.isArray(classNames));
+        for (const className of classNames) {
+            assert(typeof className === "string");
+            if (className.startsWith("language-")) {
+                return className.slice("language-".length);
+            }
+        }
+        return null;
+    };
+
+    return (tree: hast.Root) => {
+        visit(tree, "element", (node, _index, parent) => {
+            if (node.tagName !== "code") return;
+            if (!parent || parent.type === "root" || parent.tagName !== "pre") return;
+
+            const lang = findLanguage(node);
+            assert(typeof lang === "string" && lang !== "" && loadedLanguages.has(lang));
+
+            const html = hl.codeToHtml(toString(node), { lang: lang as shiki.Lang });
+            const ast = fromHtml(html, { fragment: true });
+
+            const pre = ast.children[0] as hast.Element;
+            Object.assign(parent, pre);
+        });
+    };
+};
+
 const rehypeExtractImages = () => (tree: hast.Root, file: VFile) => {
     const images = new Map();
     let cnt = 0;
@@ -96,18 +138,27 @@ const rehypeExtractImages = () => (tree: hast.Root, file: VFile) => {
     file.data.images = images;
 };
 
-const processor = unified()
-    .use(remarkParse)
-    .use(remarkFrontmatter, ["yaml"])
-    .use(remarkExtractFrontmatter, { name: "frontmatter", yaml: yaml.parse })
-    .use(remarkGfm)
-    .use(remarkExtractTitle) // custom
-    .use(remarkRehype)
-    .use(rehypeExtractImages) // custom
-    .use(rehypeStringify);
+async function buildProcessor() {
+    const hl = await shiki.getHighlighter({ theme: "github-light" });
+
+    return unified()
+        .use(remarkParse)
+        .use(remarkFrontmatter, ["yaml"])
+        .use(remarkExtractFrontmatter, { name: "frontmatter", yaml: yaml.parse })
+        .use(remarkGfm)
+        .use(remarkExtractTitle) // custom
+        .use(remarkRehype)
+        .use(rehypeShiki, { hl })
+        .use(rehypeExtractImages) // custom
+        .use(rehypeStringify);
+}
+
+const cachedProcessor = asyncCached(buildProcessor);
 
 export async function compile(filePath: string, content: string): Promise<MarkdownOutput> {
     const urlPath = toUrlPath(filePath);
+
+    const processor = await cachedProcessor();
     const vfile = await processor.process(content);
 
     const frontmatter = (vfile.data.frontmatter as Record<string, unknown>) ?? {};
