@@ -147,5 +147,4 @@ To get logs, run 'docker cp 6b1e781741bb:/mint/log /tmp/mint-logs'
 All tests ran successfully
 ```
 
-![](./2020-09-29%2022-11-09%20的屏幕截图.png)
-
+![](./screenshot.png)

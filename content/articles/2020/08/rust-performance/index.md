@@ -199,14 +199,14 @@ ojcmp 的两个版本之间出现了高达 2 ～ 3 倍的性能差距，但算�
 
 Rust 生态中有一个命令行工具 [flamegraph](https://github.com/flamegraph-rs/flamegraph)，能够通过 perf 收集数据生成火焰图。
 
-![v0.1.2](fv012.png)
-![v0.2.2](fv022.png)
+![v0.1.2](./fv012.png)
+![v0.2.2](./fv022.png)
 
 差异在于后者出现了深红色的 `next_byte` 调用。
 
 再使用 `perf annotate` 查看指令。
 
-![](pav022.png)
+![](./pav022.png)
 
 发现在高频循环中出现了过多函数调用，因此解法是强制内联 `next_byte`。
 
@@ -305,9 +305,9 @@ fn next_byte(&mut self) -> Option<u8> {
 
 Intel 出了一套性能分析工具 [Intel VTune Profiler](https://software.intel.com/content/www/us/en/develop/tools/vtune-profiler.html)，可以看到微架构的执行情况。
 
-![](vtfix2.png)
+![](./vtfix2.png)
 
-![](vtfix3r.png)
+![](./vtfix3r.png)
 
 Front-End Bandwidth MITE 和 DSB Coverage 有明显差异，说明指令在内存中的布局影响了 CPU 微指令的转换和缓存，产生性能差距。
 
