@@ -81,8 +81,6 @@ interface RehypeShikiOptions {
 }
 
 const rehypeShiki = ({ hl }: RehypeShikiOptions) => {
-    const loadedLanguages = new Set<string>(hl.getLoadedLanguages());
-
     const findLanguage = (node: hast.Element) => {
         const dataLanguage = node.properties?.dataLanguage;
         if (typeof dataLanguage === "string" && dataLanguage !== "") {
@@ -99,32 +97,32 @@ const rehypeShiki = ({ hl }: RehypeShikiOptions) => {
         return null;
     };
 
+    const normalizeLanguage = (lang: string | null) => {
+        // hack: https://github.com/shikijs/shiki/pull/444
+        if (lang === "dockerfile") {
+            return "docker";
+        }
+        return lang ?? "txt";
+    };
+
     return (tree: hast.Root) => {
         visit(tree, "element", (node, _index, parent) => {
             if (node.tagName !== "code") return;
             if (!parent || parent.type === "root" || parent.tagName !== "pre") return;
 
-            const lang = findLanguage(node);
+            const lang = normalizeLanguage(findLanguage(node));
 
-            let code;
-            if (!lang) {
-                code = node;
-            } else {
-                assert(typeof lang === "string" && lang !== "" && loadedLanguages.has(lang));
+            const html = hl.codeToHtml(toString(node), { lang: lang as shiki.Lang });
+            const ast = fromHtml(html, { fragment: true });
 
-                const html = hl.codeToHtml(toString(node), { lang: lang as shiki.Lang });
-                const ast = fromHtml(html, { fragment: true });
+            const pre = ast.children[0] as hast.Element;
+            delete pre.properties?.style; // hack: remove style attribute
 
-                const pre = ast.children[0] as hast.Element;
-                delete pre.properties?.style; // hack: remove style attribute
-
-                code = pre.children[0] as hast.Element;
-
-                Object.assign(parent, pre);
-            }
-
+            const code = pre.children[0] as hast.Element;
             code.properties ??= {};
             code.properties["v-pre"] = ""; // hack: prevent vue from interpreting the code
+
+            Object.assign(parent, pre);
         });
     };
 };
