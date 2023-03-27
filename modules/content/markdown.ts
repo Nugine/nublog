@@ -112,6 +112,10 @@ const rehypeShiki = ({ hl }: RehypeShikiOptions) => {
             const pre = ast.children[0] as hast.Element;
             delete pre.properties?.style; // hack: remove style attribute
 
+            const code = pre.children[0] as hast.Element;
+            code.properties ??= {};
+            code.properties["v-pre"] = ""; // hack: prevent vue from interpreting the code
+
             Object.assign(parent, pre);
         });
     };
@@ -181,9 +185,7 @@ export async function compile(filePath: string, content: string): Promise<Markdo
     const vue = `
         <template>
             <MarkdownPage :meta="meta">
-                <div class="markdown-area" v-pre>
-                    ${String(vfile)}
-                </div>
+                ${String(vfile)}
             </MarkdownPage>
         </template>
         <script setup lang="ts">
