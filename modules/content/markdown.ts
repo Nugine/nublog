@@ -178,9 +178,18 @@ export async function compile(filePath: string, content: string): Promise<Markdo
 
     script_setup_statements.push(`const meta = ${JSON.stringify(meta)};`);
 
-    const html = `<MarkdownPage :meta="meta">${String(vfile)}</MarkdownPage>`;
-    const script_setup = `<script setup lang="ts">${script_setup_statements.join("")}</script>`;
-    const vue = `<template>${html}</template>${script_setup}`;
+    const vue = `
+        <template>
+            <MarkdownPage :meta="meta">
+                <div class="markdown-area" v-pre>
+                    ${String(vfile)}
+                </div>
+            </MarkdownPage>
+        </template>
+        <script setup lang="ts">
+            ${script_setup_statements.join("")}
+        </script>
+    `;
 
     return { filePath, urlPath, meta, vue };
 }

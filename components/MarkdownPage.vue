@@ -1,7 +1,5 @@
 <template>
-    <div class="markdown-area">
-        <slot />
-    </div>
+    <slot />
 </template>
 
 <style>
