@@ -110,6 +110,8 @@ const rehypeShiki = ({ hl }: RehypeShikiOptions) => {
             const ast = fromHtml(html, { fragment: true });
 
             const pre = ast.children[0] as hast.Element;
+            delete pre.properties?.style; // hack: remove style attribute
+
             Object.assign(parent, pre);
         });
     };

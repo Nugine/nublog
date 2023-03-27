@@ -5,14 +5,7 @@
 </template>
 
 <style>
-.markdown-area {
-    width: 100%;
-    max-width: 680px;
-}
-
-.markdown-area h1 {
-    text-align: center;
-}
+@import "~/assets/markdown.css";
 </style>
 
 <script setup lang="ts">
