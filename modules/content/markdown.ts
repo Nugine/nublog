@@ -9,7 +9,7 @@ import yaml from "yaml";
 import assert from "node:assert";
 import { visit, SKIP } from "unist-util-visit";
 import * as mdast from "mdast";
-import type { VFile } from "vfile";
+import { VFile } from "vfile";
 import * as hast from "hast";
 import { useLogger } from "@nuxt/kit";
 import { globby } from "globby";
@@ -20,6 +20,7 @@ import { fromHtml } from "hast-util-from-html";
 import { toString } from "hast-util-to-string";
 import { validateDateString } from "./date";
 import { asyncCached, sortInplace, stripSuffix } from "./utils";
+import path from "node:path";
 
 export interface MarkdownOutput {
     filePath: string;
@@ -124,24 +125,38 @@ const rehypeShiki = ({ hl }: RehypeShikiOptions) => {
 const rehypeExtractImages = () => (tree: hast.Root, file: VFile) => {
     const images = new Map();
     let cnt = 0;
-    visit(tree, (node) => {
-        if (node.type === "element" && node.tagName === "img") {
-            const properties = (node.properties ??= {});
+    visit(tree, "element", (node) => {
+        if (node.tagName !== "img") return;
+        const properties = (node.properties ??= {});
 
-            const src = properties.src;
-            assert(typeof src === "string" && src !== "");
+        const src = properties.src;
+        assert(typeof src === "string" && src !== "");
 
-            if (!src.startsWith("http")) {
-                const importName = `img${++cnt}`;
-                images.set(importName, src);
+        if (!src.startsWith("http")) {
+            const importName = `img${++cnt}`;
+            images.set(importName, src);
 
-                delete properties.src;
-                properties[":src"] = importName;
-            }
+            delete properties.src;
+            properties[":src"] = importName;
         }
     });
 
     file.data.images = images;
+};
+
+const rehypeFixLink = () => (tree: hast.Root, file: VFile) => {
+    visit(tree, "element", (node) => {
+        if (node.tagName !== "a") return;
+
+        const props = (node.properties ??= {});
+
+        const href = props.href;
+        assert(typeof href === "string" && href !== "");
+
+        if (href.endsWith("index.md")) {
+            props.href = toUrlPath(path.resolve(path.dirname(file.path), href));
+        }
+    });
 };
 
 async function buildProcessor() {
@@ -156,6 +171,7 @@ async function buildProcessor() {
         .use(remarkRehype)
         .use(rehypeShiki, { hl })
         .use(rehypeExtractImages) // custom
+        .use(rehypeFixLink) // custom
         .use(rehypeStringify);
 }
 
@@ -165,7 +181,7 @@ export async function compile(filePath: string, content: string): Promise<Markdo
     const urlPath = toUrlPath(filePath);
 
     const processor = await cachedProcessor();
-    const vfile = await processor.process(content);
+    const vfile = await processor.process(new VFile({ path: filePath, value: content }));
 
     const frontmatter = (vfile.data.frontmatter as Record<string, unknown>) ?? {};
     checkDate(frontmatter.postDate);
