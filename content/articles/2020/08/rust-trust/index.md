@@ -1,3 +1,7 @@
+---
+postDate: "2020-08-25"
+---
+
 # Rust Trust 问题
 
 在 Safe Rust 和 Unsafe Rust 的交界处存在着一类隐蔽的地雷，本文称之为 Trust 问题，以下将用一些例子来介绍这类问题。

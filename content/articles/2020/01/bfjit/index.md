@@ -1,3 +1,7 @@
+---
+postDate: "2020-01-15"
+---
+
 # Brainfuck JIT 虚拟机教程
 
 我一直好奇 JIT 是如何工作的，于是查找各种资料写了一个 Brainfuck JIT 虚拟机，还把步骤总结成了教程。

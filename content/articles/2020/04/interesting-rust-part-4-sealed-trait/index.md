@@ -1,3 +1,7 @@
+---
+postDate: "2020-04-15"
+---
+
 # Rust 有趣片段(四)：sealed trait
 
 sealed trait 字面意思为“密封特质”，在 Rust 中表示一类无法被下游代码实现的 trait.

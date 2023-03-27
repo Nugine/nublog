@@ -1,3 +1,7 @@
+---
+postDate: "2020-01-04"
+---
+
 # Unsafe 的隐藏坑点
 
 Unsafe Rust 有一个隐藏的坑点：型变(variance)问题。
