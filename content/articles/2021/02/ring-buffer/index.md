@@ -60,7 +60,7 @@ uint32_t rq_pop(ring_queue *rq) {
 
 ## 原理解析
 
-![](img.svg)
+![](./img.svg)
 
 如图所示，cap = 4，head = 2，tail = 5。
 

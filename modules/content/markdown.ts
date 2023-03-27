@@ -105,19 +105,26 @@ const rehypeShiki = ({ hl }: RehypeShikiOptions) => {
             if (!parent || parent.type === "root" || parent.tagName !== "pre") return;
 
             const lang = findLanguage(node);
-            assert(typeof lang === "string" && lang !== "" && loadedLanguages.has(lang));
 
-            const html = hl.codeToHtml(toString(node), { lang: lang as shiki.Lang });
-            const ast = fromHtml(html, { fragment: true });
+            let code;
+            if (!lang) {
+                code = node;
+            } else {
+                assert(typeof lang === "string" && lang !== "" && loadedLanguages.has(lang));
 
-            const pre = ast.children[0] as hast.Element;
-            delete pre.properties?.style; // hack: remove style attribute
+                const html = hl.codeToHtml(toString(node), { lang: lang as shiki.Lang });
+                const ast = fromHtml(html, { fragment: true });
 
-            const code = pre.children[0] as hast.Element;
+                const pre = ast.children[0] as hast.Element;
+                delete pre.properties?.style; // hack: remove style attribute
+
+                code = pre.children[0] as hast.Element;
+
+                Object.assign(parent, pre);
+            }
+
             code.properties ??= {};
             code.properties["v-pre"] = ""; // hack: prevent vue from interpreting the code
-
-            Object.assign(parent, pre);
         });
     };
 };
