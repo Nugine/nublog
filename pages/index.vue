@@ -1,7 +1,7 @@
 <template>
     <div class="content-list">
         <div v-for="c in articles" :key="c.urlPath" class="article">
-            <div class="article-date">
+            <div class="article-date" v-if="c.meta.postDate">
                 <span>{{ c.meta.postDate }}</span>
             </div>
             <div class="article-title">
