@@ -16,3 +16,6 @@ build: check lint
 
 serve:
     npx serve .output/public
+
+dist:
+    ./scripts/dist.sh
