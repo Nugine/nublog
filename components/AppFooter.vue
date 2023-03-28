@@ -1,6 +1,11 @@
 <template>
     <footer>
         <span>
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank"
+                >CC BY-NC-SA 4.0</a
+            >
+        </span>
+        <span class="space-around">
             © 2019 - {{ new Date().getFullYear() }}
             <a class="space-around" href="https://github.com/Nugine/nublog" target="_blank"
                 >Nugine/nublog</a
@@ -27,12 +32,13 @@
 
 <style scoped>
 footer {
+    margin-bottom: 0.5em;
+    font-size: 0.8em;
+
     display: flex;
     justify-content: center;
     align-items: baseline;
     flex-wrap: wrap;
-    margin-bottom: 0.5em;
-    font-size: 0.8em;
 }
 
 .space-around {
@@ -40,7 +46,7 @@ footer {
 }
 
 .beian {
-    color: rgba(0, 0, 0, 0.65);
+    color: rgba(0, 0, 0, 0.65) !important;
 }
 </style>
 

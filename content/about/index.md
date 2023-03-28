@@ -35,3 +35,8 @@ GitHub: <https://github.com/Nugine>
 #### 本站应用
 
 在线剪贴板: <https://paste.nugine.xyz>
+
+#### 内容协议
+
+本站内容以 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh) 协议发布。
+转载请注明出处。如需商用，请联系我获取单独授权。
