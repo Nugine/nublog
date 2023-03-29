@@ -68,7 +68,10 @@ import { useAppConfig, useHead } from "#imports";
 import { MarkdownData } from "~~/modules/content/markdown";
 
 const config = useAppConfig();
-useHead({ title: config.siteTitle });
+useHead({
+    title: config.siteTitle,
+    meta: [{ name: "baidu-site-verification", content: "codeva-6YbFV08Cdk" }], // 百度网站所有权验证
+});
 
 const articles = await queryContentAll({ urlPrefix: "/articles" });
 articles.sort((lhs, rhs) => reverse(cmp)(lhs.meta.postDate, rhs.meta.postDate));
