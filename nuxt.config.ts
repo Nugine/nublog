@@ -3,4 +3,7 @@ export default defineNuxtConfig({
     vite: {
         clearScreen: false,
     },
+    experimental: {
+        payloadExtraction: false, // Is it useful?
+    },
 });
