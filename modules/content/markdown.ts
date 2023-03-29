@@ -165,6 +165,8 @@ const rehypeFixLink = () => (tree: hast.Root, file: VFile) => {
         if (href.endsWith("index.md")) {
             props.href = toUrlPath(path.resolve(path.dirname(file.path), href));
         }
+
+        node.tagName = "XLink";
     });
 };
 
@@ -218,6 +220,7 @@ export async function compile(filePath: string, content: string): Promise<Markdo
 
     const script_setup_statements = [];
     script_setup_statements.push(`import MarkdownPage from "~/components/MarkdownPage.vue";`);
+    script_setup_statements.push(`import XLink from "~/components/XLink";`);
 
     const images = vfile.data.images as Map<string, string>;
     for (const [importName, src] of images.entries()) {
