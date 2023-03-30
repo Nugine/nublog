@@ -22,6 +22,8 @@ import path from "node:path";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import type { KatexOptions } from "katex";
+import rehypeSlug from "rehype-slug";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
 
 import { validateDateString } from "./date";
 import { asyncCached, sortInplace, stripSuffix } from "./utils";
@@ -154,7 +156,7 @@ const rehypeExtractImages = () => (tree: hast.Root, file: VFile) => {
 };
 
 const rehypeFixLink = () => (tree: hast.Root, file: VFile) => {
-    visit(tree, "element", (node) => {
+    visit(tree, "element", (node, _index, parent) => {
         if (node.tagName !== "a") return;
 
         const props = (node.properties ??= {});
@@ -162,10 +164,18 @@ const rehypeFixLink = () => (tree: hast.Root, file: VFile) => {
         const href = props.href;
         assert(typeof href === "string" && href !== "");
 
+        // 修正内部链接
         if (href.endsWith("index.md")) {
             props.href = toUrlPath(path.resolve(path.dirname(file.path), href));
         }
 
+        // 修正 h1 链接
+        if (parent && parent.type === "element" && parent.tagName === "h1") {
+            delete parent.properties?.id;
+            props.href = file.data.urlPath as string;
+        }
+
+        // 替换为自定义链接组件
         node.tagName = "XLink";
     });
 };
@@ -199,6 +209,8 @@ async function buildProcessor() {
         .use(remarkExtractTitle) // custom
         .use(remarkRehype)
         .use(rehypeShiki, { hl })
+        .use(rehypeSlug)
+        .use(rehypeAutolinkHeadings, { behavior: "wrap", test: ["h1", "h2", "h3", "h4"] })
         .use(rehypeKatexShim) // custom
         .use(rehypeExtractImages) // custom
         .use(rehypeFixLink) // custom
@@ -210,8 +222,9 @@ const cachedProcessor = asyncCached(buildProcessor);
 export async function compile(filePath: string, content: string): Promise<MarkdownOutput> {
     const urlPath = toUrlPath(filePath);
 
+    const input = new VFile({ path: filePath, value: content, data: { urlPath } });
     const processor = await cachedProcessor();
-    const vfile = await processor.process(new VFile({ path: filePath, value: content }));
+    const vfile = await processor.process(input);
 
     const frontmatter = (vfile.data.frontmatter as Record<string, unknown>) ?? {};
     checkDate(frontmatter.postDate);

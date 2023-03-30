@@ -6,6 +6,10 @@
     text-align: center;
 }
 
+.markdown-area h1 > a {
+    text-decoration: none;
+}
+
 .markdown-area pre {
     background-color: #f6f8fa;
     padding: 1em;
