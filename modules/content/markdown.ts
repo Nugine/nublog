@@ -24,6 +24,7 @@ import rehypeKatex from "rehype-katex";
 import type { KatexOptions } from "katex";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import { toc } from "mdast-util-toc";
 
 import { validateDateString } from "./date";
 import { asyncCached, sortInplace, stripSuffix } from "./utils";
@@ -80,6 +81,22 @@ const remarkExtractTitle = () => (tree: mdast.Root, file: VFile) => {
 
     const frontmatter = ((file.data.frontmatter as Record<string, unknown>) ??= {});
     frontmatter.title ??= title;
+};
+
+const remarkToc = () => (tree: mdast.Root) => {
+    const tocResult = toc(tree, { tight: true });
+    visit(tree, "paragraph", (node) => {
+        // 将 "[TOC]" 替换为目录列表
+
+        if (node.children.length !== 1) return;
+        const child = node.children[0];
+
+        if (child.type === "text") {
+            if (child.value === "[TOC]" || child.value === "[toc]") {
+                Object.assign(node, tocResult.map);
+            }
+        }
+    });
 };
 
 interface RehypeShikiOptions {
@@ -171,7 +188,6 @@ const rehypeFixLink = () => (tree: hast.Root, file: VFile) => {
 
         // 修正 h1 链接
         if (parent && parent.type === "element" && parent.tagName === "h1") {
-            delete parent.properties?.id;
             props.href = file.data.urlPath as string;
         }
 
@@ -207,6 +223,7 @@ async function buildProcessor() {
         .use(remarkGfm)
         .use(remarkMath)
         .use(remarkExtractTitle) // custom
+        .use(remarkToc) // custom
         .use(remarkRehype)
         .use(rehypeShiki, { hl })
         .use(rehypeSlug)
