@@ -4,6 +4,7 @@ import * as hast from "hast";
 import { visit } from "unist-util-visit";
 import assert from "node:assert";
 import path from "node:path";
+import { Script } from "./script";
 
 export function toUrlPath(filePath: string): string {
     const path = stripSuffix(filePath, ".md");
@@ -43,4 +44,7 @@ export const rehypeFixLink = () => (tree: hast.Root, file: VFile) => {
         // 替换为自定义链接组件
         node.tagName = "XLink";
     });
+
+    const script = file.data.script as Script;
+    script.addImport("XLink", "~/components/XLink");
 };

@@ -25,9 +25,10 @@ import { toc } from "mdast-util-toc";
 
 import { validateDateString } from "./date";
 import { asyncCached, sortInplace } from "./utils";
-import { rehypeShiki, rehypeGraphviz, rehypeGraphvizEmitStatements } from "./codeblock";
-import { rehypeImage, rehypeImageEmitStatements } from "./image";
+import { rehypeShiki, rehypeGraphviz } from "./codeblock";
+import { rehypeImage } from "./image";
 import { toUrlPath, rehypeFixLink } from "./link";
+import { createScript } from "./script";
 
 export interface MarkdownOutput {
     filePath: string;
@@ -128,8 +129,9 @@ const cachedProcessor = asyncCached(buildProcessor);
 
 export async function compile(filePath: string, content: string): Promise<MarkdownOutput> {
     const urlPath = toUrlPath(filePath);
+    const script = createScript();
 
-    const input = new VFile({ path: filePath, value: content, data: { urlPath } });
+    const input = new VFile({ path: filePath, value: content, data: { urlPath, script } });
     const processor = await cachedProcessor();
     const vfile = await processor.process(input);
 
@@ -138,16 +140,8 @@ export async function compile(filePath: string, content: string): Promise<Markdo
     checkDate(frontmatter.editDate);
     const meta = { ...frontmatter };
 
-    const script = [];
-    script.push(`import MarkdownPage from "~/components/MarkdownPage.vue";`);
-    script.push(`import XLink from "~/components/XLink";`);
-    script.push(`import MarkdownImage from "~/components/markdown/MarkdownImage.vue";`);
-    script.push(`import GraphViz from "~/components/markdown/GraphViz.vue";`);
-
-    script.push(`const meta = ${JSON.stringify(meta)};`);
-
-    script.push(...rehypeImageEmitStatements(vfile));
-    script.push(...rehypeGraphvizEmitStatements(vfile));
+    script.addImport("MarkdownPage", "~/components/MarkdownPage.vue");
+    script.addConstant("meta", meta);
 
     const vue = `
         <template>
@@ -156,7 +150,7 @@ export async function compile(filePath: string, content: string): Promise<Markdo
             </MarkdownPage>
         </template>
         <script setup lang="ts">
-            ${script.join("")}
+            ${script.finalize()}
         </script>
     `;
 

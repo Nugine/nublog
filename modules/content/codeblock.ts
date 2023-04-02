@@ -6,6 +6,7 @@ import { toString } from "hast-util-to-string";
 import { fromHtml } from "hast-util-from-html";
 import type { Engine as GraphvizEngine } from "@hpcc-js/wasm/graphviz";
 import type { VFile } from "vfile";
+import { Script } from "./script";
 
 function findLanguage(node: hast.Element): string | null {
     const dataLanguage = node.properties?.dataLanguage;
@@ -127,14 +128,9 @@ export const rehypeGraphviz = () => (tree: hast.Root, file: VFile) => {
         return SKIP;
     });
 
-    file.data.graphviz = map;
-};
-
-export function rehypeGraphvizEmitStatements(vfile: VFile): string[] {
-    const map = vfile.data.graphviz as Map<string, GraphvizData>;
-    const statements: string[] = [];
+    const script = file.data.script as Script;
+    script.addImport("GraphViz", "~/components/markdown/GraphViz.vue");
     for (const [name, data] of map.entries()) {
-        statements.push(`const ${name} = ${JSON.stringify(data)};`);
+        script.addConstant(name, data);
     }
-    return statements;
-}
+};

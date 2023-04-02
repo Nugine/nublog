@@ -2,6 +2,7 @@ import type { VFile } from "vfile";
 import * as hast from "hast";
 import { visit } from "unist-util-visit";
 import assert from "node:assert";
+import { Script } from "./script";
 
 export const rehypeImage = () => (tree: hast.Root, file: VFile) => {
     const images = new Map<string, string>();
@@ -25,15 +26,9 @@ export const rehypeImage = () => (tree: hast.Root, file: VFile) => {
         node.tagName = "MarkdownImage";
     });
 
-    file.data.images = images;
-};
-
-export function rehypeImageEmitStatements(vfile: VFile): string[] {
-    const images = vfile.data.images as Map<string, string>;
-
-    const statements: string[] = [];
+    const script = file.data.script as Script;
+    script.addImport("MarkdownImage", "~/components/markdown/MarkdownImage.vue");
     for (const [importName, src] of images) {
-        statements.push(`import ${importName} from "${src}";`);
+        script.addImport(importName, src);
     }
-    return statements;
-}
+};
