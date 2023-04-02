@@ -16,8 +16,6 @@ import { globby } from "globby";
 import { readFile, writeFile } from "node:fs/promises";
 import { isEqual } from "lodash";
 import * as shiki from "shiki";
-import { fromHtml } from "hast-util-from-html";
-import { toString } from "hast-util-to-string";
 import path from "node:path";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -28,6 +26,7 @@ import { toc } from "mdast-util-toc";
 
 import { validateDateString } from "./date";
 import { asyncCached, sortInplace, stripSuffix } from "./utils";
+import { rehypeShiki, rehypeGraphviz, rehypeGraphvizEmitStatements } from "./codeblock";
 
 export interface MarkdownOutput {
     filePath: string;
@@ -99,57 +98,6 @@ const remarkToc = () => (tree: mdast.Root) => {
     });
 };
 
-interface RehypeShikiOptions {
-    hl: shiki.Highlighter;
-}
-
-const rehypeShiki = ({ hl }: RehypeShikiOptions) => {
-    const findLanguage = (node: hast.Element) => {
-        const dataLanguage = node.properties?.dataLanguage;
-        if (typeof dataLanguage === "string" && dataLanguage !== "") {
-            return dataLanguage;
-        }
-        const classNames = node.properties?.className ?? [];
-        assert(Array.isArray(classNames));
-        for (const className of classNames) {
-            assert(typeof className === "string");
-            if (className.startsWith("language-")) {
-                return className.slice("language-".length);
-            }
-        }
-        return null;
-    };
-
-    const normalizeLanguage = (lang: string | null) => {
-        // hack: https://github.com/shikijs/shiki/pull/444
-        if (lang === "dockerfile") {
-            return "docker";
-        }
-        return lang ?? "txt";
-    };
-
-    return (tree: hast.Root) => {
-        visit(tree, "element", (node, _index, parent) => {
-            if (node.tagName !== "code") return;
-            if (!parent || parent.type === "root" || parent.tagName !== "pre") return;
-
-            const lang = normalizeLanguage(findLanguage(node));
-
-            const html = hl.codeToHtml(toString(node), { lang: lang as shiki.Lang });
-            const ast = fromHtml(html, { fragment: true });
-
-            const pre = ast.children[0] as hast.Element;
-            delete pre.properties?.style; // hack: remove style attribute
-
-            const code = pre.children[0] as hast.Element;
-            code.properties ??= {};
-            code.properties["v-pre"] = ""; // hack: prevent vue from interpreting the code
-
-            Object.assign(parent, pre);
-        });
-    };
-};
-
 const rehypeExtractImages = () => (tree: hast.Root, file: VFile) => {
     const images = new Map();
     let cnt = 0;
@@ -214,7 +162,7 @@ const rehypeKatexShim = (opts?: KatexOptions) => {
 };
 
 async function buildProcessor() {
-    const hl = await shiki.getHighlighter({ theme: "github-light" });
+    const highlighter = await shiki.getHighlighter({ theme: "github-light" });
 
     return unified()
         .use(remarkParse)
@@ -225,7 +173,8 @@ async function buildProcessor() {
         .use(remarkExtractTitle) // custom
         .use(remarkToc) // custom
         .use(remarkRehype)
-        .use(rehypeShiki, { hl })
+        .use(rehypeGraphviz) // custom
+        .use(rehypeShiki, { highlighter }) // custom
         .use(rehypeSlug)
         .use(rehypeAutolinkHeadings, { behavior: "wrap", test: ["h1", "h2", "h3", "h4"] })
         .use(rehypeKatexShim) // custom
@@ -248,16 +197,18 @@ export async function compile(filePath: string, content: string): Promise<Markdo
     checkDate(frontmatter.editDate);
     const meta = { ...frontmatter };
 
-    const script_setup_statements = [];
-    script_setup_statements.push(`import MarkdownPage from "~/components/MarkdownPage.vue";`);
-    script_setup_statements.push(`import XLink from "~/components/XLink";`);
+    const script = [];
+    script.push(`import MarkdownPage from "~/components/MarkdownPage.vue";`);
+    script.push(`import XLink from "~/components/XLink";`);
+    script.push(`import GraphViz from "~/components/markdown/GraphViz.vue";`);
+    script.push(`const meta = ${JSON.stringify(meta)};`);
 
     const images = vfile.data.images as Map<string, string>;
     for (const [importName, src] of images.entries()) {
-        script_setup_statements.push(`import ${importName} from "${src}";`);
+        script.push(`import ${importName} from "${src}";`);
     }
 
-    script_setup_statements.push(`const meta = ${JSON.stringify(meta)};`);
+    script.push(...rehypeGraphvizEmitStatements(vfile));
 
     const vue = `
         <template>
@@ -266,7 +217,7 @@ export async function compile(filePath: string, content: string): Promise<Markdo
             </MarkdownPage>
         </template>
         <script setup lang="ts">
-            ${script_setup_statements.join("")}
+            ${script.join("")}
         </script>
     `;
 
