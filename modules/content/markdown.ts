@@ -16,7 +16,6 @@ import { globby } from "globby";
 import { readFile, writeFile } from "node:fs/promises";
 import { isEqual } from "lodash";
 import * as shiki from "shiki";
-import path from "node:path";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import type { KatexOptions } from "katex";
@@ -25,9 +24,10 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { toc } from "mdast-util-toc";
 
 import { validateDateString } from "./date";
-import { asyncCached, sortInplace, stripSuffix } from "./utils";
+import { asyncCached, sortInplace } from "./utils";
 import { rehypeShiki, rehypeGraphviz, rehypeGraphvizEmitStatements } from "./codeblock";
 import { rehypeImage, rehypeImageEmitStatements } from "./image";
+import { toUrlPath, rehypeFixLink } from "./link";
 
 export interface MarkdownOutput {
     filePath: string;
@@ -41,20 +41,6 @@ export interface MarkdownOutput {
     };
 
     vue: string;
-}
-
-export function toUrlPath(filePath: string): string {
-    const path = stripSuffix(filePath, ".md");
-    if (path === null) {
-        throw new Error("Not Implemented");
-    }
-
-    if (path == "/index") {
-        return "/";
-    }
-
-    const stripped = stripSuffix(path, "/index");
-    return stripped ?? path;
 }
 
 const remarkExtractTitle = () => (tree: mdast.Root, file: VFile) => {
@@ -96,32 +82,6 @@ const remarkToc = () => (tree: mdast.Root) => {
                 Object.assign(node, tocResult.map);
             }
         }
-    });
-};
-
-const rehypeFixLink = () => (tree: hast.Root, file: VFile) => {
-    visit(tree, "element", (node, _index, parent) => {
-        if (node.tagName !== "a") return;
-
-        const props = (node.properties ??= {});
-
-        const href = props.href;
-        assert(typeof href === "string" && href !== "");
-
-        // 修正内部链接
-        if (href.startsWith("./") || href.startsWith("../")) {
-            if (href.endsWith(".md")) {
-                props.href = toUrlPath(path.resolve(path.dirname(file.path), href));
-            }
-        }
-
-        // 修正 h1 链接
-        if (parent && parent.type === "element" && parent.tagName === "h1") {
-            props.href = file.data.urlPath as string;
-        }
-
-        // 替换为自定义链接组件
-        node.tagName = "XLink";
     });
 };
 
