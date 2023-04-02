@@ -27,6 +27,7 @@ import { toc } from "mdast-util-toc";
 import { validateDateString } from "./date";
 import { asyncCached, sortInplace, stripSuffix } from "./utils";
 import { rehypeShiki, rehypeGraphviz, rehypeGraphvizEmitStatements } from "./codeblock";
+import { rehypeImage, rehypeImageEmitStatements } from "./image";
 
 export interface MarkdownOutput {
     filePath: string;
@@ -98,28 +99,6 @@ const remarkToc = () => (tree: mdast.Root) => {
     });
 };
 
-const rehypeExtractImages = () => (tree: hast.Root, file: VFile) => {
-    const images = new Map();
-    let cnt = 0;
-    visit(tree, "element", (node) => {
-        if (node.tagName !== "img") return;
-        const properties = (node.properties ??= {});
-
-        const src = properties.src;
-        assert(typeof src === "string" && src !== "");
-
-        if (!src.startsWith("http")) {
-            const importName = `img${++cnt}`;
-            images.set(importName, src);
-
-            delete properties.src;
-            properties[":src"] = importName;
-        }
-    });
-
-    file.data.images = images;
-};
-
 const rehypeFixLink = () => (tree: hast.Root, file: VFile) => {
     visit(tree, "element", (node, _index, parent) => {
         if (node.tagName !== "a") return;
@@ -178,7 +157,7 @@ async function buildProcessor() {
         .use(rehypeSlug)
         .use(rehypeAutolinkHeadings, { behavior: "wrap", test: ["h1", "h2", "h3", "h4"] })
         .use(rehypeKatexShim) // custom
-        .use(rehypeExtractImages) // custom
+        .use(rehypeImage) // custom
         .use(rehypeFixLink) // custom
         .use(rehypeStringify);
 }
@@ -200,14 +179,12 @@ export async function compile(filePath: string, content: string): Promise<Markdo
     const script = [];
     script.push(`import MarkdownPage from "~/components/MarkdownPage.vue";`);
     script.push(`import XLink from "~/components/XLink";`);
+    script.push(`import MarkdownImage from "~/components/markdown/MarkdownImage.vue";`);
     script.push(`import GraphViz from "~/components/markdown/GraphViz.vue";`);
+
     script.push(`const meta = ${JSON.stringify(meta)};`);
 
-    const images = vfile.data.images as Map<string, string>;
-    for (const [importName, src] of images.entries()) {
-        script.push(`import ${importName} from "${src}";`);
-    }
-
+    script.push(...rehypeImageEmitStatements(vfile));
     script.push(...rehypeGraphvizEmitStatements(vfile));
 
     const vue = `
