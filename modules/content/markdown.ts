@@ -109,8 +109,10 @@ const rehypeFixLink = () => (tree: hast.Root, file: VFile) => {
         assert(typeof href === "string" && href !== "");
 
         // 修正内部链接
-        if (href.endsWith("index.md")) {
-            props.href = toUrlPath(path.resolve(path.dirname(file.path), href));
+        if (href.startsWith("./") || href.startsWith("../")) {
+            if (href.endsWith(".md")) {
+                props.href = toUrlPath(path.resolve(path.dirname(file.path), href));
+            }
         }
 
         // 修正 h1 链接
