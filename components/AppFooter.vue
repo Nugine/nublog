@@ -32,7 +32,7 @@
 
 <style scoped>
 footer {
-    margin-bottom: 0.5em;
+    margin-bottom: 1em;
     font-size: 0.8em;
 
     display: flex;

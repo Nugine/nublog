@@ -15,7 +15,7 @@ main {
     flex-direction: column;
     align-items: center;
 
-    margin-bottom: 2em;
+    margin-bottom: 1em;
 }
 </style>
 

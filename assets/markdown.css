@@ -1,9 +1,11 @@
 .markdown-area {
     width: 100%;
+    flex-grow: 1;
 }
 
 .markdown-area h1 {
     text-align: center;
+    margin-top: 0;
 }
 
 .markdown-area h1 > a {
