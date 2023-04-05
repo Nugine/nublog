@@ -31,8 +31,20 @@ export const rehypeFixLink = () => (tree: hast.Root, file: VFile) => {
 
         // 修正内部链接
         if (href.startsWith("./") || href.startsWith("../")) {
+            // 相对于 content，以 / 开头
+            const relPath = path.resolve(path.dirname(file.path), href);
+
             if (href.endsWith(".md")) {
-                props.href = toUrlPath(path.resolve(path.dirname(file.path), href));
+                props.href = toUrlPath(relPath);
+            }
+
+            const githubHosted = [".rs", ".cpp", ".js", ".ts", ".py"];
+            const githubContent = "https://github.com/Nugine/nublog/tree/main/content";
+            for (const ext of githubHosted) {
+                if (href.endsWith(ext)) {
+                    props.href = githubContent + relPath;
+                    break;
+                }
             }
         }
 
