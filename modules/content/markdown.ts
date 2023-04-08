@@ -30,17 +30,18 @@ import { rehypeImage } from "./image";
 import { toUrlPath, rehypeFixLink } from "./link";
 import { createScript } from "./script";
 
-export interface MarkdownOutput {
+export interface MarkdownMeta {
     filePath: string;
     urlPath: string;
 
-    meta: {
-        title?: string;
-        postDate?: string;
-        editDate?: string;
-        [key: string]: unknown;
-    };
+    title?: string;
+    postDate?: string;
+    editDate?: string;
+    [key: string]: unknown;
+}
 
+interface MarkdownOutput {
+    meta: MarkdownMeta;
     vue: string;
 }
 
@@ -138,7 +139,7 @@ export async function compile(filePath: string, content: string): Promise<Markdo
     const frontmatter = (vfile.data.frontmatter as Record<string, unknown>) ?? {};
     checkDate(frontmatter.postDate);
     checkDate(frontmatter.editDate);
-    const meta = { ...frontmatter };
+    const meta = { ...frontmatter, filePath, urlPath };
 
     script.addImport("MarkdownPage", "~/components/MarkdownPage.vue");
     script.addConstant("meta", meta);
@@ -154,7 +155,7 @@ export async function compile(filePath: string, content: string): Promise<Markdo
         </script>
     `;
 
-    return { filePath, urlPath, meta, vue };
+    return { meta, vue };
 }
 
 function checkDate(s: unknown) {
@@ -176,10 +177,8 @@ export interface MarkdownRegistry {
 
     getOutputs(): Readonly<Record<string, MarkdownOutput>>;
 
-    getIndexData(): MarkdownData[];
+    getIndexData(): MarkdownMeta[];
 }
-
-export type MarkdownData = Omit<MarkdownOutput, "vue">;
 
 export async function buildRegistry(opts: MarkdownRegistryOptions): Promise<MarkdownRegistry> {
     const consola = useLogger("markdown");
@@ -199,10 +198,10 @@ export async function buildRegistry(opts: MarkdownRegistryOptions): Promise<Mark
         const content = await readFile(fullPath, { encoding: "utf-8" });
         const output = await compile(filePath, content);
 
-        if (urlPaths.has(output.urlPath)) {
-            throw new Error(`URL path conflict: ${output.urlPath}`);
+        if (urlPaths.has(output.meta.urlPath)) {
+            throw new Error(`URL path conflict: ${output.meta.urlPath}`);
         }
-        urlPaths.add(output.urlPath);
+        urlPaths.add(output.meta.urlPath);
 
         outputs[filePath] = output;
     }
@@ -238,10 +237,6 @@ export async function buildRegistry(opts: MarkdownRegistryOptions): Promise<Mark
     };
 }
 
-function gatherIndexData(outputs: Record<string, MarkdownOutput>): MarkdownData[] {
-    return Object.values(outputs).map((output) => ({
-        filePath: output.filePath,
-        urlPath: output.urlPath,
-        meta: output.meta,
-    }));
+function gatherIndexData(outputs: Record<string, MarkdownOutput>): MarkdownMeta[] {
+    return Object.values(outputs).map((output) => output.meta);
 }

@@ -5,11 +5,11 @@
                 <h2>{{ displayMonth(month) }}</h2>
             </div>
             <div v-for="c in group" :key="c.urlPath" class="article">
-                <div class="article-date" v-if="c.meta.postDate">
-                    <span>{{ c.meta.postDate }}</span>
+                <div class="article-date" v-if="c.postDate">
+                    <span>{{ c.postDate }}</span>
                 </div>
                 <div class="article-title">
-                    <NuxtLink :to="c.urlPath">{{ c.meta.title }}</NuxtLink>
+                    <NuxtLink :to="c.urlPath">{{ c.title }}</NuxtLink>
                 </div>
             </div>
         </template>
@@ -65,7 +65,7 @@
 import { queryContentAll } from "~~/composables/queryContent";
 import { cmp, reverse } from "~~/utils/cmp";
 import { useAppConfig, useHead } from "#imports";
-import { MarkdownData } from "~~/modules/content/markdown";
+import { MarkdownMeta } from "~~/modules/content/markdown";
 
 const config = useAppConfig();
 useHead({
@@ -74,12 +74,12 @@ useHead({
 });
 
 const articles = await queryContentAll({ urlPrefix: "/articles" });
-articles.sort((lhs, rhs) => reverse(cmp)(lhs.meta.postDate, rhs.meta.postDate));
+articles.sort((lhs, rhs) => reverse(cmp)(lhs.postDate, rhs.postDate));
 
-const groups = new Map<string, MarkdownData[]>();
+const groups = new Map<string, MarkdownMeta[]>();
 for (const article of articles) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const month = article.meta.postDate!.slice(0, 7);
+    const month = article.postDate!.slice(0, 7);
     if (!groups.has(month)) {
         groups.set(month, []);
     }

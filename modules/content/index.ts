@@ -45,7 +45,7 @@ export default defineNuxtModule({
         extendPages((pages) => {
             const outputs = [...Object.values(registry.getOutputs())];
 
-            const urlPaths = new Set<string>(outputs.map((o) => o.urlPath));
+            const urlPaths = new Set<string>(outputs.map((o) => o.meta.urlPath));
             for (const page of pages) {
                 if (urlPaths.has(page.path)) {
                     throw new Error(`URL path conflict: ${page.path}`);
@@ -54,8 +54,8 @@ export default defineNuxtModule({
 
             for (const output of outputs) {
                 pages.push({
-                    path: output.urlPath,
-                    file: contentDir + output.filePath,
+                    path: output.meta.urlPath,
+                    file: contentDir + output.meta.filePath,
                     children: [],
                 });
             }

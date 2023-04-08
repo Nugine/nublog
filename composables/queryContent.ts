@@ -1,11 +1,11 @@
 import contents from "~/.nuxt/contents.json";
-import { MarkdownData } from "~~/modules/content/markdown";
+import { MarkdownMeta } from "~~/modules/content/markdown";
 
 export interface QueryContentAllOptions {
     urlPrefix?: string;
 }
 
-export async function queryContentAll(q?: QueryContentAllOptions): Promise<MarkdownData[]> {
+export async function queryContentAll(q?: QueryContentAllOptions): Promise<MarkdownMeta[]> {
     const urlPrefix = q?.urlPrefix;
 
     let ans = contents;
