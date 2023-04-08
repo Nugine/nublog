@@ -3,7 +3,12 @@
         <slot />
     </MarkdownArea>
     <div class="bottom-bar">
-        <span v-if="meta.postDate">发布于 {{ meta.postDate }}</span>
+        <span>
+            <span v-if="meta.postDate">发布于 {{ meta.postDate }}</span>
+        </span>
+        <span>
+            <XLink :to="githubUrl" target="_blank">GitHub</XLink>
+        </span>
     </div>
 </template>
 
@@ -13,7 +18,8 @@
 
     width: 100%;
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
+    align-items: baseline;
 
     color: #606060;
     border-bottom: 1px solid #e4e4e4;
@@ -22,14 +28,17 @@
 
 <script setup lang="ts">
 import MarkdownArea from "./markdown/MarkdownArea.vue";
-import { MarkdownData } from "~/modules/content/markdown";
+import { MarkdownMeta } from "~/modules/content/markdown";
 import { useAppConfig, useHead } from "#imports";
 
 const props = defineProps<{
-    meta: MarkdownData["meta"];
+    meta: MarkdownMeta;
 }>();
 
 const config = useAppConfig();
 const pageTitle = `${props.meta.title} | ${config.siteTitle}`;
 useHead({ title: pageTitle });
+
+const githubRoot = "https://github.com/Nugine/nublog/tree/main/content";
+const githubUrl = githubRoot + props.meta.filePath;
 </script>
