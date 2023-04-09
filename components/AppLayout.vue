@@ -4,6 +4,9 @@
         <slot />
     </main>
     <AppFooter />
+    <ClientOnly>
+        <GotoTopBtm />
+    </ClientOnly>
 </template>
 
 <style scoped>
@@ -21,4 +24,6 @@ main {
 
 <script setup lang="ts">
 import "~/assets/global.css";
+
+import GotoTopBtm from "./GotoTopBtm.vue";
 </script>

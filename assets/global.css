@@ -60,4 +60,51 @@ img {
     height: auto;
 }
 
+/* 按钮 --------------------------------- */
+
+.btn {
+    display: inline-block;
+
+    padding: 0.375rem 0.75rem;
+
+    color: #333;
+    background-color: transparent;
+
+    border-width: 1px;
+    border-style: solid;
+    border-color: #ccc;
+    border-radius: 0.25rem;
+
+    text-align: center;
+
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.5;
+
+    box-shadow: none;
+    transition: box-shadow 0.1s linear;
+
+    user-select: none;
+}
+
+.btn:hover,
+.btn:focus,
+.btn:active {
+    border-color: #0099ff;
+}
+
+.btn:hover {
+    cursor: pointer;
+}
+
+.btn:active {
+    box-shadow: 0 0 4px #0099ff;
+}
+
+.btn:disabled {
+    border-color: #ccc;
+    cursor: default;
+    box-shadow: none;
+}
+
 /* ------------------------------------- */

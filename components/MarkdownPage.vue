@@ -31,10 +31,12 @@
 </style>
 
 <script setup lang="ts">
-import MarkdownArea from "~/components/markdown/MarkdownArea.vue";
-import EditDate from "~/components/markdown/EditDate.vue";
-import { MarkdownMeta } from "~/modules/content/markdown";
 import { useAppConfig, useHead } from "#imports";
+
+import { MarkdownMeta } from "~/modules/content/markdown";
+
+import MarkdownArea from "./markdown/MarkdownArea.vue";
+import EditDate from "./markdown/EditDate.vue";
 
 const props = defineProps<{
     meta: MarkdownMeta;
