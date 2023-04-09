@@ -42,7 +42,7 @@ footer {
 }
 
 .space-around {
-    margin: 0 0.5em;
+    margin: 0 0.25em;
 }
 
 .beian {
