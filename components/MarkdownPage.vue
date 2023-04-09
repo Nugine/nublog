@@ -7,7 +7,7 @@
             <EditDate v-if="meta.postDate" :post-date="meta.postDate" :edit-date="meta.editDate" />
         </span>
         <span>
-            <XLink :to="githubUrl" target="_blank">GitHub</XLink>
+            <XLink :href="githubUrl">GitHub</XLink>
         </span>
     </div>
 </template>

@@ -58,5 +58,5 @@ export const rehypeFixLink = () => (tree: hast.Root, file: VFile) => {
     });
 
     const script = file.data.script as Script;
-    script.addImport("XLink", "~/components/XLink");
+    script.addImport("XLink", "~/components/XLink.vue");
 };
