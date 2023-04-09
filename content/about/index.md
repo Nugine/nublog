@@ -1,5 +1,6 @@
 ---
 postDate: "2023-03-14"
+editDate: "2023-04-09"
 ---
 
 # 关于我
@@ -36,7 +37,6 @@ GitHub: <https://github.com/Nugine>
 
 在线剪贴板: <https://paste.nugine.xyz>
 
-#### 内容协议
+#### 授权协议
 
-本站内容以 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh) 协议发布。
-转载请注明出处。如需商用，请联系我获取单独授权。
+如需使用本站源码或内容，请阅读[授权协议](https://github.com/Nugine/nublog#%E6%8E%88%E6%9D%83)。

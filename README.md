@@ -2,7 +2,7 @@
 
 Nugine 的个人博客 <https://nugine.xyz/>
 
-## 授权
+## 授权协议
 
 本站源码以 [AGPL-3.0](./LICENSE) 协议开放。
 

@@ -4,7 +4,7 @@
     </MarkdownArea>
     <div class="bottom-bar">
         <span>
-            <span v-if="meta.postDate">发布于 {{ meta.postDate }}</span>
+            <EditDate v-if="meta.postDate" :post-date="meta.postDate" :edit-date="meta.editDate" />
         </span>
         <span>
             <XLink :to="githubUrl" target="_blank">GitHub</XLink>
@@ -24,10 +24,15 @@
     color: #606060;
     border-bottom: 1px solid #e4e4e4;
 }
+
+.date-switch {
+    cursor: pointer;
+}
 </style>
 
 <script setup lang="ts">
-import MarkdownArea from "./markdown/MarkdownArea.vue";
+import MarkdownArea from "~/components/markdown/MarkdownArea.vue";
+import EditDate from "~/components/markdown/EditDate.vue";
 import { MarkdownMeta } from "~/modules/content/markdown";
 import { useAppConfig, useHead } from "#imports";
 
