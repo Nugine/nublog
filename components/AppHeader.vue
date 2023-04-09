@@ -1,10 +1,10 @@
 <template>
     <header>
-        <HLink href="/" class="site-title">{{ siteTitle }}</HLink>
+        <NuxtLink href="/" class="hlink site-title">{{ siteTitle }}</NuxtLink>
 
         <span style="flex-grow: 1"></span>
 
-        <HLink href="/about">关于</HLink>
+        <NuxtLink href="/about" class="hlink">关于</NuxtLink>
     </header>
 </template>
 
@@ -21,6 +21,15 @@ header {
 
 .site-title {
     font-size: 1.25em;
+}
+
+.hlink {
+    color: inherit;
+    text-decoration: none;
+}
+
+.hlink:hover {
+    color: var(--nublog-light-blue);
 }
 </style>
 
