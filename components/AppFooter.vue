@@ -1,31 +1,15 @@
 <template>
     <footer>
         <span>
-            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank"
-                >CC BY-NC-SA 4.0</a
-            >
+            <XLink href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0</XLink>
         </span>
         <span class="space-around">
             © 2019 - {{ new Date().getFullYear() }}
-            <a class="space-around" href="https://github.com/Nugine/nublog" target="_blank"
-                >Nugine/nublog</a
-            >
+            <XLink class="space-around" href="https://github.com/Nugine/nublog">Nugine/nublog</XLink>
         </span>
         <span>
-            <a
-                class="space-around beian"
-                :href="beian.icp.url"
-                target="_blank"
-                rel="noopener noreferrer"
-                >{{ beian.icp.text }}</a
-            >
-            <a
-                class="space-around beian"
-                :href="beian.gov.url"
-                target="_blank"
-                rel="noopener noreferrer"
-                >{{ beian.gov.text }}</a
-            >
+            <XLink class="space-around beian" :href="beian.icp.url">{{ beian.icp.text }}</XLink>
+            <XLink class="space-around beian" :href="beian.gov.url">{{ beian.gov.text }}</XLink>
         </span>
     </footer>
 </template>
