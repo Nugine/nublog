@@ -1,5 +1,7 @@
 ---
 postDate: "2022-09-08"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/562682689
 ---
 
 # 写 Rust 二叉树题的正确姿势

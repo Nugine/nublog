@@ -1,5 +1,5 @@
 <template>
-    <a :href="href" :alt="alt" :target="target" :rel="rel"><slot /></a>
+    <NuxtLink :href="href" :alt="alt" :target="target" :rel="rel"><slot /></NuxtLink>
 </template>
 
 <script setup lang="ts">

@@ -24,7 +24,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { toc } from "mdast-util-toc";
 
 import { validateDateString } from "./date";
-import { asyncCached, sortInplace } from "./utils";
+import { asyncCached, sortInplace, isValidHttpUrl } from "./utils";
 import { rehypeShiki, rehypeGraphviz } from "./codeblock";
 import { rehypeImage } from "./image";
 import { toUrlPath, rehypeFixLink } from "./link";
@@ -37,6 +37,8 @@ export interface MarkdownMeta {
     title?: string;
     postDate?: string;
     editDate?: string;
+    links?: Record<string, string>;
+
     [key: string]: unknown;
 }
 
@@ -139,6 +141,7 @@ export async function compile(filePath: string, content: string): Promise<Markdo
     const frontmatter = (vfile.data.frontmatter as Record<string, unknown>) ?? {};
     checkDate(frontmatter.postDate);
     checkDate(frontmatter.editDate);
+    checkLinks(frontmatter.links);
     const meta = { ...frontmatter, filePath, urlPath };
 
     script.addImport("MarkdownPage", "~/components/MarkdownPage.vue");
@@ -162,6 +165,16 @@ function checkDate(s: unknown) {
     if (s !== undefined) {
         assert(typeof s === "string");
         validateDateString(s);
+    }
+}
+
+function checkLinks(o: unknown) {
+    if (o === undefined) return;
+    assert(typeof o === "object" && o !== null);
+    for (const [k, v] of Object.entries(o)) {
+        assert(typeof k === "string" && k !== "");
+        assert(typeof v === "string");
+        assert(isValidHttpUrl(v), `Invalid link: ${k}: ${v}`);
     }
 }
 

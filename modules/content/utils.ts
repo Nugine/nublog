@@ -48,3 +48,12 @@ export function asyncCached<T>(f: () => Promise<T>): () => Promise<T> {
         return ans;
     };
 }
+
+export function isValidHttpUrl(s: string): boolean {
+    try {
+        const url = new URL(s);
+        return url.protocol === "http:" || url.protocol === "https:";
+    } catch (_) {
+        return false;
+    }
+}

@@ -21,7 +21,7 @@
     flex-direction: column;
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 960px) {
     .wide-only {
         display: none;
     }

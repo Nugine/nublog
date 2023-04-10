@@ -7,7 +7,12 @@
             <EditDate v-if="meta.postDate" :post-date="meta.postDate" :edit-date="meta.editDate" />
         </span>
         <span>
-            <XLink :href="githubUrl">GitHub</XLink>
+            <span>链接: <XLink :href="githubUrl">GitHub</XLink></span>
+
+            <template v-for="link in links" :key="link.name">
+                <!-- prettier-ignore -->
+                <span>, <XLink :href="link.url">{{ link.name }}</XLink></span>
+            </template>
         </span>
     </div>
 </template>
@@ -27,6 +32,10 @@
 
 .date-switch {
     cursor: pointer;
+}
+
+.space-left {
+    margin-left: 0.25em;
 }
 </style>
 
@@ -48,4 +57,11 @@ useHead({ title: pageTitle });
 
 const githubRoot = "https://github.com/Nugine/nublog/tree/main/content";
 const githubUrl = githubRoot + props.meta.filePath;
+
+const links: Array<{ name: string; url: string }> = [];
+if (props.meta.links !== undefined) {
+    for (const [k, v] of Object.entries(props.meta.links)) {
+        links.push({ name: k, url: v });
+    }
+}
 </script>
