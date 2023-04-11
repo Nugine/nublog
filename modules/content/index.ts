@@ -10,7 +10,7 @@ import {
 import assert from "node:assert";
 import { NuxtOptions } from "nuxt/schema";
 
-import { buildRegistry } from "./markdown";
+import { buildRegistry } from "./registry";
 import VitePluginNuxtContent from "./vite";
 
 const logger = () => useLogger("content");
@@ -25,8 +25,7 @@ export default defineNuxtModule({
         const consola = logger();
 
         const contentDir = await resolvePath("content");
-        const contentsJsonPath = `${nuxt.options.buildDir}/contents.json`;
-        const registry = await buildRegistry({ contentDir, contentsJsonPath });
+        const registry = await buildRegistry({ contentDir, indexPath: `${nuxt.options.buildDir}/contents-index.json` });
 
         extendViteConfig((vite: NuxtOptions["vite"]) => {
             assert(vite.vue);

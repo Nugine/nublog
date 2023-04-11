@@ -11,10 +11,7 @@ import { visit, SKIP } from "unist-util-visit";
 import * as mdast from "mdast";
 import { VFile } from "vfile";
 import * as hast from "hast";
-import { useLogger } from "@nuxt/kit";
-import { globby } from "globby";
-import { readFile, writeFile } from "node:fs/promises";
-import { isEqual } from "lodash";
+
 import * as shiki from "shiki";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -24,7 +21,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { toc } from "mdast-util-toc";
 
 import { validateDateString } from "./date";
-import { asyncCached, sortInplace, isValidHttpUrl } from "./utils";
+import { asyncCached, isValidHttpUrl } from "./utils";
 import { rehypeShiki, rehypeGraphviz } from "./codeblock";
 import { rehypeImage } from "./image";
 import { toUrlPath, rehypeFixLink } from "./link";
@@ -42,7 +39,7 @@ export interface MarkdownMeta {
     [key: string]: unknown;
 }
 
-interface MarkdownOutput {
+export interface MarkdownOutput {
     meta: MarkdownMeta;
     vue: string;
 }
@@ -176,80 +173,4 @@ function checkLinks(o: unknown) {
         assert(typeof v === "string");
         assert(isValidHttpUrl(v), `Invalid link: ${k}: ${v}`);
     }
-}
-
-export interface MarkdownRegistryOptions {
-    contentDir: string;
-    contentsJsonPath: string;
-}
-
-export interface MarkdownRegistry {
-    readonly contentDir: string;
-
-    compile(filePath: string, content: string): Promise<MarkdownOutput>;
-
-    getOutputs(): Readonly<Record<string, MarkdownOutput>>;
-
-    getIndexData(): MarkdownMeta[];
-}
-
-export async function buildRegistry(opts: MarkdownRegistryOptions): Promise<MarkdownRegistry> {
-    const consola = useLogger("markdown");
-    const contentDir = opts.contentDir;
-
-    consola.info("Compiling markdown files ...");
-
-    const filePaths = sortInplace(await globby("**/*.md", { cwd: contentDir })).map((s) => "/" + s);
-
-    const urlPaths = new Set<string>();
-    const outputs: Record<string, MarkdownOutput> = {};
-    for (const filePath of filePaths) {
-        consola.info(`Compiling: ${filePath}`);
-
-        const fullPath = contentDir + filePath;
-
-        const content = await readFile(fullPath, { encoding: "utf-8" });
-        const output = await compile(filePath, content);
-
-        if (urlPaths.has(output.meta.urlPath)) {
-            throw new Error(`URL path conflict: ${output.meta.urlPath}`);
-        }
-        urlPaths.add(output.meta.urlPath);
-
-        outputs[filePath] = output;
-    }
-    const indexData = gatherIndexData(outputs);
-    await writeFile(opts.contentsJsonPath, JSON.stringify(indexData, null, 4));
-    consola.success("Validated markdown files");
-
-    return {
-        contentDir,
-
-        async compile(filePath: string, content: string) {
-            const output = await compile(filePath, content);
-
-            const needsWrite = !isEqual(output.meta, outputs[filePath].meta);
-            outputs[filePath] = output;
-
-            if (needsWrite) {
-                consola.info(`Meta changed: ${filePath}`);
-                const indexData = gatherIndexData(outputs);
-                await writeFile(opts.contentsJsonPath, JSON.stringify(indexData, null, 4));
-            }
-
-            return output;
-        },
-
-        getOutputs() {
-            return outputs;
-        },
-
-        getIndexData() {
-            return gatherIndexData(outputs);
-        },
-    };
-}
-
-function gatherIndexData(outputs: Record<string, MarkdownOutput>): MarkdownMeta[] {
-    return Object.values(outputs).map((output) => output.meta);
 }

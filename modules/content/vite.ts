@@ -1,5 +1,5 @@
 import { PluginOption } from "vite";
-import { MarkdownRegistry } from "./markdown";
+import { MarkdownRegistry } from "./registry";
 import { stripPrefix, stripSuffix } from "./utils";
 
 export interface Options {

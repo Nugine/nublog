@@ -1,4 +1,4 @@
-import contents from "~/.nuxt/contents.json";
+import contents from "~/.nuxt/contents-index.json";
 import { MarkdownMeta } from "~~/modules/content/markdown";
 
 export interface QueryContentAllOptions {
