@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -56,4 +57,8 @@ export function isValidHttpUrl(s: string): boolean {
     } catch (_) {
         return false;
     }
+}
+
+export function sha256sum(s: string): string {
+    return createHash("sha256").update(s).digest("hex");
 }

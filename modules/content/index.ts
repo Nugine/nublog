@@ -25,7 +25,13 @@ export default defineNuxtModule({
         const consola = logger();
 
         const contentDir = await resolvePath("content");
-        const registry = await buildRegistry({ contentDir, indexPath: `${nuxt.options.buildDir}/contents-index.json` });
+        const registry = await buildRegistry({
+            contentDir,
+            indexPath: `${nuxt.options.buildDir}/contents-index.json`,
+            cachePath: `${nuxt.options.buildDir}/contents-cache.json`,
+        });
+
+        await registry.saveCache();
 
         extendViteConfig((vite: NuxtOptions["vite"]) => {
             assert(vite.vue);
@@ -37,7 +43,7 @@ export default defineNuxtModule({
         });
 
         addTemplate({
-            filename: "contents.json",
+            filename: "contents-index.json",
             getContents: () => JSON.stringify(registry.getIndexData(), null, 4),
         });
 
