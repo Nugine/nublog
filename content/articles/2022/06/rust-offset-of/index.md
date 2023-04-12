@@ -84,7 +84,7 @@ field_addr.offset_from(base_addr) as usize
 
 最后计算并返回两个指针之间的字节距离，即字段偏移量。
 
-目前 Rust 的语言特性已经能支持与 C 语言等效的 offset_of，不过需要开启两个不稳定特性 `inline_const` 和 `const_ptr_offset_from`。这两个特性不是必要的，如果要在 stable rust 中使用，可以换成运行期求值的写法，编译器也能优化成常量。[memoffset](docs.rs/memoffset/) 库已经提供了这样的宏。
+目前 Rust 的语言特性已经能支持与 C 语言等效的 offset_of，不过需要开启两个不稳定特性 `inline_const` 和 `const_ptr_offset_from`。这两个特性不是必要的，如果要在 stable rust 中使用，可以换成运行期求值的写法，编译器也能优化成常量。[memoffset](https://docs.rs/memoffset/) 库已经提供了这样的宏。
 
 基于 offset_of 宏，可以实现与 C 语言等效的 container_of 宏，通过字段指针计算出结构体指针：
 
