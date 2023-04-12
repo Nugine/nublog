@@ -10,9 +10,11 @@ just build
 mkdir -p "$FRONTEND"
 cp -r dist/* "$FRONTEND"
 
+ZIP=nublog.dist."$TIME".zip
+
 pushd "$DIST"
-    zip -r nublog.dist."$TIME".zip frontend
+    zip -r "$ZIP" frontend
     rm -rf frontend
 popd
 
-echo "done"
+echo "$ZIP"
