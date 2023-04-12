@@ -1,12 +1,4 @@
-import {
-    addTemplate,
-    defineNuxtModule,
-    extendPages,
-    extendViteConfig,
-    resolvePath,
-    useLogger,
-    useNuxt,
-} from "@nuxt/kit";
+import { defineNuxtModule, extendPages, extendViteConfig, resolvePath, useLogger, useNuxt } from "@nuxt/kit";
 import assert from "node:assert";
 import { NuxtOptions } from "nuxt/schema";
 
@@ -27,11 +19,16 @@ export default defineNuxtModule({
         const contentDir = await resolvePath("content");
         const registry = await buildRegistry({
             contentDir,
-            indexPath: `${nuxt.options.buildDir}/contents-index.json`,
             cachePath: `${nuxt.options.buildDir}/contents-cache.json`,
         });
 
         await registry.saveCache();
+
+        const nitroVirtual = (nuxt.options.nitro.virtual ??= {});
+        nitroVirtual["virtual:nuxt-content-index"] = () => {
+            const value = JSON.stringify(registry.getIndexData());
+            return `export default ${value};`;
+        };
 
         extendViteConfig((vite: NuxtOptions["vite"]) => {
             assert(vite.vue);
@@ -40,11 +37,6 @@ export default defineNuxtModule({
 
             const vitePlugins = (vite.plugins ??= []);
             vitePlugins.push(VitePluginNuxtContent({ registry }));
-        });
-
-        addTemplate({
-            filename: "contents-index.json",
-            getContents: () => JSON.stringify(registry.getIndexData(), null, 4),
         });
 
         extendPages((pages) => {

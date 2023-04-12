@@ -14,9 +14,27 @@ function matchFile(file: string, contentDir: string): string | null {
     return filePath;
 }
 
+const IndexModuleId = "virtual:nuxt-content-index";
+const resolvedIndexModuleId = "\0" + IndexModuleId;
+
+// TODO: 热更新 nuxt-content-index
+
 export default ({ registry }: Options): PluginOption => ({
     name: "vite-plugin-nuxt-content",
     enforce: "pre",
+
+    resolveId(id) {
+        if (id === IndexModuleId) {
+            return resolvedIndexModuleId;
+        }
+    },
+
+    load(id) {
+        if (id === resolvedIndexModuleId) {
+            const value = JSON.stringify(registry.getIndexData());
+            return `export default ${value};`;
+        }
+    },
 
     async transform(content, file) {
         const filePath = matchFile(file, registry.contentDir);

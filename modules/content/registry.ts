@@ -2,14 +2,12 @@ import { useLogger } from "@nuxt/kit";
 import { globby } from "globby";
 import { readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { isEqual } from "lodash";
 
 import { sha256sum, sortInplace } from "./utils";
 import { MarkdownOutput, MarkdownMeta, compile } from "./markdown";
 
 export interface MarkdownRegistryOptions {
     contentDir: string;
-    indexPath: string;
     cachePath: string;
 }
 
@@ -50,8 +48,6 @@ export async function buildRegistry(opts: MarkdownRegistryOptions): Promise<Mark
         outputs[filePath] = output;
     }
 
-    const indexData = gatherIndexData(outputs);
-    await writeFile(opts.indexPath, JSON.stringify(indexData, null, 4));
     consola.success("Validated markdown files");
 
     return {
@@ -59,16 +55,7 @@ export async function buildRegistry(opts: MarkdownRegistryOptions): Promise<Mark
 
         async compile(filePath: string, content: string) {
             const output = await compiler.compile(filePath, content);
-
-            const needsWrite = !isEqual(output.meta, outputs[filePath].meta);
             outputs[filePath] = output;
-
-            if (needsWrite) {
-                consola.info(`Meta changed: ${filePath}`);
-                const indexData = gatherIndexData(outputs);
-                await writeFile(opts.indexPath, JSON.stringify(indexData, null, 4));
-            }
-
             return output;
         },
 
