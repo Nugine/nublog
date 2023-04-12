@@ -139,6 +139,7 @@ export async function compile(filePath: string, content: string): Promise<Markdo
     checkDate(frontmatter.postDate);
     checkDate(frontmatter.editDate);
     checkLinks(frontmatter.links);
+    assert(frontmatter.postDate !== undefined, `Missing postDate in ${filePath}`);
     const meta = { ...frontmatter, filePath, urlPath };
 
     script.addImport("MarkdownPage", "~/components/MarkdownPage.vue");
