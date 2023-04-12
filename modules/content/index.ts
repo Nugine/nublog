@@ -2,7 +2,7 @@ import { defineNuxtModule, extendPages, extendViteConfig, resolvePath, useLogger
 import assert from "node:assert";
 import { NuxtOptions } from "nuxt/schema";
 
-import { buildRegistry } from "./registry";
+import { MarkdownRegistry } from "./registry";
 import VitePluginNuxtContent from "./vite";
 
 const logger = () => useLogger("content");
@@ -17,12 +17,10 @@ export default defineNuxtModule({
         const consola = logger();
 
         const contentDir = await resolvePath("content");
-        const registry = await buildRegistry({
+        const registry = await MarkdownRegistry.load({
             contentDir,
             cachePath: `${nuxt.options.buildDir}/contents-cache.json`,
         });
-
-        await registry.saveCache();
 
         const nitroVirtual = (nuxt.options.nitro.virtual ??= {});
         nitroVirtual["virtual:nuxt-content-index"] = () => {

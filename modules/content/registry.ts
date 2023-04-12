@@ -1,125 +1,82 @@
 import { useLogger } from "@nuxt/kit";
 import { globby } from "globby";
-import { readFile, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 
-import { sha256sum, sortInplace } from "./utils";
+import { sortInplace } from "./utils";
 import { MarkdownOutput, MarkdownMeta, compile } from "./markdown";
+import { MarkdownCache } from "./cache";
+import { toUrlPath } from "./link";
 
 export interface MarkdownRegistryOptions {
     contentDir: string;
     cachePath: string;
 }
 
-export interface MarkdownRegistry {
-    readonly contentDir: string;
+export class MarkdownRegistry {
+    constructor(
+        private readonly contentDir: string, //
+        private readonly outputs: Record<string, MarkdownOutput>
+    ) {}
 
-    compile(filePath: string, content: string): Promise<MarkdownOutput>;
+    public static async load(opt: MarkdownRegistryOptions): Promise<MarkdownRegistry> {
+        const consola = useLogger("content");
+        const contentDir = opt.contentDir;
 
-    getOutputs(): Readonly<Record<string, MarkdownOutput>>;
+        const cache = await MarkdownCache.load(opt.cachePath);
 
-    getIndexData(): MarkdownMeta[];
+        consola.info("Loading markdown files ...");
 
-    saveCache(): Promise<void>;
-}
+        const filePaths = sortInplace(await globby("**/*.md", { cwd: contentDir })).map((s) => "/" + s);
 
-export async function buildRegistry(opts: MarkdownRegistryOptions): Promise<MarkdownRegistry> {
-    const consola = useLogger("content");
-    const contentDir = opts.contentDir;
-
-    consola.info("Compiling markdown files ...");
-    const compiler = await buildCompiler(opts.cachePath);
-    const filePaths = sortInplace(await globby("**/*.md", { cwd: contentDir })).map((s) => "/" + s);
-
-    const urlPaths = new Set<string>();
-    const outputs: Record<string, MarkdownOutput> = {};
-    for (const filePath of filePaths) {
-        consola.info(`Compiling: ${filePath}`);
-
-        const fullPath = contentDir + filePath;
-        const content = await readFile(fullPath, { encoding: "utf-8" });
-        const output = await compiler.compile(filePath, content);
-
-        if (urlPaths.has(output.meta.urlPath)) {
-            throw new Error(`URL path conflict: ${output.meta.urlPath}`);
+        const urlPaths = new Set<string>();
+        for (const filePath of filePaths) {
+            const urlPath = toUrlPath(filePath);
+            if (urlPaths.has(urlPath)) {
+                throw new Error(`URL path conflict: ${urlPath}`);
+            }
+            urlPaths.add(urlPath);
         }
-        urlPaths.add(output.meta.urlPath);
 
-        outputs[filePath] = output;
-    }
+        const outputs: Record<string, MarkdownOutput> = {};
+        for (const filePath of filePaths) {
+            const fullPath = contentDir + filePath;
+            const content = await readFile(fullPath, { encoding: "utf-8" });
 
-    consola.success("Validated markdown files");
-
-    return {
-        contentDir,
-
-        async compile(filePath: string, content: string) {
-            const output = await compiler.compile(filePath, content);
-            outputs[filePath] = output;
-            return output;
-        },
-
-        getOutputs() {
-            return outputs;
-        },
-
-        getIndexData() {
-            return gatherIndexData(outputs);
-        },
-
-        async saveCache() {
-            await compiler.saveCache();
-        },
-    };
-}
-
-function gatherIndexData(outputs: Record<string, MarkdownOutput>): MarkdownMeta[] {
-    return Object.values(outputs).map((output) => output.meta);
-}
-
-interface MarkdownCache {
-    [filePath: string]: { sha256: string; output: MarkdownOutput } | undefined;
-}
-
-async function loadCache(cachePath: string): Promise<MarkdownCache> {
-    if (!existsSync(cachePath)) {
-        return {};
-    }
-    const cacheJson = await readFile(cachePath, { encoding: "utf-8" });
-    return JSON.parse(cacheJson);
-}
-
-async function saveCache(cachePath: string, value: MarkdownCache) {
-    await writeFile(cachePath, JSON.stringify(value));
-}
-
-interface MarkdownCompiler {
-    compile(filePath: string, content: string): Promise<MarkdownOutput>;
-    saveCache(): Promise<void>;
-}
-
-async function buildCompiler(cachePath: string): Promise<MarkdownCompiler> {
-    const cache = await loadCache(cachePath);
-
-    return {
-        async compile(filePath: string, content: string): Promise<MarkdownOutput> {
-            const sha256 = sha256sum(content);
-
-            const cachedItem = cache[filePath];
-            if (cachedItem && sha256 === cachedItem.sha256) {
-                // cache hit
-                return cachedItem.output;
+            const cachedOutput = cache.get(filePath, content);
+            if (cachedOutput) {
+                outputs[filePath] = cachedOutput;
+                continue;
             }
 
-            // cache miss
+            consola.info(`Compiling: ${filePath}`);
+
             const output = await compile(filePath, content);
-            cache[filePath] = { sha256, output };
+            cache.set(filePath, content, output);
+            outputs[filePath] = output;
+        }
 
-            return output;
-        },
+        await cache.save(opt.cachePath);
 
-        async saveCache() {
-            await saveCache(cachePath, cache);
-        },
-    };
+        consola.success("Loaded markdown files");
+
+        return new MarkdownRegistry(contentDir, outputs);
+    }
+
+    public async compile(filePath: string, content: string): Promise<MarkdownOutput> {
+        const output = await compile(filePath, content);
+        this.outputs[filePath] = output;
+        return output;
+    }
+
+    public getIndexData(): MarkdownMeta[] {
+        return Object.values(this.outputs).map((output) => output.meta);
+    }
+
+    public getOutputs(): Record<string, MarkdownOutput> {
+        return this.outputs;
+    }
+
+    public getContentDir(): string {
+        return this.contentDir;
+    }
 }

@@ -37,7 +37,7 @@ export default ({ registry }: Options): PluginOption => ({
     },
 
     async transform(content, file) {
-        const filePath = matchFile(file, registry.contentDir);
+        const filePath = matchFile(file, registry.getContentDir());
         if (!filePath) return;
 
         // https://github.com/nuxt/nuxt/blob/main/packages/nuxt/src/pages/page-meta.ts
