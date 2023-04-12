@@ -6,4 +6,7 @@ export default defineNuxtConfig({
     experimental: {
         payloadExtraction: false, // Is it useful?
     },
+    nitro: {
+        prerender: { routes: ["/sitemap.xml"] },
+    },
 });

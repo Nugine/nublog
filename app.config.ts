@@ -1,5 +1,8 @@
 export default defineAppConfig({
+    baseUrl: "https://nugine.xyz",
+
     siteTitle: "Nugine 的个人博客",
+
     beian: {
         icp: {
             url: "https://beian.miit.gov.cn",
