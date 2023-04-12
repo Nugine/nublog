@@ -142,7 +142,7 @@ export async function compile(filePath: string, content: string): Promise<Markdo
     const meta = { ...frontmatter, filePath, urlPath };
 
     script.addImport("MarkdownPage", "~/components/MarkdownPage.vue");
-    script.addConstant("meta", meta);
+    script.addConstantJson("meta", meta);
 
     const vue = `
         <template>

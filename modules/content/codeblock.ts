@@ -129,8 +129,9 @@ export const rehypeGraphviz = () => (tree: hast.Root, file: VFile) => {
     });
 
     const script = file.data.script as Script;
-    script.addImport("GraphViz", "~/components/markdown/GraphViz.vue");
+    script.addImport("{ defineAsyncComponent }", "vue");
+    script.addConstantExpr("GraphViz", 'defineAsyncComponent(() => import("~/components/markdown/GraphViz.vue"))');
     for (const [name, data] of map.entries()) {
-        script.addConstant(name, data);
+        script.addConstantJson(name, data);
     }
 };

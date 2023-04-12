@@ -8,9 +8,14 @@ export function createScript() {
         addImport(name: string, path: string) {
             imports.push([name, path]);
         },
-        addConstant(name: string, value: unknown) {
-            constants.push([name, JSON.stringify(value)]);
+
+        addConstantExpr(name: string, expr: string) {
+            constants.push([name, expr]);
         },
+        addConstantJson(name: string, value: unknown) {
+            this.addConstantExpr(name, JSON.stringify(value));
+        },
+
         finalize(): string {
             const statements: string[] = [];
             for (const [name, path] of imports) {
