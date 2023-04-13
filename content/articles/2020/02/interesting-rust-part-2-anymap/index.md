@@ -1,5 +1,7 @@
 ---
 postDate: "2020-02-27"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/109463991
 ---
 
 # Rust 有趣片段(二)：anymap

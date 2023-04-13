@@ -1,5 +1,7 @@
 ---
 postDate: "2020-09-29"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/260524290
 ---
 
 # 在 openEuler 上运行 E2E 测试

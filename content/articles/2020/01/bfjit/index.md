@@ -1,5 +1,7 @@
 ---
 postDate: "2020-01-15"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/102805049
 ---
 
 # Brainfuck JIT 虚拟机教程

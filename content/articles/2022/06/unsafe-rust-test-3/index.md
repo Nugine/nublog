@@ -1,5 +1,7 @@
 ---
 postDate: "2022-06-24"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/533259640
 ---
 
 # Unsafe Rust 随堂小测（三）

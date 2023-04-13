@@ -1,5 +1,7 @@
 ---
 postDate: "2021-11-28"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/438595382
 ---
 
 # 关于可移植 SIMD 库的设计

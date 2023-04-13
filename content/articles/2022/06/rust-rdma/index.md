@@ -1,5 +1,7 @@
 ---
 postDate: "2022-06-06"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/524967763
 ---
 
 # 如何在 Rust 中写 RDMA

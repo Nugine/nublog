@@ -1,5 +1,7 @@
 ---
 postDate: "2022-03-10"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/478762939
 ---
 
 # Rust 消除 panic 代码膨胀

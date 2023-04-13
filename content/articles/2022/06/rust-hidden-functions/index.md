@@ -1,5 +1,7 @@
 ---
 postDate: "2022-06-03"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/524003246
 ---
 
 # Rust 中的“隐藏函数”

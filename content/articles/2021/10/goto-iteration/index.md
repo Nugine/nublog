@@ -1,5 +1,7 @@
 ---
 postDate: "2021-10-08"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/419147996
 ---
 
 # 用 goto 把递归函数变换为迭代函数

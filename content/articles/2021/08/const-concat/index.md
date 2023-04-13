@@ -1,5 +1,7 @@
 ---
 postDate: "2021-08-12"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/399173889
 ---
 
 # 用编译期计算来连接字符串

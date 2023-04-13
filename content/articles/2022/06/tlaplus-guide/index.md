@@ -1,5 +1,7 @@
 ---
 postDate: "2022-06-05"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/524637405
 ---
 
 # TLA+ 学习路线

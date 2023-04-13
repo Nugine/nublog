@@ -1,6 +1,8 @@
 ---
 postDate: "2019-02-01"
 postOrder: 5
+links:
+    知乎: https://zhuanlan.zhihu.com/p/66526975
 ---
 
 # 扩展欧几里得递推算法

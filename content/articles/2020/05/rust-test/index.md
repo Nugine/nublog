@@ -1,5 +1,7 @@
 ---
 postDate: "2020-05-04"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/138160458
 ---
 
 # Rust 送命题(误)

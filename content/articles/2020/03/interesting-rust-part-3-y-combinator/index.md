@@ -1,5 +1,7 @@
 ---
 postDate: "2020-03-07"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/111444558
 ---
 
 # Rust 有趣片段(三)：Y 组合子

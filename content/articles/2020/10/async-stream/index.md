@@ -1,5 +1,7 @@
 ---
 postDate: "2020-10-02"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/261101278
 ---
 
 # 一种转换异步流的轻量级方法

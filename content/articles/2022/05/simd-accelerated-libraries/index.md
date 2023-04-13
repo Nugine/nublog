@@ -1,5 +1,8 @@
 ---
 postDate: "2022-05-22"
+editDate: "2023-02-06"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/518119848
 ---
 
 # SIMD 编解码加速库

@@ -1,5 +1,7 @@
 ---
 postDate: "2020-02-24"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/108668434
 ---
 
 # Rust 有趣片段(一)：defer 

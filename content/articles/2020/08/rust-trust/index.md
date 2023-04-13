@@ -1,5 +1,7 @@
 ---
 postDate: "2020-08-25"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/197338343
 ---
 
 # Rust Trust 问题

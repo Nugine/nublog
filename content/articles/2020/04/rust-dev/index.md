@@ -1,5 +1,7 @@
 ---
 postDate: "2020-04-02"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/123115169
 ---
 
 # Rust 开发环境指路

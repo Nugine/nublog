@@ -1,5 +1,7 @@
 ---
 postDate: "2019-11-26"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/93799869
 ---
 
 # Rust 数据结构: 广义表

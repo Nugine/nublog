@@ -1,5 +1,7 @@
 ---
 postDate: "2021-11-07"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/430323823
 ---
 
 # 校验十六进制字符的奇技淫巧

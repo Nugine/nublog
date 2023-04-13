@@ -1,5 +1,7 @@
 ---
 postDate: "2021-05-08"
+links:
+    知乎: https://zhuanlan.zhihu.com/p/370713385
 ---
 
 # Rust 自定义 trait object
