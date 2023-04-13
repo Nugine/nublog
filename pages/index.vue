@@ -62,8 +62,7 @@
 </style>
 
 <script setup lang="ts">
-import { queryContentAll } from "~~/composables/queryContent";
-import { cmp, reverse } from "~~/utils/cmp";
+import { queryContentAll, sortContents } from "~~/composables/queryContent";
 import { useAppConfig, useHead } from "#imports";
 import { MarkdownMeta } from "~~/modules/content/markdown";
 
@@ -74,7 +73,7 @@ useHead({
 });
 
 const articles = await queryContentAll({ urlPrefix: "/articles" });
-articles.sort((lhs, rhs) => reverse(cmp)(lhs.postDate, rhs.postDate));
+sortContents(articles);
 
 const groups = new Map<string, MarkdownMeta[]>();
 for (const article of articles) {

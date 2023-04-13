@@ -6,6 +6,7 @@ import { sortInplace } from "./utils";
 import { MarkdownOutput, MarkdownMeta, compile } from "./markdown";
 import { MarkdownCache } from "./cache";
 import { toUrlPath } from "./link";
+import assert from "node:assert";
 
 export interface MarkdownRegistryOptions {
     contentDir: string;
@@ -28,14 +29,7 @@ export class MarkdownRegistry {
 
         const filePaths = sortInplace(await globby("**/*.md", { cwd: contentDir })).map((s) => "/" + s);
 
-        const urlPaths = new Set<string>();
-        for (const filePath of filePaths) {
-            const urlPath = toUrlPath(filePath);
-            if (urlPaths.has(urlPath)) {
-                throw new Error(`URL path conflict: ${urlPath}`);
-            }
-            urlPaths.add(urlPath);
-        }
+        checkUrlConflict(filePaths);
 
         const outputs: Record<string, MarkdownOutput> = {};
         for (const filePath of filePaths) {
@@ -59,7 +53,10 @@ export class MarkdownRegistry {
 
         consola.success("Loaded markdown files");
 
-        return new MarkdownRegistry(contentDir, outputs);
+        const registry = new MarkdownRegistry(contentDir, outputs);
+        checkPostOrder(registry.getIndexData());
+
+        return registry;
     }
 
     public async compile(filePath: string, content: string): Promise<MarkdownOutput> {
@@ -78,5 +75,40 @@ export class MarkdownRegistry {
 
     public getContentDir(): string {
         return this.contentDir;
+    }
+}
+
+function checkUrlConflict(filePaths: string[]) {
+    const urlPaths = new Set<string>();
+    for (const filePath of filePaths) {
+        const urlPath = toUrlPath(filePath);
+        if (urlPaths.has(urlPath)) {
+            throw new Error(`URL path conflict: ${urlPath}`);
+        }
+        urlPaths.add(urlPath);
+    }
+}
+
+function checkPostOrder(contents: MarkdownMeta[]) {
+    const map = new Map<string, MarkdownMeta[]>();
+
+    for (const content of contents) {
+        assert(content.postDate !== undefined);
+        const list = map.get(content.postDate) ?? [];
+        list.push(content);
+        map.set(content.postDate, list);
+    }
+
+    for (const [date, list] of map.entries()) {
+        if (list.length === 1) continue;
+
+        for (const content of list) {
+            assert(content.postOrder !== undefined, `postOrder is undefined: ${date} ${content.filePath}`);
+        }
+
+        const uniqueOrders = new Set(list.map((c) => c.postOrder));
+        if (uniqueOrders.size !== list.length) {
+            throw new Error(`postOrder conflict: ${date}`);
+        }
     }
 }

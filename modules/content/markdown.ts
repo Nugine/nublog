@@ -35,6 +35,7 @@ export interface MarkdownMeta {
     postDate?: string;
     editDate?: string;
     links?: Record<string, string>;
+    postOrder?: number;
 
     [key: string]: unknown;
 }
@@ -135,12 +136,7 @@ export async function compile(filePath: string, content: string): Promise<Markdo
     const processor = await cachedProcessor();
     const vfile = await processor.process(input);
 
-    const frontmatter = (vfile.data.frontmatter as Record<string, unknown>) ?? {};
-    checkDate(frontmatter.postDate);
-    checkDate(frontmatter.editDate);
-    checkLinks(frontmatter.links);
-    assert(frontmatter.postDate !== undefined, `Missing postDate in ${filePath}`);
-    const meta = { ...frontmatter, filePath, urlPath };
+    const meta = extractMeta(vfile);
 
     script.addImport("MarkdownPage", "~/components/MarkdownPage.vue");
     script.addConstantJson("meta", meta);
@@ -159,6 +155,23 @@ export async function compile(filePath: string, content: string): Promise<Markdo
     return { meta, vue };
 }
 
+function extractMeta(vfile: VFile): MarkdownMeta {
+    const filePath = vfile.path;
+    const urlPath = vfile.data.urlPath as string;
+
+    const frontmatter = (vfile.data.frontmatter as Record<string, unknown>) ?? {};
+
+    assert(frontmatter.postDate !== undefined, `Missing postDate in ${filePath}`);
+    checkDate(frontmatter.postDate);
+    checkDate(frontmatter.editDate);
+
+    checkLinks(frontmatter.links);
+
+    checkPostOrder(frontmatter.postOrder);
+
+    return { ...frontmatter, filePath, urlPath };
+}
+
 function checkDate(s: unknown) {
     if (s !== undefined) {
         assert(typeof s === "string");
@@ -173,5 +186,13 @@ function checkLinks(o: unknown) {
         assert(typeof k === "string" && k !== "");
         assert(typeof v === "string");
         assert(isValidHttpUrl(v), `Invalid link: ${k}: ${v}`);
+    }
+}
+
+function checkPostOrder(x: unknown) {
+    if (x !== undefined) {
+        assert(typeof x === "number");
+        assert(Number.isInteger(x));
+        assert(x > 0);
     }
 }
