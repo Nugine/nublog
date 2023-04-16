@@ -17,8 +17,9 @@ build:
 serve:
     npx serve .output/public
 
-dist: check lint
+dist:
     ./scripts/dist.sh
 
 clear-cache:
     rm -rf .cache
+    rm -rf node_modules/.vite
