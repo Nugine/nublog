@@ -19,3 +19,6 @@ serve:
 
 dist: check lint
     ./scripts/dist.sh
+
+clear-cache:
+    rm -rf .cache

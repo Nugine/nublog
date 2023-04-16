@@ -10,7 +10,7 @@ import assert from "node:assert";
 
 export interface MarkdownRegistryOptions {
     contentDir: string;
-    cachePath: string;
+    cache: MarkdownCache;
 }
 
 export class MarkdownRegistry {
@@ -21,9 +21,9 @@ export class MarkdownRegistry {
 
     public static async load(opt: MarkdownRegistryOptions): Promise<MarkdownRegistry> {
         const consola = useLogger("content");
-        const contentDir = opt.contentDir;
 
-        const cache = await MarkdownCache.load(opt.cachePath);
+        const contentDir = opt.contentDir;
+        const cache = opt.cache;
 
         consola.info("Loading markdown files ...");
 
@@ -36,7 +36,7 @@ export class MarkdownRegistry {
             const fullPath = contentDir + filePath;
             const content = await readFile(fullPath, { encoding: "utf-8" });
 
-            const cachedOutput = cache.get(filePath, content);
+            const cachedOutput = await cache.get(filePath, content);
             if (cachedOutput) {
                 outputs[filePath] = cachedOutput;
                 continue;
@@ -45,11 +45,9 @@ export class MarkdownRegistry {
             consola.info(`Compiling: ${filePath}`);
 
             const output = await compile(filePath, content);
-            cache.set(filePath, content, output);
+            await cache.set(filePath, content, output);
             outputs[filePath] = output;
         }
-
-        await cache.save(opt.cachePath);
 
         consola.success("Loaded markdown files");
 

@@ -4,8 +4,7 @@ import { NuxtOptions } from "nuxt/schema";
 
 import { MarkdownRegistry } from "./registry";
 import VitePluginNuxtContent from "./vite";
-
-const logger = () => useLogger("content");
+import { MarkdownCache } from "./cache";
 
 export default defineNuxtModule({
     meta: {
@@ -14,19 +13,20 @@ export default defineNuxtModule({
 
     async setup() {
         const nuxt = useNuxt();
-        const consola = logger();
+        const consola = useLogger("content");
 
         const contentDir = await resolvePath("content");
-        const registry = await MarkdownRegistry.load({
-            contentDir,
-            cachePath: `${nuxt.options.buildDir}/contents-cache.json`,
-        });
 
-        const nitroVirtual = (nuxt.options.nitro.virtual ??= {});
-        nitroVirtual["virtual:nuxt-content-index"] = () => {
-            const value = JSON.stringify(registry.getIndexData());
-            return `export default ${value};`;
-        };
+        const cacheDir = await resolvePath(".cache/content");
+        const cache = new MarkdownCache(cacheDir);
+
+        const registry = await MarkdownRegistry.load({ contentDir, cache });
+
+        nuxt.hook("nitro:config", (nitro) => {
+            const jsDataModule = (value: unknown) => `export default ${JSON.stringify(value)};`;
+            nitro.virtual ??= {};
+            nitro.virtual["virtual:nuxt-content-index"] = jsDataModule(registry.getIndexData());
+        });
 
         extendViteConfig((vite: NuxtOptions["vite"]) => {
             assert(vite.vue);

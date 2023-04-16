@@ -5,6 +5,7 @@ TIME=$(date -u +"%Y%m%d%H%M%S")
 DIST="$PWD"/build
 FRONTEND="$DIST"/frontend
 
+just clear-cache
 just build
 
 mkdir -p "$FRONTEND"
