@@ -7,7 +7,7 @@
             <EditDate v-if="meta.postDate" :post-date="meta.postDate" :edit-date="meta.editDate" />
         </span>
         <span>
-            <span>链接: <XLink :href="githubUrl">GitHub</XLink></span>
+            <span>地址: <XLink :href="githubUrl">GitHub</XLink></span>
 
             <template v-for="link in links" :key="link.name">
                 <!-- prettier-ignore -->
