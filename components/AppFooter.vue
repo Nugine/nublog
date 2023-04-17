@@ -1,7 +1,7 @@
 <template>
     <footer>
         <span>
-            <XLink href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0</XLink>
+            <XLink href="https://github.com/Nugine/nublog/blob/main/content/LICENSE">CC BY-NC-SA 4.0</XLink>
         </span>
         <span class="space-around">
             © 2019 - {{ new Date().getFullYear() }}
