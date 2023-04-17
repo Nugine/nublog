@@ -1,6 +1,6 @@
 ---
 postDate: "2023-03-14"
-editDate: "2023-04-09"
+editDate: "2023-04-17"
 ---
 
 # 关于我
@@ -27,15 +27,16 @@ ID: Nugine (**nu**clear en**gine**)
 
 #### 链接
 
-GitHub: <https://github.com/Nugine>
-
-知乎: <https://www.zhihu.com/people/Nugine>
-
-邮箱: [nugine@foxmail.com](mailto:nugine@foxmail.com)
++ GitHub: <https://github.com/Nugine>
++ 知乎: <https://www.zhihu.com/people/Nugine>
++ 邮箱: [nugine@foxmail.com](mailto:nugine@foxmail.com)
 
 #### 本站应用
 
-在线剪贴板: <https://paste.nugine.xyz>
++ RSS 订阅源: <https://nugine.xyz/atom.xml>
++ 在线剪贴板: <https://paste.nugine.xyz>
+
+欢迎前往[本站代码仓库](https://github.com/Nugine/nublog)提出建议、参与讨论或提交 PR。
 
 #### 授权协议
 
