@@ -23,3 +23,7 @@ pushd "$DIST"
 popd
 
 echo "$ZIP"
+
+if [ -f "./scripts/deploy.sh" ]; then
+    ./scripts/deploy.sh "$ZIP"
+fi

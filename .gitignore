@@ -11,3 +11,4 @@ dist
 /.vscode
 /build
 /.cache
+/scripts/deploy.sh
