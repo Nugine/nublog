@@ -62,7 +62,7 @@
 </style>
 
 <script setup lang="ts">
-import { queryContentAll, sortContents } from "~~/composables/queryContent";
+import { queryContentAll } from "~~/composables/queryContent";
 import { useAppConfig, useHead } from "#imports";
 import { MarkdownMeta } from "~~/modules/content/markdown";
 
@@ -73,7 +73,6 @@ useHead({
 });
 
 const articles = await queryContentAll({ urlPrefix: "/articles" });
-sortContents(articles);
 
 const groups = new Map<string, MarkdownMeta[]>();
 for (const article of articles) {

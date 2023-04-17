@@ -14,10 +14,12 @@ export async function queryContentAll(q?: QueryContentAllOptions): Promise<Markd
         ans = ans.filter((c) => c.urlPath.startsWith(urlPrefix));
     }
 
+    sortContents(ans); // 默认排序
+
     return ans;
 }
 
-// default: descending by [postDate, postOrder]
+// 默认排序： 时间降序，关键字 (postDate, postOrder)
 export function sortContents(contents: MarkdownMeta[]) {
     const compare = (lhs: MarkdownMeta, rhs: MarkdownMeta) => {
         if (!(lhs.postDate !== undefined && rhs.postDate !== undefined)) {
