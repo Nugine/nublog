@@ -1,4 +1,6 @@
-import { PluginOption } from "vite";
+import type { PluginOption } from "vite";
+import assert from "node:assert";
+
 import { MarkdownRegistry } from "./registry";
 import { stripPrefix, stripSuffix } from "./utils";
 
@@ -14,17 +16,15 @@ function matchFile(file: string, contentDir: string): string | null {
     return filePath;
 }
 
-const IndexModuleId = "virtual:nuxt-content-index";
-const resolvedIndexModuleId = "\0" + IndexModuleId;
-
-// TODO: 热更新 nuxt-content-index
+const indexModuleId = "virtual:nuxt-content-index";
+const resolvedIndexModuleId = "\0" + indexModuleId;
 
 export default ({ registry }: Options): PluginOption => ({
     name: "vite-plugin-nuxt-content",
     enforce: "pre",
 
     resolveId(id) {
-        if (id === IndexModuleId) {
+        if (id === indexModuleId) {
             return resolvedIndexModuleId;
         }
     },
@@ -47,5 +47,15 @@ export default ({ registry }: Options): PluginOption => ({
 
         const output = await registry.compile(filePath, content);
         return { code: output.vue, map: null };
+    },
+
+    async handleHotUpdate(ctx) {
+        if (!ctx.file.endsWith(".md")) return;
+
+        // TODO: 仅当 meta 变化时才热更新
+
+        const mod = await ctx.server.moduleGraph.getModuleByUrl(resolvedIndexModuleId);
+        assert(mod !== undefined);
+        await ctx.server.reloadModule(mod);
     },
 });
