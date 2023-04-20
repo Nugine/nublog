@@ -1,0 +1,23 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule: # https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#onschedule
+    - cron: '0 0 * * 0' # at midnight of each sunday
+
+name: CI
+
+jobs:
+  develop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - uses: taiki-e/install-action@just
+      - run: npm ci
+      - run: just dist
