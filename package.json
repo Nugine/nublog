@@ -6,7 +6,7 @@
         "postinstall": "nuxt prepare"
     },
     "devDependencies": {
-        "@hpcc-js/wasm": "^2.10.0",
+        "@hpcc-js/wasm": "^2.11.0",
         "@icon-park/vue-next": "^1.4.2",
         "@rushstack/eslint-patch": "^1.2.0",
         "@types/katex": "^0.16.0",
