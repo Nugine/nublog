@@ -12,7 +12,6 @@ import * as mdast from "mdast";
 import { VFile } from "vfile";
 import * as hast from "hast";
 
-import * as shiki from "shiki";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import type { KatexOptions } from "katex";
@@ -105,6 +104,7 @@ const rehypeKatexShim = (opts?: KatexOptions) => {
 };
 
 async function buildProcessor() {
+    const shiki = await import("shiki");
     const highlighter = await shiki.getHighlighter({ theme: "github-light" });
 
     return unified()

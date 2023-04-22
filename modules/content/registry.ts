@@ -14,52 +14,53 @@ export interface MarkdownRegistryOptions {
 }
 
 export class MarkdownRegistry {
+    private readonly outputs: Record<string, MarkdownOutput>;
+
     constructor(
         private readonly contentDir: string, //
-        private readonly outputs: Record<string, MarkdownOutput>
-    ) {}
+        private readonly cache: MarkdownCache
+    ) {
+        this.outputs = {};
+    }
 
     public static async load(opt: MarkdownRegistryOptions): Promise<MarkdownRegistry> {
         const consola = useLogger("content");
 
-        const contentDir = opt.contentDir;
-        const cache = opt.cache;
+        const registry = new MarkdownRegistry(opt.contentDir, opt.cache);
 
         consola.info("Loading markdown files ...");
 
-        const filePaths = sortInplace(await globby("**/*.md", { cwd: contentDir })).map((s) => "/" + s);
+        const filePaths = sortInplace(await globby("**/*.md", { cwd: opt.contentDir })).map((s) => "/" + s);
 
         checkUrlConflict(filePaths);
 
-        const outputs: Record<string, MarkdownOutput> = {};
         for (const filePath of filePaths) {
-            const fullPath = contentDir + filePath;
+            const fullPath = opt.contentDir + filePath;
             const content = await readFile(fullPath, { encoding: "utf-8" });
 
-            const cachedOutput = await cache.get(filePath, content);
-            if (cachedOutput) {
-                outputs[filePath] = cachedOutput;
-                continue;
-            }
-
-            consola.info(`Compiling: ${filePath}`);
-
-            const output = await compile(filePath, content);
-            await cache.set(filePath, content, output);
-            outputs[filePath] = output;
+            // 从 cache 中恢复 outputs，或重新编译
+            const output = await registry.compile(filePath, content);
+            registry.outputs[filePath] = output;
         }
 
         consola.success("Loaded markdown files");
 
-        const registry = new MarkdownRegistry(contentDir, outputs);
         checkPostOrder(registry.getIndexData());
 
         return registry;
     }
 
     public async compile(filePath: string, content: string): Promise<MarkdownOutput> {
+        const cachedOutput = await this.cache.get(filePath, content);
+        if (cachedOutput) return cachedOutput;
+
+        const consola = useLogger("content");
+        consola.info(`Compiling: ${filePath}`);
+
         const output = await compile(filePath, content);
+        await this.cache.set(filePath, content, output);
         this.outputs[filePath] = output;
+
         return output;
     }
 
