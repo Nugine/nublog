@@ -8,7 +8,7 @@ Nugine 的个人博客 <https://nugine.xyz/>
 
 本站[内容](./content/)以 [CC BY-NC-SA 4.0](./content/LICENSE) 协议开放。
 
-本站部分内容将重新发布于知乎专栏《[Rust 日常](https://www.zhihu.com/column/c_1115180704186613760)》，您可以按照[知乎协议](https://www.zhihu.com/term/zhihu-terms)使用专栏内容。
+本站部分内容交叉发布于[知乎](https://www.zhihu.com/)账号 [Nugine](https://www.zhihu.com/people/Nugine) 名下，您可以按照[知乎协议](https://www.zhihu.com/term/zhihu-terms)使用知乎内容。
 
 如需商用，请联系本仓库所有者获取单独授权。
 
