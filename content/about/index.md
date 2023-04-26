@@ -1,6 +1,6 @@
 ---
 postDate: "2023-03-14"
-editDate: "2023-04-17"
+editDate: "2023-04-26"
 ---
 
 # 关于我
@@ -40,4 +40,4 @@ ID: Nugine (**nu**clear en**gine**)
 
 #### 授权协议
 
-如需使用本站源码或内容，请阅读[授权协议](https://github.com/Nugine/nublog#%E6%8E%88%E6%9D%83)。
+如需使用本站源码或内容，请阅读[授权协议](https://github.com/Nugine/nublog#%E6%8E%88%E6%9D%83%E5%8D%8F%E8%AE%AE)。
