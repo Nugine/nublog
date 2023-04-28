@@ -1,5 +1,6 @@
 ---
 postDate: "2023-04-25"
+editDate: "2023-04-28"
 links:
     知乎: https://www.zhihu.com/question/597274781/answer/3000680442
 ---
@@ -162,3 +163,16 @@ case 3: 0
 ```
 
 不过这个 SIMD 算法可能没有性能优势，因为平均下来每次旋转和向量比较都只产生了 4 次有效比较。如果考虑到 CPU 指令级并行，就算比 36 次比较的标量算法慢也不奇怪。
+
+---
+
+更新：
+
+使用 Rust Criterion 基准测试框架测量的结果如下，AVX2 版本的速度大约是标量版本的 1.44 倍。
+
+```
+distinct9/naive         time:   [5.6510 ns 5.6686 ns 5.6866 ns]
+distinct9/avx2          time:   [3.8917 ns 3.9341 ns 3.9897 ns]
+```
+
+关键代码链接：<https://play.rust-lang.org/?version=stable&mode=release&edition=2021&gist=48a2630aec6fb35519a1c8be307fbcda>

@@ -1,0 +1,2 @@
+bench:
+    RUSTFLAGS='-Ctarget-cpu=native' cargo +nightly criterion

@@ -1,0 +1,21 @@
+[package]
+name = "rs"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dev-dependencies]
+criterion = { version = "0.4.0", features = ["real_blackbox"] }
+
+[lib]
+path = "lib.rs"
+
+[[bench]]
+name = "distinct9"
+harness = false
+path ="bench.rs"
+
+[profile.bench]
+opt-level = 3
+lto = true
+codegen-units = 1
