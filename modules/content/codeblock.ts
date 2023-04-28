@@ -4,9 +4,7 @@ import { visit, SKIP } from "unist-util-visit";
 import assert from "node:assert";
 import { toString } from "hast-util-to-string";
 import { fromHtml } from "hast-util-from-html";
-import type { Engine as GraphvizEngine } from "@hpcc-js/wasm/graphviz";
-import type { VFile } from "vfile";
-import { Script } from "./script";
+import type { Graphviz, Engine as GraphvizEngine } from "@hpcc-js/wasm/graphviz";
 
 function findLanguage(node: hast.Element): string | null {
     const dataLanguage = node.properties?.dataLanguage;
@@ -63,12 +61,11 @@ export const rehypeShiki = (opts: RehypeShikiOptions) => (tree: hast.Root) => {
     });
 };
 
-interface GraphvizData {
-    dot: string;
-    engine: string;
+export interface RehypeGraphvizOptions {
+    graphviz: Graphviz;
 }
 
-export const rehypeGraphviz = () => (tree: hast.Root, file: VFile) => {
+export const rehypeGraphviz = (opt: RehypeGraphvizOptions) => (tree: hast.Root) => {
     const parseMeta = (meta: string | null): GraphvizEngine | null => {
         if (meta === null) {
             return null;
@@ -94,9 +91,6 @@ export const rehypeGraphviz = () => (tree: hast.Root, file: VFile) => {
         }
     };
 
-    let cnt = 0;
-    const map = new Map<string, GraphvizData>();
-
     visit(tree, "element", (node, _index, parent) => {
         if (node.tagName !== "code") return;
         if (!parent || parent.type === "root" || parent.tagName !== "pre") return;
@@ -110,28 +104,20 @@ export const rehypeGraphviz = () => (tree: hast.Root, file: VFile) => {
 
         const engine = parseMeta(meta) ?? "dot";
         const dot = toString(node);
+        const svg = opt.graphviz.layout(dot, "svg", engine);
 
-        const dataName = `graphviz${++cnt}`;
-        map.set(dataName, { dot, engine });
+        const svgRoot = fromHtml(svg, { fragment: true });
 
         const vue: hast.Element = {
             type: "element",
-            tagName: "GraphViz",
+            tagName: "div",
             properties: {
-                ":dot": `${dataName}.dot`,
-                ":engine": `${dataName}.engine`,
+                class: `graphviz-svg`,
             },
-            children: [],
+            children: svgRoot.children as hast.Element[],
         };
 
         Object.assign(parent, vue);
         return SKIP;
     });
-
-    const script = file.data.script as Script;
-    script.addImport("{ defineAsyncComponent }", "vue");
-    script.addConstantExpr("GraphViz", 'defineAsyncComponent(() => import("~/components/markdown/GraphViz.vue"))');
-    for (const [name, data] of map.entries()) {
-        script.addConstantJson(name, data);
-    }
 };

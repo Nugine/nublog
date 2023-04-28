@@ -22,3 +22,7 @@
     background-color: #eff1f3;
     padding: 0.2em 0.4em;
 }
+
+.markdown-area .graphviz-svg {
+    text-align: center;
+}

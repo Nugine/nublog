@@ -25,6 +25,7 @@ import { rehypeShiki, rehypeGraphviz } from "./codeblock";
 import { rehypeImage } from "./image";
 import { toUrlPath, rehypeFixLink } from "./link";
 import { createScript } from "./script";
+import { Graphviz } from "@hpcc-js/wasm/graphviz";
 
 export interface MarkdownMeta {
     filePath: string;
@@ -106,6 +107,7 @@ const rehypeKatexShim = (opts?: KatexOptions) => {
 async function buildProcessor() {
     const shiki = await import("shiki");
     const highlighter = await shiki.getHighlighter({ theme: "github-light" });
+    const graphviz = await Graphviz.load();
 
     return unified()
         .use(remarkParse)
@@ -116,7 +118,7 @@ async function buildProcessor() {
         .use(remarkExtractTitle) // custom
         .use(remarkToc) // custom
         .use(remarkRehype)
-        .use(rehypeGraphviz) // custom
+        .use(rehypeGraphviz, { graphviz }) // custom
         .use(rehypeShiki, { highlighter }) // custom
         .use(rehypeSlug)
         .use(rehypeAutolinkHeadings, { behavior: "wrap", test: ["h1", "h2", "h3", "h4"] })
