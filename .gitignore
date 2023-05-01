@@ -12,3 +12,4 @@ dist
 /build
 /.cache
 /scripts/deploy.sh
+/draft
