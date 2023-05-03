@@ -15,11 +15,17 @@ build:
     npx nuxt generate
 
 serve:
+    #!/bin/bash -ex
+    cd {{justfile_directory()}}
     npx serve .output/public
 
 dist:
+    #!/bin/bash -ex
+    cd {{justfile_directory()}}
     ./scripts/dist.sh
 
 clear-cache:
+    #!/bin/bash -ex
+    cd {{justfile_directory()}}
     rm -rf .cache
     rm -rf node_modules/.vite
