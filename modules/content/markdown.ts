@@ -104,6 +104,18 @@ const rehypeKatexShim = (opts?: KatexOptions) => {
     };
 };
 
+const rehypeFixFootnote = () => (tree: hast.Root) => {
+    visit(tree, "element", (node) => {
+        // https://github.com/remarkjs/remark-rehype#optionsfootnotelabelproperties
+        if (node.properties?.id === "footnote-label") {
+            node.properties.id = "footnote";
+        }
+        if (node.properties?.href === "#footnote-label") {
+            node.properties.href = "#footnote";
+        }
+    });
+};
+
 async function buildProcessor() {
     const shiki = await import("shiki");
     const highlighter = await shiki.getHighlighter({ theme: "github-light" });
@@ -117,7 +129,11 @@ async function buildProcessor() {
         .use(remarkMath)
         .use(remarkExtractTitle) // custom
         .use(remarkToc) // custom
-        .use(remarkRehype)
+        .use(remarkRehype, {
+            footnoteLabel: "参考",
+            footnoteBackLabel: "返回",
+            clobberPrefix: "auto-",
+        })
         .use(rehypeGraphviz, { graphviz }) // custom
         .use(rehypeShiki, { highlighter }) // custom
         .use(rehypeSlug)
@@ -125,6 +141,7 @@ async function buildProcessor() {
         .use(rehypeKatexShim) // custom
         .use(rehypeImage) // custom
         .use(rehypeFixLink) // custom
+        .use(rehypeFixFootnote) // custom
         .use(rehypeStringify);
 }
 
