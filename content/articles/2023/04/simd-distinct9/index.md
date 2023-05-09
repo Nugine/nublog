@@ -7,7 +7,7 @@ links:
 
 # SIMD 计算 9 个变量互不相等
 
-知乎问题：[c语言怎么“简单”表示9个变量互不相等?](https://www.zhihu.com/question/597274781)
+知乎回答：[c语言怎么“简单”表示9个变量互不相等?](https://www.zhihu.com/question/597274781/answer/3000680442)
 
 ---
 

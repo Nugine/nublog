@@ -6,7 +6,7 @@ links:
 
 # Mojo 编程语言
 
-知乎问题：[如何看待 Modular 提出的 mojo 语言？](https://www.zhihu.com/question/598832787)
+知乎回答：[如何看待 Modular 提出的 mojo 语言？](https://www.zhihu.com/question/598832787/answer/3013077756)
 
 ---
 
