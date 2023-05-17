@@ -23,7 +23,7 @@
         "hast-util-to-string": "^2.0.0",
         "lodash": "^4.17.21",
         "mdast-util-toc": "^6.1.1",
-        "nuxt": "^3.4.3",
+        "nuxt": "^3.5.0",
         "prettier": "^2.8.7",
         "rehype-autolink-headings": "^6.1.1",
         "rehype-katex": "^6.0.2",
