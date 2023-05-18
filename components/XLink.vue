@@ -3,10 +3,9 @@
 </template>
 
 <script setup lang="ts">
-import type { NuxtLinkProps } from "#app";
 import { computed } from "vue";
 
-interface XLinkProps extends NuxtLinkProps {
+interface XLinkProps {
     href: string;
     alt?: string;
     target?: string;
