@@ -11,6 +11,8 @@ lint:
     npx eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts
 
 build:
+    #!/bin/bash -ex
+    export NODE_OPTIONS="--max-old-space-size=4096"
     npx nuxt typecheck
     npx nuxt generate
 
