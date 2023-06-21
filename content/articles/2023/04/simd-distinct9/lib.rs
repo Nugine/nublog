@@ -53,3 +53,32 @@ pub unsafe fn distinct9_avx2(arr: &[i32; 9]) -> bool {
 
     f1 != 0 && f2 != 0
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test() {
+        for a1 in 0..10 {
+            for a2 in 0..10 {
+                for a3 in 0..10 {
+                    for a4 in 0..10 {
+                        for a5 in 0..10 {
+                            for a6 in 0..10 {
+                                for a7 in 0..10 {
+                                    for a8 in 0..10 {
+                                        for a9 in 0..10 {
+                                            let arr = [a1, a2, a3, a4, a5, a6, a7, a8, a9];
+                                            let ans1 = super::distinct9_naive(&arr);
+                                            let ans2 = unsafe { super::distinct9_avx2(&arr) };
+                                            assert_eq!(ans1, ans2);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
