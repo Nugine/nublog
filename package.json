@@ -39,6 +39,7 @@
         "sitemap": "^7.1.1",
         "unified": "^10.1.2",
         "unist-util-visit": "^4.1.2",
+        "vue-tsc": "^1.8.3",
         "yaml": "^2.3.1"
     }
 }
