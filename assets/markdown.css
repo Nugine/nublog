@@ -26,3 +26,11 @@
 .markdown-area .graphviz-svg {
     text-align: center;
 }
+
+.markdown-area blockquote {
+    color: #656d76;
+    padding: 0 1em;
+    border-left: 0.25em solid #d0d7de;
+    margin-left: 0;
+    margin-right: 0;
+}
