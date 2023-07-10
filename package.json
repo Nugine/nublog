@@ -22,7 +22,7 @@
         "hast-util-from-html": "^1.0.1",
         "hast-util-to-string": "^2.0.0",
         "lodash": "^4.17.21",
-        "mdast-util-toc": "^6.1.1",
+        "mdast-util-toc": "^7.0.0",
         "nuxt": "^3.6.1",
         "prettier": "^2.8.7",
         "rehype-autolink-headings": "^6.1.1",
