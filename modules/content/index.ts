@@ -28,7 +28,8 @@ export default defineNuxtModule({
             nitro.virtual["virtual:nuxt-content-index"] = jsDataModule(registry.getIndexData());
         });
 
-        extendViteConfig((vite: NuxtOptions["vite"]) => {
+        extendViteConfig((viteConfig) => {
+            const vite = viteConfig as NuxtOptions["vite"];
             assert(vite.vue);
             assert(vite.vue.include === undefined);
             vite.vue.include = [/.vue$/, /.md$/];
