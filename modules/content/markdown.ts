@@ -14,7 +14,6 @@ import * as hast from "hast";
 
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
-import type { KatexOptions } from "katex";
 import rehypeSlug from "rehype-slug";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { toc } from "mdast-util-toc";
@@ -87,11 +86,8 @@ const remarkToc = () => (tree: mdast.Root) => {
     });
 };
 
-const rehypeKatexShim = (opts?: KatexOptions) => {
-    const transform = rehypeKatex(opts) as (tree: hast.Root, vfile: VFile) => void;
-    return (tree: hast.Root, vfile: VFile) => {
-        transform(tree, vfile);
-
+const rehypeFixKatex = () => {
+    return (tree: hast.Root) => {
         visit(tree, "element", (node) => {
             const className = node.properties?.className ?? [];
             assert(Array.isArray(className));
@@ -138,7 +134,8 @@ async function buildProcessor() {
         .use(rehypeShiki, { highlighter }) // custom
         .use(rehypeSlug)
         .use(rehypeAutolinkHeadings, { behavior: "wrap", test: ["h1", "h2", "h3", "h4"] })
-        .use(rehypeKatexShim) // custom
+        .use(rehypeKatex) // custom
+        .use(rehypeFixKatex) // custom
         .use(rehypeImage) // custom
         .use(rehypeFixLink) // custom
         .use(rehypeFixFootnote) // custom
