@@ -31,7 +31,11 @@ function normalizeLanguage(lang: string | null): string {
 }
 
 function getMeta(node: hast.Element): string | null {
-    const meta = node.data?.meta;
+    if (node.data === undefined) {
+        return null;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const meta: unknown = (node.data as any).meta; // FIXME
     assert(typeof meta === "string" || meta === undefined);
     return meta ?? null;
 }
