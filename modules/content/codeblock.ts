@@ -6,6 +6,12 @@ import { toString } from "hast-util-to-string";
 import { fromHtml } from "hast-util-from-html";
 import type { Graphviz, Engine as GraphvizEngine } from "@hpcc-js/wasm/graphviz";
 
+declare module "hast" {
+    interface ElementData {
+        meta?: unknown;
+    }
+}
+
 function findLanguage(node: hast.Element): string | null {
     const dataLanguage = node.properties?.dataLanguage;
     if (typeof dataLanguage === "string" && dataLanguage !== "") {
@@ -31,11 +37,7 @@ function normalizeLanguage(lang: string | null): string {
 }
 
 function getMeta(node: hast.Element): string | null {
-    if (node.data === undefined) {
-        return null;
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const meta: unknown = (node.data as any).meta; // FIXME
+    const meta: unknown = node.data?.meta;
     assert(typeof meta === "string" || meta === undefined);
     return meta ?? null;
 }
