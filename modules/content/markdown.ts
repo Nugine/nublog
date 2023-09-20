@@ -91,7 +91,7 @@ const rehypeFixKatex = () => {
         visit(tree, "element", (node) => {
             const className = node.properties?.className ?? [];
             assert(Array.isArray(className));
-            if (className.includes("math")) {
+            if (node.tagName === "math" || className.includes("math") || className.includes("katex")) {
                 node.properties ??= {};
                 node.properties["v-pre"] = "";
                 return SKIP;
@@ -130,12 +130,12 @@ async function buildProcessor() {
             footnoteBackLabel: "返回",
             clobberPrefix: "auto-",
         })
+        .use(rehypeKatex) // custom
+        .use(rehypeFixKatex) // custom
         .use(rehypeGraphviz, { graphviz }) // custom
         .use(rehypeShiki, { highlighter }) // custom
         .use(rehypeSlug)
         .use(rehypeAutolinkHeadings, { behavior: "wrap", test: ["h1", "h2", "h3", "h4"] })
-        .use(rehypeKatex) // custom
-        .use(rehypeFixKatex) // custom
         .use(rehypeImage) // custom
         .use(rehypeFixLink) // custom
         .use(rehypeFixFootnote) // custom
