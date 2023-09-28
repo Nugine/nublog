@@ -20,7 +20,7 @@ Nugine 的个人博客 <https://nugine.xyz/>
 
 环境
 
-+ Node.js 18
++ Node.js 20
 
 工具
 
