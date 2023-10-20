@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import { queryContentAll } from "~~/composables/queryContent";
 import { useAppConfig, useHead } from "#imports";
-import { MarkdownMeta } from "~~/modules/content/markdown";
+import type { MarkdownMeta } from "~~/modules/content/markdown";
 
 const config = useAppConfig();
 useHead({

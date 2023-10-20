@@ -4,7 +4,7 @@ import * as hast from "hast";
 import { visit } from "unist-util-visit";
 import assert from "node:assert";
 import path from "node:path";
-import { Script } from "./script";
+import type { Script } from "./script";
 
 export function toUrlPath(filePath: string): string {
     const path = stripSuffix(filePath, ".md");

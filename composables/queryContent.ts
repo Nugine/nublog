@@ -1,5 +1,5 @@
 import contents from "virtual:nuxt-content-index";
-import { MarkdownMeta } from "~~/modules/content/markdown";
+import type { MarkdownMeta } from "~~/modules/content/markdown";
 
 export interface QueryContentAllOptions {
     urlPrefix?: string;

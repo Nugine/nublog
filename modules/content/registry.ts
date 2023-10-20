@@ -3,7 +3,7 @@ import { globby } from "globby";
 import { readFile } from "node:fs/promises";
 
 import { sortInplace } from "./utils";
-import { MarkdownOutput, MarkdownMeta, compile } from "./markdown";
+import { type MarkdownOutput, type MarkdownMeta, compile } from "./markdown";
 import { MarkdownCache } from "./cache";
 import { toUrlPath } from "./link";
 import assert from "node:assert";

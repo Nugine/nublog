@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import { useAppConfig, useHead } from "#imports";
 
-import { MarkdownMeta } from "~/modules/content/markdown";
+import type { MarkdownMeta } from "~/modules/content/markdown";
 
 import MarkdownArea from "./markdown/MarkdownArea.vue";
 import EditDate from "./markdown/EditDate.vue";

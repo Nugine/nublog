@@ -2,7 +2,7 @@ import type { VFile } from "vfile";
 import * as hast from "hast";
 import { visit } from "unist-util-visit";
 import assert from "node:assert";
-import { Script } from "./script";
+import type { Script } from "./script";
 
 export const rehypeImage = () => (tree: hast.Root, file: VFile) => {
     const images = new Map<string, string>();

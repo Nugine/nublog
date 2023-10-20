@@ -1,6 +1,6 @@
 import { defineNuxtModule, extendPages, extendViteConfig, resolvePath, useLogger, useNuxt } from "@nuxt/kit";
 import assert from "node:assert";
-import { NuxtOptions } from "nuxt/schema";
+import type { NuxtOptions } from "nuxt/schema";
 
 import { MarkdownRegistry } from "./registry";
 import VitePluginNuxtContent from "./vite";

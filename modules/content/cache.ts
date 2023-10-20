@@ -1,8 +1,8 @@
-import { createStorage, Storage } from "unstorage";
+import { createStorage, type Storage } from "unstorage";
 import assert from "node:assert";
 import fsDriver from "unstorage/drivers/fs";
 
-import { MarkdownOutput } from "./markdown";
+import type { MarkdownOutput } from "./markdown";
 import { sha256sum } from "./utils";
 
 interface MarkdownCacheItem {
