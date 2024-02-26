@@ -38,7 +38,7 @@
         "remark-math": "^6.0.0",
         "remark-parse": "^11.0.0",
         "remark-rehype": "^11.0.0",
-        "shiki": "^0.14.4",
+        "shiki": "^1.1.7",
         "sitemap": "^7.1.1",
         "unified": "^11.0.3",
         "unist-util-visit": "^5.0.0",

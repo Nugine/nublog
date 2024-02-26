@@ -52,7 +52,7 @@ export const rehypeShiki = (opts: RehypeShikiOptions) => (tree: hast.Root) => {
         if (!parent || parent.type === "root" || parent.tagName !== "pre") return;
         const lang = normalizeLanguage(findLanguage(node));
 
-        const html = opts.highlighter.codeToHtml(toString(node), { lang: lang as shiki.Lang });
+        const html = opts.highlighter.codeToHtml(toString(node), { lang, theme: "github-light" });
         const root = fromHtml(html, { fragment: true });
 
         const pre = root.children[0] as hast.Element;
