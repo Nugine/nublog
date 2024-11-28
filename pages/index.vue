@@ -76,7 +76,6 @@ const articles = await queryContentAll({ urlPrefix: "/articles" });
 
 const groups = new Map<string, MarkdownMeta[]>();
 for (const article of articles) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const month = article.postDate!.slice(0, 7);
     if (!groups.has(month)) {
         groups.set(month, []);

@@ -1,5 +1,0 @@
-.eslintrc.cjs
-/dist
-/.nuxt
-/.output
-node_modules
