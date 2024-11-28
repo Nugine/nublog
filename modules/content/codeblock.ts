@@ -4,11 +4,11 @@ import { visit, SKIP } from "unist-util-visit";
 import assert from "node:assert";
 import { toString } from "hast-util-to-string";
 import { fromHtml } from "hast-util-from-html";
-import type { Graphviz, Engine as GraphvizEngine } from "@hpcc-js/wasm/graphviz";
+import type { Graphviz, Engine as GraphvizEngine } from "@hpcc-js/wasm-graphviz";
 
 declare module "hast" {
     interface ElementData {
-        meta?: unknown;
+        meta?: string | null | undefined;
     }
 }
 
@@ -37,7 +37,7 @@ function normalizeLanguage(lang: string | null): string {
 }
 
 function getMeta(node: hast.Element): string | null {
-    const meta: unknown = node.data?.meta;
+    const meta = node.data?.meta;
     assert(typeof meta === "string" || meta === undefined);
     return meta ?? null;
 }

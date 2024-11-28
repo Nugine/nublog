@@ -24,7 +24,7 @@ import { rehypeShiki, rehypeGraphviz } from "./codeblock";
 import { rehypeImage } from "./image";
 import { toUrlPath, rehypeFixLink } from "./link";
 import { createScript } from "./script";
-import { Graphviz } from "@hpcc-js/wasm/graphviz";
+import { Graphviz } from "@hpcc-js/wasm-graphviz";
 
 export interface MarkdownMeta {
     filePath: string;
