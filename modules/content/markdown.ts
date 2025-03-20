@@ -114,7 +114,7 @@ const rehypeFixFootnote = () => (tree: hast.Root) => {
 
 async function buildProcessor() {
     const shiki = await import("shiki");
-    const highlighter = await shiki.getHighlighter({
+    const highlighter = await shiki.getSingletonHighlighter({
         themes: ["github-light"],
         langs: [
             "rust",

@@ -1,6 +1,7 @@
 import { defineNuxtModule, extendPages, extendViteConfig, resolvePath, useLogger, useNuxt } from "@nuxt/kit";
 import assert from "node:assert";
 import type { NuxtOptions } from "nuxt/schema";
+import * as pathe from "pathe";
 
 import { MarkdownRegistry } from "./registry";
 import VitePluginNuxtContent from "./vite";
@@ -16,9 +17,11 @@ export default defineNuxtModule({
         const consola = useLogger("content");
 
         const contentDir = await resolvePath("content");
+        consola.info(`Content dir: ${contentDir}`);
 
-        const cacheDir = await resolvePath(".cache/content");
+        const cacheDir = pathe.join(contentDir, "../.cache/content");
         const cache = new MarkdownCache(cacheDir);
+        consola.info(`Cache dir: ${cacheDir}`);
 
         const registry = await MarkdownRegistry.load({ contentDir, cache });
 
