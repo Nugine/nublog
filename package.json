@@ -14,13 +14,13 @@
         "@types/lodash": "^4.17.16",
         "@types/mdast": "^4.0.4",
         "@types/node": "^22.15.3",
-        "@typescript-eslint/eslint-plugin": "^8.31.1",
+        "@typescript-eslint/eslint-plugin": "^8.33.0",
         "@typescript-eslint/parser": "^8.31.1",
         "@vue/eslint-config-prettier": "^10.2.0",
         "@vue/eslint-config-typescript": "^14.5.0",
-        "eslint": "^9.25.1",
+        "eslint": "^9.28.0",
         "eslint-plugin-vue": "^10.1.0",
-        "feed": "^4.2.2",
+        "feed": "^5.1.0",
         "globby": "^14.1.0",
         "hast-util-from-html": "^2.0.3",
         "hast-util-to-string": "^3.0.1",
@@ -38,12 +38,12 @@
         "remark-math": "^6.0.0",
         "remark-parse": "^11.0.0",
         "remark-rehype": "^11.1.1",
-        "shiki": "^3.3.0",
+        "shiki": "^3.4.2",
         "sitemap": "^8.0.0",
         "typescript": "5.8.2",
         "unified": "^11.0.5",
         "unist-util-visit": "^5.0.0",
         "vue-tsc": "^2.2.8",
-        "yaml": "^2.7.0"
+        "yaml": "^2.8.0"
     }
 }
