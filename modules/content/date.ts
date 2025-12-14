@@ -4,14 +4,18 @@ export function validateDateString(date: string) {
         throw new Error("Invalid date string");
     }
 
-    const [year, month, day] = date.split("-").map(Number);
-    if (year < 2000) {
+    const parts = date.split("-").map(Number);
+    const year = parts[0];
+    const month = parts[1];
+    const day = parts[2];
+
+    if (year === undefined || year < 2000) {
         throw new Error("Unsupported year");
     }
-    if (month < 1 || month > 12) {
+    if (month === undefined || month < 1 || month > 12) {
         throw new Error("Invalid month");
     }
-    if (day < 1 || day > getDaysInMonth(year, month)) {
+    if (day === undefined || day < 1 || day > getDaysInMonth(year, month)) {
         throw new Error("Invalid day");
     }
 }
@@ -25,5 +29,5 @@ function getDaysInMonth(year: number, month: number): number {
         return 29;
     }
     const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    return days[month - 1];
+    return days[month - 1]!;
 }
