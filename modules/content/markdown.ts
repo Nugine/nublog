@@ -62,6 +62,7 @@ const remarkExtractTitle = () => (tree: mdast.Root, file: VFile) => {
     assert(first.children.length === 1, "Expected a single child in h1");
 
     const firstChild = first.children[0];
+    assert(firstChild !== undefined, "Expected a child node");
     assert(firstChild.type === "text", "Expected a text node");
 
     const title = firstChild.value;
@@ -78,7 +79,7 @@ const remarkToc = () => (tree: mdast.Root) => {
         if (node.children.length !== 1) return;
         const child = node.children[0];
 
-        if (child.type === "text") {
+        if (child !== undefined && child.type === "text") {
             if (child.value === "[TOC]" || child.value === "[toc]") {
                 Object.assign(node, tocResult.map);
             }
