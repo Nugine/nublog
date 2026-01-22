@@ -24,7 +24,7 @@
         "globby": "^16.1.0",
         "hast-util-from-html": "^2.0.3",
         "hast-util-to-string": "^3.0.1",
-        "lodash": "^4.17.21",
+        "lodash": "^4.17.23",
         "mdast-util-toc": "^7.1.0",
         "nuxt": "^4.2.1",
         "prettier": "^3.7.1",
