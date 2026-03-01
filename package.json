@@ -7,6 +7,7 @@
         "postinstall": "nuxt prepare"
     },
     "devDependencies": {
+        "@eslint/js": "^10.0.1",
         "@hpcc-js/wasm-graphviz": "^1.21.0",
         "@icon-park/vue-next": "^1.4.2",
         "@rushstack/eslint-patch": "^1.16.1",
